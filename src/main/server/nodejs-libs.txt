@@ -1,0 +1,9 @@
+; -*- mode: org; tab-width: 4; -*-
+* request
+  Simplified HTTP request method
+  : > npm install request
+* csv-stream
+  CSV Stream Parser
+  : > npm install csv-stream
+* numeric
+  : > npm install numeric
