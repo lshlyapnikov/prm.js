@@ -9,7 +9,7 @@ var utils = require("../../main/server/utils");
 var assert = require("assert");
 
 describe("utils", function() {
-    describe("#convertArrayElemens()", function() {
+    describe("#convertArrayElements()", function() {
 
         it("should convert array of object to array of numbers", function() {
             // GIVEN
