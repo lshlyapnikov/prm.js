@@ -8,7 +8,9 @@
 var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
 var assert = require("assert");
 
-describe("yahooFinanceApi", function() {
+// turned it off to avoid spaming yahoo finance
+// should be turned into some kind of integration test
+describe.skip("yahooFinanceApi", function() {
     describe("#loadStockHistoryAsString() [3 days]", function() {
         it("should load expected CSV string", function(done) {
             var expectedCsv = "Date,Open,High,Low,Close,Volume,Adj Close\n" +

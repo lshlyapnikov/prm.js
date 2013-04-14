@@ -114,6 +114,24 @@ function covariance(matrix, isPopulation) {
     return result;
 }
 
+function calculateReturnsFromPrices(prices) {
+    if (prices === undefined || 0 === prices.length) {
+        throw {
+            name: "TypeError",
+            message: "Array prices is either undefined or empty"
+        };
+    }
+
+    var result = new Array(prices.length - 1);
+    var i;
+    for (i = 0; i < (prices.length - 1); i++) {
+        result[i] = prices[i+1] / prices[i] - 1;
+    }
+
+    return result;
+}
+
 exports.mean = mean;
 exports.variance = variance;
 exports.covariance = covariance;
+exports.calculateReturnsFromPrices = calculateReturnsFromPrices;
