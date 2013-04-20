@@ -62,4 +62,37 @@ describe("utils", function() {
             }
         });
     });
+    describe("#generateRandomWeightsMatrix", function() {
+        it("should throw up when invalid arguments passed", function() {
+            // GIVEN
+            // Valid arguments: rowNum > 0 and colNum > 1
+            var invalidArguments = [
+                [undefined, undefined],
+                [0, 10],
+                [-1, 10],
+                [10, 0],
+                [10, -1],
+                [10, 1]
+            ];
+
+            function test(rowNum, colNum) {
+                var actualException;
+                // WHEN
+                try {
+                    utils.generateRandomWeightsMatrix(rowNum, colNum);
+                } catch (e) {
+                    actualException = e;
+                }
+                // THEN
+                var debugMsg = "rowNum: " + rowNum + ", colNum: " + colNum;
+                assert.notEqual(undefined, actualException, debugMsg);
+                assert.equal("InvalidArgument", actualException.name, debugMsg);
+            }
+
+            var i;
+            for (i = 0; i < invalidArguments.length; i++) {
+                test(invalidArguments[i][0], invalidArguments[i][1]);
+            }
+        });
+    });
 });

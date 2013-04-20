@@ -55,18 +55,27 @@ function updateArrayElements(arr, convertOneElement) {
     }
 }
 
+/**
+ * Generates random weights matrix. Sum of all elements in the row equals 1.
+ * Valid arguments: rowNum > 0 and colNum > 1
+ *
+ * @param {Integer} rowNum   Number of rows, number of random weight sets, must be > 0.
+ * @param {Integer} colNum   Number of columns, number of stock weights per set, must be > 1.
+ * @throws {name: "InvalidArgument", message: "description"}   when invalid argument passed.
+ * @return {Matrix}          rowNum x colNum matrix, where one row is one random set of weights.
+ */
 function generateRandomWeightsMatrix(rowNum, colNum) {
     if (rowNum === undefined || rowNum <= 0) {
         throw {
             name: "InvalidArgument",
-            message: "Invalid argument rowNum: " + rowNum
+            message: "Invalid argument rowNum: " + rowNum + ", must be > 0"
         };
     }
 
-    if (colNum === undefined || colNum <= 0) {
+    if (colNum === undefined || colNum <= 1) {
         throw {
             name: "InvalidArgument",
-            message: "Invalid argument colNum: " + colNum
+            message: "Invalid argument colNum: " + colNum + ", must be > 1"
         };
     }
 
