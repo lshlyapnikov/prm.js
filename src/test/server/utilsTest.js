@@ -68,6 +68,8 @@ describe("utils", function() {
             // Valid arguments: rowNum > 0 and colNum > 1
             var invalidArguments = [
                 [undefined, undefined],
+                [undefined, 10],
+                [10, undefined],
                 [0, 10],
                 [-1, 10],
                 [10, 0],
