@@ -92,7 +92,7 @@ function generateRandomWeightsMatrix(rowNum, colNum) {
             vector[j] = Math.random();
             sum += vector[j];
         }
-        // normailze all numbers, so vector sum equals 1
+        // normalize all numbers, so vector sum equals 1
         for (j = 0; j < colNum; j++) {
             vector[j] /= sum;
         }
