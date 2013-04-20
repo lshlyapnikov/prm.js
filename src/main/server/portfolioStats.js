@@ -13,7 +13,7 @@ var numeric = require("numeric");
 function mean(arr) {
     if (arr === undefined || 0 === arr.length) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "Array arr is either undefined or empty"
         };
     }
@@ -52,7 +52,7 @@ function variance(arr, isPopulation) {
 function covariance(matrix, isPopulation) {
     if (matrix === undefined || 0 === matrix.length) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "matrix is either undefined or empty"
         };
     }
@@ -62,7 +62,7 @@ function covariance(matrix, isPopulation) {
 
     if (undefined === rowNum || undefined === colNum) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix"
         };
     }
@@ -117,7 +117,7 @@ function covariance(matrix, isPopulation) {
 function calculateReturnsFromPrices(prices) {
     if (prices === undefined || 0 === prices.length) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "Array prices argument is either undefined or empty"
         };
     }

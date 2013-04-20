@@ -11,14 +11,14 @@
 function convertArrayElements(arr, convertOneElement) {
     if (arr === undefined || 0 === arr.length) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "Array arr is either undefined or empty"
         };
     }
 
     if (typeof convertOneElement != "function") {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "convertOneElement argument should be a function with one argument"
         };
     }
@@ -37,14 +37,14 @@ function convertArrayElements(arr, convertOneElement) {
 function updateArrayElements(arr, convertOneElement) {
     if (arr === undefined || 0 === arr.length) {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "Array arr is either undefined or empty"
         };
     }
 
     if (typeof convertOneElement != "function") {
         throw {
-            name: "TypeError",
+            name: "InvalidArgument",
             message: "convertOneElement argument should be a function with one argument"
         };
     }
@@ -56,6 +56,20 @@ function updateArrayElements(arr, convertOneElement) {
 }
 
 function generateRandomWeightsMatrix(rowNum, colNum) {
+    if (rowNum === undefined || rowNum <= 0) {
+        throw {
+            name: "InvalidArgument",
+            message: "Invalid argument rowNum: " + rowNum
+        };
+    }
+
+    if (colNum === undefined || colNum <= 0) {
+        throw {
+            name: "InvalidArgument",
+            message: "Invalid argument colNum: " + colNum
+        };
+    }
+
     var matrix = new Array(rowNum);
 
     var i, j;
