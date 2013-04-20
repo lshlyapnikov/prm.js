@@ -7,10 +7,10 @@
 
 var utils = require("../../main/server/utils");
 var assert = require("assert");
+var numeric = require("numeric");
 
 describe("utils", function() {
     describe("#convertArrayElements()", function() {
-
         it("should convert array of object to array of numbers", function() {
             // GIVEN
 
@@ -28,6 +28,38 @@ describe("utils", function() {
 
             // THEN
             assert.deepEqual(expected, actual);
+        });
+    });
+    describe("#generateRandomWeightsMatrix", function() {
+        it("should generate a matrix of random weights", function() {
+            // GIVEN
+            var rowNum = 30;
+            var colNum = 10;
+            // WHEN
+            var weights = utils.generateRandomWeightsMatrix(rowNum, colNum);
+            // THEN
+            var sum = numeric.sum(weights);
+            assert.equal(rowNum, sum);
+        });
+    });
+    describe("#generateRandomWeightsMatrix", function() {
+        it("should generate a new weights matrix if called consequently", function() {
+            // GIVEN
+            var rowNum = 30;
+            var colNum = 10;
+            // WHEN
+            var weights0 = utils.generateRandomWeightsMatrix(rowNum, colNum);
+            var weights1 = utils.generateRandomWeightsMatrix(rowNum, colNum);
+            // THEN
+            var sum0 = numeric.sum(weights0);
+            var sum1 = numeric.sum(weights1);
+            assert.equal(rowNum, sum0);
+            assert.equal(rowNum, sum1);
+            assert.notDeepEqual(weights0, weights1);
+            var i;
+            for (i = 0; i < rowNum; i++) {
+                assert.notDeepEqual(weights0[i], weights1[i]);
+            }
         });
     });
 });

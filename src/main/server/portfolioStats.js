@@ -118,7 +118,7 @@ function calculateReturnsFromPrices(prices) {
     if (prices === undefined || 0 === prices.length) {
         throw {
             name: "TypeError",
-            message: "Array prices is either undefined or empty"
+            message: "Array prices argument is either undefined or empty"
         };
     }
 

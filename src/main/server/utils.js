@@ -55,5 +55,30 @@ function updateArrayElements(arr, convertOneElement) {
     }
 }
 
+function generateRandomWeightsMatrix(rowNum, colNum) {
+    var matrix = new Array(rowNum);
+
+    var i, j;
+    var vector;
+    var sum;
+    for (i = 0; i < rowNum; i++) {
+        vector = new Array(colNum);
+        sum = 0;
+        // generate random numbers
+        for (j = 0; j < colNum; j++) {
+            vector[j] = Math.random();
+            sum += vector[j];
+        }
+        // normailze all numbers, so vector sum equals 1
+        for (j = 0; j < colNum; j++) {
+            vector[j] /= sum;
+        }
+        matrix[i] = vector;
+    }
+    
+    return matrix;
+}
+
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
+exports.generateRandomWeightsMatrix=generateRandomWeightsMatrix;
