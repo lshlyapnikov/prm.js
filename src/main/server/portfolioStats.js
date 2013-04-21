@@ -8,8 +8,7 @@
 /* jshint browser: true */
 /* global require, exports */
 
-var numeric = require("numeric");
-
+var linearAlgebra = require("./linearAlgebra");
 
 function meanValue(arr) {
     if (arr === undefined || 0 === arr.length) {
@@ -43,7 +42,7 @@ function mean(matrix) {
         };
     }
 
-    var dimension = numeric.dim(matrix);
+    var dimension = linearAlgebra.dim(matrix);
     var m = dimension[0];
     var n = dimension[1];
 
@@ -55,7 +54,7 @@ function mean(matrix) {
     }
 
     // create an empty vector for median values
-    var mu = numeric.rep([n, 1], 0);
+    var mu = linearAlgebra.matrix(n, 1, 0);
 
     var i, j;
 
@@ -113,7 +112,7 @@ function covariance(matrix, isPopulation) {
     }
 
     // create an empty result matrix (colNum x colNum)
-    var result = numeric.rep([colNum, colNum], 0);
+    var result = linearAlgebra.matrix(colNum, colNum, 0);
 
     // calculate medians (Mx1 matrix)
     var muMx1 = mean(matrix);
@@ -178,11 +177,11 @@ function calculateReturnRatesFromPrices(prices) {
  * @returns {Matrix}  M-1 x N matrix of return rates.
  */
 function calculateReturnRatesFromPriceMatrix(priceMatrix) {
-    var dimensions = numeric.dim(priceMatrix);
+    var dimensions = linearAlgebra.dim(priceMatrix);
     var m = dimensions[0];
     var n = dimensions[1];
 
-    var result = numeric.rep([m-1, n], 0);
+    var result = linearAlgebra.matrix(m-1, n);
 
     var i, j;
     for (i = 0; i < (m - 1); i++) {

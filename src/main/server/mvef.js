@@ -102,7 +102,7 @@ function mvefFromHistoricalPrices(priceMatrix, callback) {
     var transposedWeightsMatrixNxM = numeric.transpose(weightsMatrixMxN);
 
     // MxN x Nx1 = Nx1
-    var porftolioExpdReturnRates = numeric.dot(transposedWeightsMatrixNxM, expReturnRatesMx1);
+    var porftolioExpReturnRates = numeric.dot(transposedWeightsMatrixNxM, expReturnRatesMx1);
 
     // need 1xN x NxM = 1xM
 

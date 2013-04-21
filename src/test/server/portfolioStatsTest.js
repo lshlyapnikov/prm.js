@@ -244,16 +244,19 @@ describe("portfolioStats", function() {
         });
     });
     describe("#calculateReturnRatesFromPriceMatrix()", function() {
-        it("[2] should return empty matrix", function() {
+        it("[2] should throw up if not enough data points to calculate return rate", function() {
             // GIVEN
-            var priceMatrix = [[100.123, 1.123]];
-            var expected = [];
-
+            var priceMatrix = [[100.123, 1.123]]; // not enough data points to calculate return rates.
+            var actual;
             // WHEN
-            var actual = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
-
+            try {
+                portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
+            } catch (e) {
+                actual = e;
+            }
             // THEN
-            assert.deepEqual(expected, actual);
+            assert.notEqual(actual, undefined);
+            assert.equal("InvalidArgument", actual.name);
         });
     });
 });
