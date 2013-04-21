@@ -55,7 +55,7 @@ describe("portfolioStats", function() {
     });
     describe("#mean() [1]", function() {
         it("should calculate vector of mean values", function() {
-            var expectedMean = [2.5, 25, 250];
+            var expectedMean = [[2.5], [25], [250]];
             var actualMean = portfolioStats.mean([
                 [1, 10, 100],
                 [2, 20, 200],

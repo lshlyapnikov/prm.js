@@ -87,18 +87,24 @@ function mvef(symbols, fromDate, toDate, interval, callback) {
  * @param {Function} callback     Callback function that would be called when all data is prepared.
  */
 function mvefFromHistoricalPrices(priceMatrix, callback) {
-    var returnRatesMatrix = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
-    var covarianceMatrix = portfolioStats.covariance(returnRatesMatrix);
+    // M x N (actually M-1 x N)
+    var returnRatesMxN = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
+    // N x 1
+    var expReturnRatesNx1 = portfolioStats.mean(returnRatesMxN);
+    // N x N
+    var covarianceNxN = portfolioStats.covariance(returnRatesMxN);
 
-    var dimensions = numeric.dim(returnRatesMatrix);
+    var dimensions = numeric.dim(returnRatesMxN);
     var m = dimensions[0];
     var n = dimensions[1];
 
-    var weightsMatrix = utils.generateRandomWeightsMatrix(m, n);
-    var transposedWeightsMatrix = numeric.transpose(weightsMatrix);
+    var weightsMatrixMxN = utils.generateRandomWeightsMatrix(m, n);
+    var transposedWeightsMatrixNxM = numeric.transpose(weightsMatrixMxN);
 
-    // n*m (*) m*n = n*n
-    var expectedReturnRates = numeric.dot(transposedWeightsMatrix, returnsMatrix);
+    // MxN x Nx1 = Nx1
+    var porftolioExpdReturnRates = numeric.dot(transposedWeightsMatrixNxM, expReturnRatesMx1);
+
+    // need 1xN x NxM = 1xM
 
     var standardDeviations = numeric.dot(transposedWeightsMatrix,
                                          covarianceMatrix,

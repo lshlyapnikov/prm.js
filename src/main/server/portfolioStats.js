@@ -43,26 +43,30 @@ function mean(matrix) {
         };
     }
 
-    var m = matrix.length;
-    var n = matrix[0].length;
+    var dimension = numeric.dim(matrix);
+    var m = dimension[0];
+    var n = dimension[1];
 
-    if (undefined === n) {
-        return [meanValue(matrix)];
+    if (undefined === m || undefined === n) {
+        throw {
+            name: "InvalidArgument",
+            message: "argument matrix has to be a matrix (2-dimensional array)"
+        };
     }
 
     // create an empty vector for median values
-    var mu = numeric.rep([n], 0);
+    var mu = numeric.rep([n, 1], 0);
 
     var i, j;
 
     for(i = 0; i < m; i++) {
         for(j = 0; j < n; j++) {
-            mu[j] += matrix[i][j];
+            mu[j][0] += matrix[i][j];
         }
     }
 
     for (j = 0; j < n; j++) {
-        mu[j] = mu[j]/m;
+        mu[j][0] = mu[j][0]/m;
     }
 
     return mu;
@@ -75,7 +79,7 @@ function mean(matrix) {
  * @param {bool} isPopulation   Optional parameter. If true, isPopulation variance returned, else sample variance.
  */
 function variance(arr, isPopulation) {
-    var mu = mean(arr);
+    var mu = meanValue(arr);
     
     var sum = 0;
     var length = arr.length;
@@ -111,8 +115,8 @@ function covariance(matrix, isPopulation) {
     // create an empty result matrix (colNum x colNum)
     var result = numeric.rep([colNum, colNum], 0);
 
-    // calculate medians
-    var mu = mean(matrix);
+    // calculate medians (Mx1 matrix)
+    var muMx1 = mean(matrix);
 
     // calculate the covariance matrix
 
@@ -122,7 +126,7 @@ function covariance(matrix, isPopulation) {
     for (j = 0; j < colNum; j++) {
         for (k = 0; k <= j; k++) {
             for (i = 0; i < rowNum; i++) {
-                result[j][k] += (matrix[i][j] - mu[j]) * (matrix[i][k] - mu[k]);
+                result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0]);
             }
             if (true === isPopulation) {
                 result[j][k] = result[j][k] / rowNum;
