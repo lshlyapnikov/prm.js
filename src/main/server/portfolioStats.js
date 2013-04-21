@@ -10,7 +10,8 @@
 
 var numeric = require("numeric");
 
-function mean(arr) {
+
+function meanValue(arr) {
     if (arr === undefined || 0 === arr.length) {
         throw {
             name: "InvalidArgument",
@@ -25,6 +26,46 @@ function mean(arr) {
     }
 
     return sum/length;
+}
+
+/**
+ * Calculates a vector of expected values (mean values).
+ * 
+ * @param {Matrix} matrix   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
+ * @returns {Array}   Returns a vector of N elemetns (1 x N matrix). Each element is an expected value for the 
+ *                    corresponding column in the matrix argument.
+ */
+function mean(matrix) {
+    if (matrix === undefined || 0 === matrix.length) {
+        throw {
+            name: "InvalidArgument",
+            message: "matrix is either undefined or empty"
+        };
+    }
+
+    var m = matrix.length;
+    var n = matrix[0].length;
+
+    if (undefined === n) {
+        return [meanValue(matrix)];
+    }
+
+    // create an empty vector for median values
+    var mu = numeric.rep([n], 0);
+
+    var i, j;
+
+    for(i = 0; i < m; i++) {
+        for(j = 0; j < n; j++) {
+            mu[j] += matrix[i][j];
+        }
+    }
+
+    for (j = 0; j < n; j++) {
+        mu[j] = mu[j]/m;
+    }
+
+    return mu;
 }
 
 /**
@@ -70,24 +111,12 @@ function covariance(matrix, isPopulation) {
     // create an empty result matrix (colNum x colNum)
     var result = numeric.rep([colNum, colNum], 0);
 
-    // create an empty matrix for median values, need it for covariance calculation
-    var mu = numeric.rep([colNum], 0);
-
-    var i, j, k;
-
     // calculate medians
-
-    for(i = 0; i < rowNum; i++) {
-        for(j = 0; j < colNum; j++) {
-            mu[j] += matrix[i][j];
-        }
-    }
-
-    for (j = 0; j < colNum; j++) {
-        mu[j] = mu[j]/rowNum;
-    }
+    var mu = mean(matrix);
 
     // calculate the covariance matrix
+
+    var i, j, k;
 
     // calculate the diagonal elements and the half that is below the diagonal
     for (j = 0; j < colNum; j++) {
@@ -114,7 +143,13 @@ function covariance(matrix, isPopulation) {
     return result;
 }
 
-function calculateReturnsFromPrices(prices) {
+/**
+ * Calculates returns for every period.
+ *
+ * @param {Array} prices
+ * @returns {Array} return ratess for every price interval.
+ */
+function calculateReturnRatesFromPrices(prices) {
     if (prices === undefined || 0 === prices.length) {
         throw {
             name: "InvalidArgument",
@@ -131,7 +166,34 @@ function calculateReturnsFromPrices(prices) {
     return result;
 }
 
+/**
+ * Calculates return rates M x N matrix. Where M is the number of historical intervals
+ * and N is the number of stocks in portfolio.
+ * 
+ * @param {Matrix} priceMatrix   M x N matrix of prices. Stock prices in columns. N columns -- N stocks.
+ * @returns {Matrix}  M-1 x N matrix of return rates.
+ */
+function calculateReturnRatesFromPriceMatrix(priceMatrix) {
+    var dimensions = numeric.dim(priceMatrix);
+    var m = dimensions[0];
+    var n = dimensions[1];
+
+    var result = numeric.rep([m-1, n], 0);
+
+    var i, j;
+    for (i = 0; i < (m - 1); i++) {
+        for (j = 0; j < n; j++) {
+            result[i][j] = priceMatrix[i+1][j]/priceMatrix[i][j] - 1;
+        }
+    }
+
+    return result;
+}
+
+exports.meanValue = meanValue;
 exports.mean = mean;
 exports.variance = variance;
 exports.covariance = covariance;
-exports.calculateReturnsFromPrices = calculateReturnsFromPrices;
+exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices;
+exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix;
+

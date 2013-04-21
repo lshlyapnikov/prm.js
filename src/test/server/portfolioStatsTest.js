@@ -11,29 +11,29 @@ var assert = require("assert");
 var numeric = require("numeric");
 
 describe("portfolioStats", function() {
-    describe("#mean()", function() {
+    describe("#meanValue()", function() {
         it("[1] should calculate mean", function() {
             var expectedMean = 2870;
-            var actualMean = portfolioStats.mean([123, 456, 789, 10112]);
-            assert.equal(expectedMean, actualMean);
+            var actualMean = portfolioStats.meanValue([123, 456, 789, 10112]);
+            assert.equal(actualMean, expectedMean);
         });
     });
-    describe("#mean()", function() {
+    describe("#meanValue()", function() {
         it("[2] should calculate mean", function() {
             // R:
             // >  a = c(-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234);
             // > mean(a)
             // [1] 397.793
-            var expectedMean = 397.793;
-            var actualMean = portfolioStats.mean([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
-            assert.equal(expectedMean, actualMean.toFixed(3));
+            var expectedMean = [397.793];
+            var actualMean = portfolioStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
+            assert.equal(actualMean.toFixed(3), expectedMean);
         });
     });
-    describe("#mean()", function() {
+    describe("#meanValue()", function() {
         it("[3] should throw up when array is undefined", function() {
             var caught;
             try {
-                portfolioStats.mean(undefined);
+                portfolioStats.meanValue(undefined);
             } catch(e) {
                 caught = e;
             }
@@ -41,16 +41,27 @@ describe("portfolioStats", function() {
             assert.equal("InvalidArgument", caught.name);
         });
     });
-    describe("#mean() [4]", function() {
+    describe("#meanValue() [4]", function() {
         it("should throw up when array is empty", function() {
             var caught;
             try {
-                portfolioStats.mean([]);
+                portfolioStats.meanValue([]);
             } catch(e) {
                 caught = e;
             }
             assert.equal(true, caught !== undefined);
             assert.equal("InvalidArgument", caught.name);
+        });
+    });
+    describe("#mean() [1]", function() {
+        it("should calculate vector of mean values", function() {
+            var expectedMean = [2.5, 25, 250];
+            var actualMean = portfolioStats.mean([
+                [1, 10, 100],
+                [2, 20, 200],
+                [3, 30, 300],
+                [4, 40, 400]]);
+            assert.deepEqual(expectedMean, actualMean);
         });
     });
     describe("#variance()", function() {
@@ -177,14 +188,14 @@ describe("portfolioStats", function() {
             assert.equal(JSON.stringify(expected, null, 4), JSON.stringify(actual, null, 4));
         });
     });
-    describe("#calculateReturnsFromPrices()", function() {
-        it("[1] should calculate returns from provided prices", function() {
+    describe("#calculateReturnRatesFromPrices()", function() {
+        it("[1] should calculate return rates from provided prices", function() {
             // GIVEN
             var prices = [100.12, 123.34, 134.67, 167.89];
             var expected = [0.231921694, 0.091859899, 0.246677062];
 
             // WHEN
-            var actual = portfolioStats.calculateReturnsFromPrices(prices);
+            var actual = portfolioStats.calculateReturnRatesFromPrices(prices);
 
             // THEN
             utils.updateArrayElements(expected, function(num) {
@@ -196,14 +207,50 @@ describe("portfolioStats", function() {
             assert.deepEqual(expected, actual);
         });
     });
-    describe("#calculateReturnsFromPrices()", function() {
+    describe("#calculateReturnRatesFromPrices()", function() {
         it("[2] should return empty array", function() {
             // GIVEN
             var prices = [100.12];
             var expected = [];
 
             // WHEN
-            var actual = portfolioStats.calculateReturnsFromPrices(prices);
+            var actual = portfolioStats.calculateReturnRatesFromPrices(prices);
+
+            // THEN
+            assert.deepEqual(expected, actual);
+        });
+    });
+    describe("#calculateReturnRatesFromPriceMatrix()", function() {
+        it("[1] should calculate return rates from price matrix", function() {
+            // GIVEN
+            var priceMatrix = [
+                [100.123, 1.123],
+                [200.123, 2.123],
+                [300.123, 3.123]];
+            var expected = [
+                [0.998771511, 0.89047195],
+                [0.499692689, 0.471031559]];
+            // WHEN
+            var actual = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
+
+            // THEN
+            utils.updateMatrixElements(expected, function(num) {
+                return num.toFixed(4);
+            });
+            utils.updateMatrixElements(actual, function(num) {
+                return num.toFixed(4);
+            });
+            assert.deepEqual(expected, actual);
+        });
+    });
+    describe("#calculateReturnRatesFromPriceMatrix()", function() {
+        it("[2] should return empty matrix", function() {
+            // GIVEN
+            var priceMatrix = [[100.123, 1.123]];
+            var expected = [];
+
+            // WHEN
+            var actual = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
 
             // THEN
             assert.deepEqual(expected, actual);

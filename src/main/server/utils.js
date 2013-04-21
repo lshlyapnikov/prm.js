@@ -55,6 +55,32 @@ function updateArrayElements(arr, convertOneElement) {
     }
 }
 
+function updateMatrixElements(matrix, convertOneElement) {
+    if (matrix === undefined || 0 === matrix.length) {
+        throw {
+            name: "InvalidArgument",
+            message: "matrix is either undefined or empty"
+        };
+    }
+
+    if (typeof convertOneElement != "function") {
+        throw {
+            name: "InvalidArgument",
+            message: "convertOneElement argument should be a function with one argument"
+        };
+    }
+
+    var m = matrix.length;
+    var n = matrix[0].length;
+
+    var i, j;
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < n; j++) {
+            matrix[i][j] = convertOneElement(matrix[i][j]);
+        }
+    }
+}
+
 /**
  * Generates random weights matrix. Sum of all elements in the row equals 1.
  * Valid arguments: rowNum > 0 and colNum > 1
@@ -104,4 +130,5 @@ function generateRandomWeightsMatrix(rowNum, colNum) {
 
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
+exports.updateMatrixElements = updateMatrixElements;
 exports.generateRandomWeightsMatrix=generateRandomWeightsMatrix;
