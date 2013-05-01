@@ -147,7 +147,7 @@ function covariance(matrix, isPopulation) {
 }
 
 /**
- * Calculates returns for every period.
+ * Calculates return rates for every period.
  *
  * @param {Array} prices
  * @returns {Array} return ratess for every price interval.
