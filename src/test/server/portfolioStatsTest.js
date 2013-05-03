@@ -259,5 +259,37 @@ describe("portfolioStats", function() {
             assert.equal("InvalidArgument", actual.name);
         });
     });
+    describe("#portfolioStdDev()", function() {
+        it("[1] should calculate portfolio Std Dev", function() {
+            // GIVEN
+            var weights1xN = [[1/3, 1/3, 1/3]];
+            var covarianceNxN = [
+                [0.0100, 0.0018, 0.0011],
+                [0.0018, 0.0109, 0.0026],
+                [0.0011, 0.0026, 0.0199]
+            ];
+            var expected = 0.07586538;
+            // WHEN
+            var actual = portfolioStats.portfolioStdDev(weights1xN, covarianceNxN);
+            // THEN
+            assert.equal(expected.toFixed(5), actual.toFixed(5));
+        });
+    });
+    describe("#portfolioStdDev()", function() {
+        it("[2] should calculate portfolio Std Dev", function() {
+            // GIVEN
+            var weights1xN = [[0.2, 0.4, 0.4]];
+            var covarianceNxN = [
+                [0.036224, 0.032980, 0.047716],
+                [0.032980, 0.150345, 0.021842],
+                [0.047716, 0.021842, 0.814886]
+            ];
+            var expected = 0.4193;
+            // WHEN
+            var actual = portfolioStats.portfolioStdDev(weights1xN, covarianceNxN);
+            // THEN
+            assert.equal(expected.toFixed(4), actual.toFixed(4));
+        });
+    });
 });
 

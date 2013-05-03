@@ -193,10 +193,29 @@ function calculateReturnRatesFromPriceMatrix(priceMatrix) {
     return result;
 }
 
+/**
+ * Calculates portfolio's Return Rate Standard Deviation.
+ *
+ * @param {Vector} weights1xN   vector of stock weights in the portfolio;
+ * @param {Matrix} covarianceNxN   portfolio covariance matrix.
+ *
+ * @return {Number}   Porfolio's Standard Deviation.
+ */
+function portfolioStdDev(weights1xN, covarianceNxN) {
+    var transposedWeightsNx1 = linearAlgebra.transpose(weights1xN);
+    var tmp1xN = linearAlgebra.multiplyMatricies(weights1xN, covarianceNxN);
+    var tmp1x1 = linearAlgebra.multiplyMatricies(tmp1xN, transposedWeightsNx1);
+    var result = tmp1x1[0][0];
+    result = Math.sqrt(result);
+
+    return result;
+}
+
+
 exports.meanValue = meanValue;
 exports.mean = mean;
 exports.variance = variance;
 exports.covariance = covariance;
 exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices;
 exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix;
-
+exports.portfolioStdDev = portfolioStdDev;
