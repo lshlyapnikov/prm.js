@@ -6,10 +6,11 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global require, exports, console */
+/* global require, exports */
 
 var request = require("request");
-var csv = require('csv-stream');
+var csv = require("csv");
+var Q = require("q");
 
 /**
  * @private
@@ -42,11 +43,25 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
  * @param {Date} fromDate   Specifies the start of the interval, inclusive;
  * @param {Date} toDate     Specifies the end of the interval, inclusive;
  * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
- * @param {function} requestCallback   function(error, httpResponseObj, httpResponseBodyStr).
+ *
+ * @return {Promise} that contains CSV string.
  */
-function loadStockHistoryAsString(symbol, fromDate, toDate, interval, requestCallback) {
+function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
+    var deferred = Q.defer();
+
     var url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval);
-    request.get(url, requestCallback);
+    request.get(url, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            deferred.resolve(body);
+        } else {
+            var errStr = "Cannot retrive historical prices for symbol: " + symbol +
+                ", fromDate: " + fromDate + ", toDate: " + toDate + ", interval: " + interval +
+                ", server error: " + error + ", response.statusCode: " + response.statusCode;
+            deferred.reject(new Error(errStr));
+        }
+    });
+
+    return deferred.promise;
 }
 
 /**
@@ -56,23 +71,94 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval, requestCal
  * @param {Date} fromDate   Specifies the start of the interval, inclusive;
  * @param {Date} toDate     Specifies the end of the interval, inclusive;
  * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly;
- * @param {function} objectLoadedCallback   function(object).
+ * @param {Array} fieldNames   fields that should be extracted from the CSV;
+ * @param {Array} fieldConverters   field converters;
+ *
+ * @return {Q.promise}   Array of values
  */
-function loadStockHistoryAsObject(symbol, fromDate, toDate, interval, objectLoadedCallback) {
-    var url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval);
-    var csvStream = csv.createStream();
+function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldConverters) {
+    if (undefined === fieldNames || 0 === fieldNames.length) {
+        throw {
+            name: "InvalidArgument",
+            message: "fieldNames array is either undefined or empty"
+        };
+    }
+
+    if (undefined === fieldConverters || 0 === fieldConverters.length) {
+        throw {
+            name: "InvalidArgument",
+            message: "fieldConverters array is either undefined or empty"
+        };
+    }
+
+    if (fieldNames.length !== fieldConverters.length) {
+        throw {
+            name: "InvalidArgument",
+            message: "fieldNames.length must be equal to fieldConverters.length"
+        };
+    }
+
+    var deferred = Q.defer();
+
+    loadStockHistoryAsString(symbol, fromDate, toDate, interval)
+        .then(function(csvStr) {
+            return extractFields(csvStr, fieldNames, fieldConverters);
+        }).then(function(arr) {
+            return deferred.resolve(arr);
+        }, function(error) {
+            var errStr = "Canot parse Objects from CSV string, cause: " + error;
+            deferred.reject(new Error(errStr));
+        })
+        .done();
+
+    return deferred.promise;
+}
+
+function extractFields(csvStr, fieldNames, fieldConverters) {
+    var deferred = Q.defer();
+
     var result = [];
-    request.get(url).pipe(csvStream)
-        .on("error", function(err) {
-            console.error("Cannot load stock historical prices, error: " + err);
-        })
-        .on("data", function(object) {
-            result.push(object);
-        })
-        .on("end", function() {
-            objectLoadedCallback(result);
-        });
+    var fieldIndexes = [];
+    var columnNumber = 0;
+    var i;
+    
+    csv().from(csvStr)
+    .on("record", function(row, index) {
+        // first column contains field names
+        if (0 === index) {
+            columnNumber = row.length;
+            // populate fieldIndexes array
+            for (i = 0; i < columnNumber; i++) {
+                if (row[i] === fieldNames[i]) {
+                    fieldIndexes.push(i);
+                }
+            }
+        } else {
+            var str, converter;
+            var extractedRow = new Array(fieldNames.length);
+            for (i = 0; i < fieldIndexes.length; i++) {
+                str = row[i];
+                converter = fieldConverters[i];
+                extractedRow[i] = converter(str);
+            }
+            result.push(extractedRow);
+        }
+    })
+    .on("end", function(count) {
+        if ((count - 1) !== result.length) {
+            deferred.reject(new Error("expected result.length: " + (count - 1) +
+                                      ", but actual result.length: " + result.length));
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .on("error", function(error) {
+        var errStr = "Cannot extract fields from CSV string, error: " + error;
+        deferred.reject(new Error(errStr));
+    });
+
+    return deferred.promise;
 }
 
 exports.loadStockHistoryAsString = loadStockHistoryAsString;
-exports.loadStockHistoryAsObject = loadStockHistoryAsObject;
+exports.loadStockHistory = loadStockHistory;

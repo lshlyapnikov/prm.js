@@ -128,7 +128,17 @@ function generateRandomWeightsMatrix(rowNum, colNum) {
     return matrix;
 }
 
+function strToNumber(str) {
+    return Number(str);
+}
+
+function noop(str) {
+    return str;
+}
+
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
 exports.updateMatrixElements = updateMatrixElements;
 exports.generateRandomWeightsMatrix=generateRandomWeightsMatrix;
+exports.strToNumber = strToNumber;
+exports.noop = noop;

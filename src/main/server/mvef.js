@@ -12,7 +12,7 @@ var utils = require("./utils");
 //var numeric = require("numeric");
 var linearAlgebra = require("linearAlgebra");
 var portfolioStats = require("portfolioStats");
-var yahooFinanceApi = require("yahooFinanceApi");
+//var yahooFinanceApi = require("yahooFinanceApi");
 
 function extractPrices(objArr) {
     var result = utils.convertArrayElemetns(objArr, function(obj) {
@@ -25,15 +25,22 @@ function extractPrices(objArr) {
  * Generates portfolio MVEF for the specified symbols, using
  * historical prices from Yahoo Finance.
  *
- * @param {String} symbol   The stock symbol you are interested in;
- * @param {Date} fromDate   Specifies the start of the interval, inclusive;
- * @param {Date} toDate     Specifies the end of the interval, inclusive;
- * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
+ * @param {Module} historicalPricesProvider   Module with loadStockHistoryAsObject() method,
+ *                                            see yahooFinanceApi.js;
+ * @param {String} symbol   The stock symbol you are interested in,
+ *                          1st parameter in loadStockHistoryAsObject();
+ * @param {Date} fromDate   Specifies the start of the interval, inclusive,
+ *                          2nd parameter in loadStockHistoryAsObject();
+ * @param {Date} toDate     Specifies the end of the interval, inclusive,
+ *                          3rd parameter in loadStockHistoryAsObject();
+ * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly,
+ *                               4th parameter in loadStockHistoryAsObject();
  * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
  *                                         to generate MVEF.
  * @param {Function} callback    Callback function that would be called when all data is prepared.
  */
-function mvef(symbols, fromDate, toDate, interval, numberOfRandomWeights, callback) {
+function mvef(historicalPricesProvider,
+              symbols, fromDate, toDate, interval, numberOfRandomWeights, callback) {
     if (undefined === symbols || 0 === symbols.length) {
         throw {
             name: "InvalidArgument",
@@ -69,16 +76,18 @@ function mvef(symbols, fromDate, toDate, interval, numberOfRandomWeights, callba
     var loadCounter = 0;
 
     function load_(index) {
-        yahooFinanceApi.loadStockHistoryAsObject(symbols[index], fromDate, toDate, interval, function(oneStockHistory) {
-            transposedPriceMatrix[index] = extractPrices(oneStockHistory);
-            loadCounter++;
-            if (loadCounter === n) {
-                mvefFromHistoricalPrices(
-                    utils.generateRandomWeightsMatrix(m, n),
-                    linearAlgebra.transpose(transposedPriceMatrix), 
-                    callback);
-            }
-        });
+        historicalPricesProvider.loadStockHistoryAsObject(
+            symbols[index], fromDate, toDate, interval, 
+            function(oneStockHistory) {
+                transposedPriceMatrix[index] = extractPrices(oneStockHistory);
+                loadCounter++;
+                if (loadCounter === n) {
+                    mvefFromHistoricalPrices(
+                        utils.generateRandomWeightsMatrix(m, n),
+                        linearAlgebra.transpose(transposedPriceMatrix), 
+                        callback);
+                }
+            });
     }
 
     for (var i = 0; i < n; i++) {

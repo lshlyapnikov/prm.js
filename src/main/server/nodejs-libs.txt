@@ -2,8 +2,11 @@
 * request
   Simplified HTTP request method
   : > npm install request
-* csv-stream
+* csv-stream (removed this dependency, does not handle errors)
   CSV Stream Parser
   : > npm install csv-stream
+* csv
 * numeric
   : > npm install numeric
+* q promise
+  : > npm instal q
