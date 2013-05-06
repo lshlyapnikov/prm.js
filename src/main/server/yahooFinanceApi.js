@@ -106,8 +106,7 @@ function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldC
         }).then(function(arr) {
             return deferred.resolve(arr);
         }, function(error) {
-            var errStr = "Canot parse Objects from CSV string, cause: " + error;
-            deferred.reject(new Error(errStr));
+            deferred.reject(error);
         })
         .done();
 
@@ -118,28 +117,31 @@ function extractFields(csvStr, fieldNames, fieldConverters) {
     var deferred = Q.defer();
 
     var result = [];
-    var fieldIndexes = [];
-    var columnNumber = 0;
-    var i;
+    var fieldIndexes = new Array(fieldNames.length);
+    var i, j;
+    var strValue, converter, extractedRow;
     
     csv().from(csvStr)
     .on("record", function(row, index) {
         // first column contains field names
         if (0 === index) {
-            columnNumber = row.length;
-            // populate fieldIndexes array
-            for (i = 0; i < columnNumber; i++) {
-                if (row[i] === fieldNames[i]) {
-                    fieldIndexes.push(i);
+            // populate fieldIndexes array, find index of every specified fieldName
+            for (i = 0; i < fieldNames.length; i++) {
+                j = row.indexOf(fieldNames[i]);
+                if (j < 0) {
+                    throw new Error("Unknown fieldName: " + fieldNames[i] +
+                                    ", known fieldNames: " + JSON.stringify(row));
                 }
+                fieldIndexes[i] = j;
             }
         } else {
-            var str, converter;
-            var extractedRow = new Array(fieldNames.length);
+            extractedRow = new Array(fieldIndexes.length);
+            // iterate over all fieldIndexes
             for (i = 0; i < fieldIndexes.length; i++) {
-                str = row[i];
-                converter = fieldConverters[i];
-                extractedRow[i] = converter(str);
+                j = fieldIndexes[i]; // get the index of the field
+                strValue = row[j]; // field value as string
+                converter = fieldConverters[i]; // get converter for the field
+                extractedRow[i] = converter(strValue);
             }
             result.push(extractedRow);
         }
@@ -153,8 +155,7 @@ function extractFields(csvStr, fieldNames, fieldConverters) {
         }
     })
     .on("error", function(error) {
-        var errStr = "Cannot extract fields from CSV string, error: " + error;
-        deferred.reject(new Error(errStr));
+        deferred.reject(error);
     });
 
     return deferred.promise;
