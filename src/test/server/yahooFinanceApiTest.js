@@ -3,7 +3,7 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global require, describe, it */
+/* global require, describe, it, console */
 
 var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
 var utils = require("../../main/server/utils");
@@ -99,7 +99,28 @@ describe("yahooFinanceApi", function() {
                 done(error);
             });
         });
-        it("[3] should return error due to unknown symbol [3 days]", function(done) {
+        it("[3] should load 'Volume' and 'Adj Close' prices as Numbers [3 days]", function(done) {
+            var expectedObject = [
+                [783400, 38.05],
+                [931200, 37.99],
+                [1043600, 37.93]
+            ];
+            yahooFinanceApi.loadStockHistory(
+                "NYX",
+                new Date(2013, 03, 10),
+                new Date(2013, 03, 12),
+                "d",
+                ["Volume", "Adj Close"],
+                [utils.strToNumber, utils.strToNumber]
+            ).then(function(actualObject) {
+                assert.equal(JSON.stringify(expectedObject), JSON.stringify(actualObject));
+            }) .then(function() {
+                done();
+            }, function(error) {
+                done(error);
+            });
+        });
+        it("[4] should return error due to unknown symbol [3 days]", function(done) {
             yahooFinanceApi.loadStockHistory(
                 "UnknownSymbol",
                 new Date(2013, 03, 10),
@@ -110,10 +131,43 @@ describe("yahooFinanceApi", function() {
                 .then(function() {
                     done(new Error("Expecting an eror due to unknown symbol"));
                 }, function(error) {
-                    //console.log("error: ", error);
+                    console.log("expected error: ", error);
                     assert.ok(error, "Expecting an error due to unknown symbol");
                     done();
                 });
+        });
+        it("[5] should return error due to unknown fieldName", function(done) {
+            var UNKNOWN_FIELD_NAME = "UnknownFieldName";
+            yahooFinanceApi.loadStockHistory(
+                "NYX",
+                new Date(2013, 03, 10),
+                new Date(2013, 03, 12),
+                "d",
+                [UNKNOWN_FIELD_NAME],
+                [utils.strToNumber]
+            ).then(function() {
+                done(new Error("Expecting an error due to uknown field name"));
+            }, function(error) {
+                console.log("expected error:", error);
+                assert.ok(error, "Expecting an error due to uknown field name");
+                done();
+            });
+        });
+        it("[6] should return error: 2 fields, but only 1 converter", function(done) {
+            yahooFinanceApi.loadStockHistory(
+                "NYX",
+                new Date(2013, 03, 10),
+                new Date(2013, 03, 12),
+                "d",
+                ["Volume", "Adj Close"],
+                [utils.strToNumber]
+            ).then(function() {
+                done(new Error("Expecting an error: 2 fields -- 2 converters, passed only 1"));
+            }, function(error) {
+                console.log("expected error:", error);
+                assert.ok(error, "Expecting an error: 2 fields -- 2 converters, passed only 1");
+                done();
+            });
         });
     });
 });

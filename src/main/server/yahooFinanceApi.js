@@ -77,28 +77,22 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
  * @return {Q.promise}   Array of values
  */
 function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldConverters) {
+    var deferred = Q.defer();
+
     if (undefined === fieldNames || 0 === fieldNames.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "fieldNames array is either undefined or empty"
-        };
+        deferred.reject(new Error("fieldNames array is either undefined or empty"));
+        return deferred.promise;
     }
 
     if (undefined === fieldConverters || 0 === fieldConverters.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "fieldConverters array is either undefined or empty"
-        };
+        deferred.reject(new Error("fieldConverters array is either undefined or empty"));
+        return deferred.promise;
     }
 
     if (fieldNames.length !== fieldConverters.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "fieldNames.length must be equal to fieldConverters.length"
-        };
+        deferred.reject(new Error("fieldNames.length must be equal to fieldConverters.length"));
+        return deferred.promise;
     }
-
-    var deferred = Q.defer();
 
     loadStockHistoryAsString(symbol, fromDate, toDate, interval)
         .then(function(csvStr) {
