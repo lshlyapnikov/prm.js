@@ -3,37 +3,24 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global describe, it */
+/* global describe, it, require, console */
 
-//var portfolioStats = require("../../main/server/mvef.js");
-//var utils = require("../../main/server/utils");
-//var assert = require("assert");
-//var numeric = require("numeric");
+var mvef = require("../../main/server/mvef");
+var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
 
-describe("mvef", function() {
-    describe("#mvefFromHistoricalPrices()", function() {
-        it("[1] should calculate mvef", function() {
-            // // GIVEN
-            // var weightsMxN = [
-            //     [1.0, 0.0, 0.0],
-            //     [0.0, 1.0, 0.0],
-            //     [0.0, 0.0, 0.0],
-            //     [0.5, 0.5, 0.0],
-            //     [0.5, 0.0, 0.5],
-            //     [0.0, 0.5, 0.5],
-            //     [0.2, 0.4, 0.4],
-            //     [0.4, 0.2, 0.4]
-            // ];
-            // var covarianceNxN = [
-            //     [0.036224, 0.032980, 0.047716],
-            //     [0.032980, 0.150345, 0.021842],
-            //     [0.047716, 0.021842, 0.814886]
-            // ];
-            // var expected = 0.4193;
-            // // WHEN
-            // var actual = portfolioStats.portfolioStdDev(weights1xN, covarianceNxN);
-            // // THEN
-            // assert.equal(expected.toFixed(4), actual.toFixed(4));
+describe("mvef @IntegrationTest", function() {
+    describe("#mvef() should load historical prices and return MVEF numbers", function() {
+        it("[1] should calculate mvef", function(done) {
+            var numOfRandomWeights = 100;
+            mvef.mvef(yahooFinanceApi.loadStockHistory,
+                      ["NYX", "INTC"],
+                      new Date(2013, 03, 10),
+                      new Date(2013, 03, 12),
+                      "d", numOfRandomWeights)
+                .then(function(result) {
+                    console.log("result: " + JSON.stringify(result));
+                })
+                .then(function(){done();}, function(error){done(error);});
         });
     });
 });

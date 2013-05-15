@@ -10,6 +10,7 @@
 ** TODO____ 2. [User] Request Mean-Variance Efficient Frontier
 *** DONE_______ 2.1. [Includes] [System] Loads Stock Historical Data
 *** IN_PROGRESS 2.2. [Includes] [System] Calculates Stock Statistics
+    - finish mvefTest.js
 *** TODO____ 2.3. [Includes] [System] Generates and Displays Mean-Variance Efficient Frontier Graph
 ** TODO____ 3. [User] Chooses Desired Portfolio Risk and Return
 ** TODO____ 4. [System] Displays Stock Weights for the Specified Risk and Return

@@ -37,7 +37,7 @@ describe("linearAlgebra", function() {
             assert.deepEqual(actual, expected);
         });
     });
-    describe("#multiplyMatricies()", function() {
+    describe("#multiplyMatrices()", function() {
         it("should multiply two matrices", function() {
             // GIVEN
             var expected = [
@@ -45,7 +45,7 @@ describe("linearAlgebra", function() {
                 [-22, 11],
                 [32, -9]];
             // WHEN
-            var actual = linearAlgebra.multiplyMatricies(
+            var actual = linearAlgebra.multiplyMatrices(
                 [[4, -1],
                  [-4, -3],
                  [2, 5]],

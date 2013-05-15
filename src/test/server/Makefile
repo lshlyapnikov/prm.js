@@ -1,7 +1,7 @@
 JS_SRC 	:= $(CURDIR)
 JSHINT	:= jshint --verbose
 MOCHA	:= mocha --reporter list
-MOCHA_DEBUG := mocha --timeout 36000000 --debug --debug-brk
+MOCHA_DEBUG := mocha --timeout 36000000 --debug-brk
 
 #.PHONY: all release clean test test-all test-debug js-validation clean-all
 
@@ -19,11 +19,12 @@ test:
 test-all:
 	$(MOCHA) *.js
 
+test-one:
+	$(MOCHA) $(test)
+
 test-debug:
-	killall -9 node-inspector
-	killall -9 node
-	$(MOCHA_DEBUG) $(test) &
 	node-inspector &
+	$(MOCHA_DEBUG) $(test)
 
 js-validation:
 	$(JSHINT) $(JS_SRC)/*.js

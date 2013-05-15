@@ -203,8 +203,8 @@ function calculateReturnRatesFromPriceMatrix(priceMatrix) {
  */
 function portfolioStdDev(weights1xN, covarianceNxN) {
     var transposedWeightsNx1 = linearAlgebra.transpose(weights1xN);
-    var tmp1xN = linearAlgebra.multiplyMatricies(weights1xN, covarianceNxN);
-    var tmp1x1 = linearAlgebra.multiplyMatricies(tmp1xN, transposedWeightsNx1);
+    var tmp1xN = linearAlgebra.multiplyMatrices(weights1xN, covarianceNxN);
+    var tmp1x1 = linearAlgebra.multiplyMatrices(tmp1xN, transposedWeightsNx1);
     var result = tmp1x1[0][0];
     result = Math.sqrt(result);
 

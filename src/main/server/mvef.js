@@ -9,17 +9,16 @@
 /* global require, exports */
 
 var utils = require("./utils");
-//var numeric = require("numeric");
-var linearAlgebra = require("linearAlgebra");
-var portfolioStats = require("portfolioStats");
-//var yahooFinanceApi = require("yahooFinanceApi");
+var linearAlgebra = require("./linearAlgebra");
+var portfolioStats = require("./portfolioStats");
+var Q = require("q");
 
-function extractPrices(objArr) {
-    var result = utils.convertArrayElemetns(objArr, function(obj) {
-        return Number(obj["Adj Close"]);
-    });
-    return result;
-}
+// function extractPrices(objArr) {
+//     var result = utils.convertArrayElemetns(objArr, function(obj) {
+//         return Number(obj["Adj Close"]);
+//     });
+//     return result;
+// }
 
 /**
  * Generates portfolio MVEF for the specified symbols, using
@@ -37,62 +36,91 @@ function extractPrices(objArr) {
  *                               4th parameter in loadStockHistoryAsObject();
  * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
  *                                         to generate MVEF.
- * @param {Function} callback    Callback function that would be called when all data is prepared.
+ * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvef(historicalPricesProvider,
-              symbols, fromDate, toDate, interval, numberOfRandomWeights, callback) {
+function mvef(loadStockHistory,
+              symbols, fromDate, toDate, interval, numberOfRandomWeights) {
+    var deferred = Q.defer();
+
+    if ("function" !== typeof loadStockHistory) {
+        throw new Error("InvalidArgument: loadStockHistory must be a function");
+    }
+
     if (undefined === symbols || 0 === symbols.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "symbols array is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: symbols array is either undefined or empty");
     }
 
     if (undefined === fromDate) {
-        throw {
-            name: "InvalidArgument",
-            message: "fromDate argument is undefined"
-        };
+        throw new Error("InvalidArgument: fromDate argument is undefined");
     }
 
     if (undefined === toDate) {
-        throw {
-            name: "InvalidArgument",
-            message: "toDate argument is undefined"
-        };
+        throw new Error("InvalidArgument: toDate argument is undefined");
     }
 
     if (undefined === interval) {
-        throw {
-            name: "InvalidArgument",
-            message: "interval argument is undefined"
-        };
+        throw new Error("InvalidArgument: interval argument is undefined");
+    }
+
+    if (undefined === numberOfRandomWeights) {
+        throw new Error("InvalidArgument: numberOfRandomWeights is undefined");
     }
 
     var m = numberOfRandomWeights;
     var n = symbols.length;
-    var transposedPriceMatrix = new Array(n);
 
-    var loadCounter = 0;
+    // function load_(index) {
+    //     historicalPricesProvider.loadStockHistoryAsObject(
+    //         symbols[index], fromDate, toDate, interval, 
+    //         function(oneStockHistory) {
+    //             transposedPriceMatrix[index] = extractPrices(oneStockHistory);
+    //             loadCounter++;
+    //             if (loadCounter === n) {
+    //                 mvefFromHistoricalPrices(
+    //                     utils.generateRandomWeightsMatrix(m, n),
+    //                     linearAlgebra.transpose(transposedPriceMatrix), 
+    //                     callback);
+    //             }
+    //         });
+    // }
 
-    function load_(index) {
-        historicalPricesProvider.loadStockHistoryAsObject(
-            symbols[index], fromDate, toDate, interval, 
-            function(oneStockHistory) {
-                transposedPriceMatrix[index] = extractPrices(oneStockHistory);
-                loadCounter++;
-                if (loadCounter === n) {
-                    mvefFromHistoricalPrices(
-                        utils.generateRandomWeightsMatrix(m, n),
-                        linearAlgebra.transpose(transposedPriceMatrix), 
-                        callback);
-                }
-            });
-    }
+    var promises = new Array(n);
 
     for (var i = 0; i < n; i++) {
-        load_(i);
-    }        
+        promises[i] = loadStockHistory(symbols[i], fromDate, toDate, interval,
+                                       ["Adj Close"], [utils.strToNumber]);
+    }
+
+    Q.allResolved(promises)
+        .then(function(promises) {
+            var transposedPriceMatrix = new Array(n);
+            var p;
+
+            for (i = 0; i < n; i++) {
+                p = promises[i];
+                if (p.isFulfilled()) {
+                    transposedPriceMatrix[i] = p.valueOf();
+                } else {
+                    deferred.reject(new Error("Could not load symbol: " + symbols[i] +
+                                              ", i: " + i));
+                }
+            }
+            
+            return transposedPriceMatrix;
+        })
+        .then(function(transposedPriceMatrix) {
+            var result = mvefFromHistoricalPrices(
+                utils.generateRandomWeightsMatrix(m, n),
+                linearAlgebra.transpose(transposedPriceMatrix));
+
+            return result;
+        })
+        .then(function(result) {
+            deferred.resolve(result);
+        })
+        .done();
+
+    return deferred.promise;
 }
 
 /**
@@ -104,12 +132,13 @@ function mvef(historicalPricesProvider,
  * @param {Matrix} pricesKxN     K x N price matrix, where 
  *                               K is the number of historical prices,
  *                               N is the number of stocks in portfolio;
- * @param {Function} callback    Callback function that would be called when MVEF data calculated.
+ * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvefFromHistoricalPrices(weightsMxN, pricesKxN, callback) {
+function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
     // K x N (actually K-1 x N)
     var returnRatesKxN = portfolioStats.calculateReturnRatesFromPriceMatrix(pricesKxN);
-    mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN, callback);
+    var result =  mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN);
+    return result;
 }
 
 /**
@@ -121,9 +150,9 @@ function mvefFromHistoricalPrices(weightsMxN, pricesKxN, callback) {
  * @param {Matrix} returnRatsKxN   K x N return rates matrix, where 
  *                                 K is the number of historical intervals,
  *                                 N is the number of stocks in portfolio;
- * @param {Function} callback    Callback function that would be called when MVEF data calculated.
+ * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN, callback) {
+function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
     // K x 1
     var expReturnRatesNx1 = portfolioStats.mean(returnRatesKxN);
     // N x N
@@ -147,25 +176,19 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN, callback) {
     }
 
     if (portfolioExpReturnRateArr.length !== m) {
-        throw {
-            name: "InvalidState",
-            message: "portfolioExpReturnRateArr.length !== " + m
-        };
+        throw new Error("InvalidState: portfolioExpReturnRateArr.length !== " + m);
     }
 
     if (portfolioStdDevArr.length !== m) {
-        throw {
-            name: "InvalidState",
-            message: "portfolioStdDevArr.length !== " + m
-        };
+        throw new Error("InvalidState: portfolioStdDevArr.length !== " + m);
     }
 
     var result = {
         portfolioExpReturnRates: portfolioExpReturnRateArr,
         portfolioStdDevs: portfolioStdDevArr
     };
-    
-    callback(result);
+
+    return result;    
 }
 
 exports.mvef = mvef;

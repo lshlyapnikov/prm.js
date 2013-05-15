@@ -14,15 +14,15 @@
 
 var numeric = require("numeric");
 
-function dim(matrix) {
-    if (undefined === matrix) {
+function dim(matrixMxN) {
+    if (undefined === matrixMxN) {
         throw {
             name: "InvalidArgument",
             message: "Argument matrix is undefined"
         };
     }
 
-    var m = matrix.length;
+    var m = matrixMxN.length;
     if (undefined === m) {
         throw {
             name: "InvalidArgument",
@@ -30,7 +30,7 @@ function dim(matrix) {
         };
     }
 
-    var n = matrix[0].length;
+    var n = matrixMxN[0].length;
     if (undefined === n) {
         throw {
             name: "InvalidArgument",
@@ -91,7 +91,7 @@ function transpose(matrixMxN) {
 }
 
 // TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
-function multiplyMatricies(mXn, nXm) {
+function multiplyMatrices(mXn, nXm) {
     if (undefined === mXn) {
         throw {
             name: "InvalidArgument",
@@ -126,4 +126,4 @@ function multiplyMatricies(mXn, nXm) {
 exports.dim = dim;
 exports.matrix = matrix;
 exports.transpose = transpose;
-exports.multiplyMatricies = multiplyMatricies;
+exports.multiplyMatrices = multiplyMatrices;
