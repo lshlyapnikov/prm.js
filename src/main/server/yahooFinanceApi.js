@@ -49,6 +49,26 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
 function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
     var deferred = Q.defer();
 
+    if (undefined === symbol) {
+        deferred.reject(new Error("InvalidArgument: symbols array is either undefined or empty"));
+        return deferred.promise;
+    }
+
+    if (undefined === fromDate) {
+        deferred.reject(new Error("InvalidArgument: fromDate argument is undefined"));
+        return deferred.promise;
+    }
+
+    if (undefined === toDate) {
+        deferred.reject(new Error("InvalidArgument: toDate argument is undefined"));
+        return deferred.promise;
+    }
+
+    if (undefined === interval) {
+        deferred.reject(new Error("InvalidArgument: interval argument is undefined"));
+        return deferred.promise;
+    }
+
     var url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval);
     request.get(url, function(error, response, body) {
         if (!error && response.statusCode === 200) {

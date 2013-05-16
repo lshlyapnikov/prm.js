@@ -11,6 +11,7 @@
 var utils = require("./utils");
 var linearAlgebra = require("./linearAlgebra");
 var portfolioStats = require("./portfolioStats");
+var yahooFinanceApi = require("./yahooFinanceApi");
 var Q = require("q");
 
 // function extractPrices(objArr) {
@@ -22,11 +23,12 @@ var Q = require("q");
 
 /**
  * Generates portfolio MVEF for the specified symbols, using
- * historical prices from Yahoo Finance.
+ * Yahoo Finance API as a historical prices provider.
  *
- * @param {Module} historicalPricesProvider   Module with loadStockHistoryAsObject() method,
- *                                            see yahooFinanceApi.js;
- * @param {String} symbol   The stock symbol you are interested in,
+ * @param {function} loadHistoricalPrices   function(symbol) provider of historical prices,
+ *                                          takes a symbol,  returns a promise to
+ *                                          an array of historical prices;
+ * @param {Array} symbols   The stock symbols you are interested in,
  *                          1st parameter in loadStockHistoryAsObject();
  * @param {Date} fromDate   Specifies the start of the interval, inclusive,
  *                          2nd parameter in loadStockHistoryAsObject();
@@ -38,57 +40,52 @@ var Q = require("q");
  *                                         to generate MVEF.
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvef(loadStockHistory,
-              symbols, fromDate, toDate, interval, numberOfRandomWeights) {
+function mvefYahooFinanceApi(symbols, fromDate, toDate, interval, numberOfRandomWeights) {
+    function loadHistoricalPricesFromYahoo(symbol) {
+        return yahooFinanceApi.loadStockHistory(symbol, fromDate, toDate, interval,
+                                                ["Adj Close"], [utils.strToNumber]);
+    }
+
+    return mvef(loadHistoricalPricesFromYahoo, symbols, numberOfRandomWeights);
+}
+
+/**
+ * Generates portfolio MVEF for the specified symbols, using
+ * historical prices provided by loadHistoricalPrices function.
+ *
+ * @param {function} loadHistoricalPrices   function(symbol) provider of historical prices,
+ *                                          takes a symbol,  returns a promise to an array of
+ *                                          historical prices;
+ * @param {Array} symbols   The stock symbols you are interested in,
+ * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
+ *                                         to generate MVEF.
+ * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
+ */
+function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
     var deferred = Q.defer();
 
-    if ("function" !== typeof loadStockHistory) {
-        throw new Error("InvalidArgument: loadStockHistory must be a function");
+    if ("function" !== typeof loadHistoricalPrices) {
+        deferred.reject(new Error("InvalidArgument: loadHistoricalPrices must be a function"));
+        return deferred.promise;
     }
 
     if (undefined === symbols || 0 === symbols.length) {
-        throw new Error("InvalidArgument: symbols array is either undefined or empty");
-    }
-
-    if (undefined === fromDate) {
-        throw new Error("InvalidArgument: fromDate argument is undefined");
-    }
-
-    if (undefined === toDate) {
-        throw new Error("InvalidArgument: toDate argument is undefined");
-    }
-
-    if (undefined === interval) {
-        throw new Error("InvalidArgument: interval argument is undefined");
+        deferred.reject(new Error("InvalidArgument: symbols array is either undefined or empty"));
+        return deferred.promise;
     }
 
     if (undefined === numberOfRandomWeights) {
-        throw new Error("InvalidArgument: numberOfRandomWeights is undefined");
+        deferred.reject(new Error("InvalidArgument: numberOfRandomWeights is undefined"));
+        return deferred.promise;
     }
 
     var m = numberOfRandomWeights;
     var n = symbols.length;
 
-    // function load_(index) {
-    //     historicalPricesProvider.loadStockHistoryAsObject(
-    //         symbols[index], fromDate, toDate, interval, 
-    //         function(oneStockHistory) {
-    //             transposedPriceMatrix[index] = extractPrices(oneStockHistory);
-    //             loadCounter++;
-    //             if (loadCounter === n) {
-    //                 mvefFromHistoricalPrices(
-    //                     utils.generateRandomWeightsMatrix(m, n),
-    //                     linearAlgebra.transpose(transposedPriceMatrix), 
-    //                     callback);
-    //             }
-    //         });
-    // }
-
     var promises = new Array(n);
 
     for (var i = 0; i < n; i++) {
-        promises[i] = loadStockHistory(symbols[i], fromDate, toDate, interval,
-                                       ["Adj Close"], [utils.strToNumber]);
+        promises[i] = loadHistoricalPrices(symbols[i]);
     }
 
     Q.allResolved(promises)
@@ -191,6 +188,7 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
     return result;    
 }
 
+exports.mvefYahooFinanceApi = mvefYahooFinanceApi;
 exports.mvef = mvef;
 exports.mvefFromHistoricalPrices = mvefFromHistoricalPrices;
 exports.mvefFromHistoricalReturnRates = mvefFromHistoricalReturnRates;
