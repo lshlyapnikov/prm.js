@@ -15,44 +15,29 @@
 var numeric = require("numeric");
 
 function dim(matrixMxN) {
-    if (undefined === matrixMxN) {
-        throw {
-            name: "InvalidArgument",
-            message: "Argument matrix is undefined"
-        };
+    if ("undefined" === typeof matrixMxN) {
+        throw new Error("InvalidArgument: argument matrixMxN is not a number: " + matrixMxN);
     }
 
     var m = matrixMxN.length;
-    if (undefined === m) {
-        throw {
-            name: "InvalidArgument",
-            message: "Argument matrix does not have rows"
-        };
+    if ("number" !== typeof m) {
+        throw new Error("InvalidArgument: argument matrix does not have rows");
     }
 
     var n = matrixMxN[0].length;
-    if (undefined === n) {
-        throw {
-            name: "InvalidArgument",
-            message: "Argument matrix does not have columns"
-        };
+    if ("number" !== typeof n) {
+        throw new Error("InvalidArgument: argument matrix does not have columns");
     }
 
     return [m, n];
 }
 
 function matrix(m, n, initialValue) {
-    if (undefined === m || m <= 0) {
-        throw {
-            name: "InvalidArgument",
-            message: "invalid m: " + m
-        };
+    if ("number" !== typeof m || m <= 0) {
+        throw new Error("InvalidArgument: invalid m: " + m);
     }
-    if (undefined === n || n <= 0) {
-        throw {
-            name: "InvalidArgument",
-            message: "invalid n: " + n
-        };
+    if ("number" !== typeof n || n <= 0) {
+        throw new Error("InvalidArgument: invalid n: " + n);
     }
 
     var result = new Array(m);

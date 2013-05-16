@@ -256,7 +256,7 @@ describe("portfolioStats", function() {
             }
             // THEN
             assert.notEqual(actual, undefined);
-            assert.equal("InvalidArgument", actual.name);
+            assert.equal("Error", actual.name);
         });
     });
     describe("#portfolioStdDev()", function() {

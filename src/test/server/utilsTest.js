@@ -88,7 +88,7 @@ describe("utils", function() {
                 // THEN
                 var debugMsg = "rowNum: " + rowNum + ", colNum: " + colNum;
                 assert.notEqual(undefined, actualException, debugMsg);
-                assert.equal("InvalidArgument", actualException.name, debugMsg);
+                assert.equal("Error", actualException.name, debugMsg);
             }
 
             var i;

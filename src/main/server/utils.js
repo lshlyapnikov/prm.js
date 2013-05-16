@@ -10,17 +10,11 @@
 
 function convertArrayElements(arr, convertOneElement) {
     if (arr === undefined || 0 === arr.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "Array arr is either undefined or empty"
-        };
+        throw new Error("Array arr is either undefined or empty");
     }
 
     if (typeof convertOneElement != "function") {
-        throw {
-            name: "InvalidArgument",
-            message: "convertOneElement argument should be a function with one argument"
-        };
+        throw new Error("convertOneElement argument should be a function with one argument");
     }
 
     var length = arr.length;
@@ -36,17 +30,11 @@ function convertArrayElements(arr, convertOneElement) {
 
 function updateArrayElements(arr, convertOneElement) {
     if (arr === undefined || 0 === arr.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "Array arr is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: Array arr is either undefined or empty");
     }
 
-    if (typeof convertOneElement != "function") {
-        throw {
-            name: "InvalidArgument",
-            message: "convertOneElement argument should be a function with one argument"
-        };
+    if (typeof convertOneElement !== "function") {
+        throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
     }
 
     var i;
@@ -57,17 +45,11 @@ function updateArrayElements(arr, convertOneElement) {
 
 function updateMatrixElements(matrix, convertOneElement) {
     if (matrix === undefined || 0 === matrix.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "matrix is either undefined or empty"
-        };
+        throw new Error("InvalidArgument:  matrix is either undefined or empty");
     }
 
     if (typeof convertOneElement != "function") {
-        throw {
-            name: "InvalidArgument",
-            message: "convertOneElement argument should be a function with one argument"
-        };
+        throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
     }
 
     var m = matrix.length;
@@ -91,18 +73,12 @@ function updateMatrixElements(matrix, convertOneElement) {
  * @return {Matrix}          rowNum x colNum matrix, where one row is one random set of weights.
  */
 function generateRandomWeightsMatrix(rowNum, colNum) {
-    if (rowNum === undefined || rowNum <= 0) {
-        throw {
-            name: "InvalidArgument",
-            message: "Invalid argument rowNum: " + rowNum + ", must be > 0"
-        };
+    if ("number" !== typeof rowNum || rowNum <= 0) {
+        throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0");
     }
 
-    if (colNum === undefined || colNum <= 1) {
-        throw {
-            name: "InvalidArgument",
-            message: "Invalid argument colNum: " + colNum + ", must be > 1"
-        };
+    if ("number" !== typeof colNum || colNum <= 1) {
+        throw new Error("Invalid argument colNum: " + colNum + ", must be > 1");
     }
 
     var matrix = new Array(rowNum);
