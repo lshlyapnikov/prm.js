@@ -48,7 +48,7 @@ describe("mvef @IntegrationTest", function() {
             mvef.mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
                 .then(function(result) {
                     // THEN
-                    //console.log("result: " + JSON.stringify(result, null, 4));
+                    console.log("result: " + JSON.stringify(result, null, 4));
                     assert.equal(numOfRandomWeights, result.portfolioExpReturnRates.length);
                     assert.equal(numOfRandomWeights, result.portfolioStdDevs.length);
                     var pR = result.portfolioExpReturnRates;
@@ -66,6 +66,11 @@ describe("mvef @IntegrationTest", function() {
                     
                     console.log("min Std, %: ", minStd * 100);
                     console.log("return rate, %: ", pR[minStdIndx] * 100);
+                    console.log("weights: ", JSON.stringify(result.portfolioWeightsMxN[minStdIndx]));
+                    var actualMinRisk = (minStd * 100).toFixed(2);
+                    var expectedMinRisk =  (7.333752).toFixed(2);
+                    
+                    assert.equal(actualMinRisk, expectedMinRisk);
                 })
                 .then(function(){done();}, function(error){done(error);});
         });

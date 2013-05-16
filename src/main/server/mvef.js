@@ -183,7 +183,8 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
 
     var result = {
         portfolioExpReturnRates: portfolioExpReturnRateArr,
-        portfolioStdDevs: portfolioStdDevArr
+        portfolioStdDevs: portfolioStdDevArr,
+        portfolioWeightsMxN: weightsMxN
     };
 
     return result;    
