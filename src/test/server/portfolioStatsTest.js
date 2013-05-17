@@ -38,7 +38,7 @@ describe("portfolioStats", function() {
                 caught = e;
             }
             assert.equal(true, caught !== undefined);
-            assert.equal("InvalidArgument", caught.name);
+            assert.equal("Error", caught.name);
         });
     });
     describe("#meanValue() [4]", function() {
@@ -50,7 +50,7 @@ describe("portfolioStats", function() {
                 caught = e;
             }
             assert.equal(true, caught !== undefined);
-            assert.equal("InvalidArgument", caught.name);
+            assert.equal("Error", caught.name);
         });
     });
     describe("#mean() [1]", function() {
