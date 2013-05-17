@@ -12,10 +12,7 @@ var linearAlgebra = require("./linearAlgebra");
 
 function meanValue(arr) {
     if (arr === undefined || 0 === arr.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "Array arr is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: Array arr is either undefined or empty");
     }
 
     var sum = 0;
@@ -36,10 +33,7 @@ function meanValue(arr) {
  */
 function mean(matrix) {
     if (matrix === undefined || 0 === matrix.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "matrix is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: matrix is either undefined or empty");
     }
 
     var dimension = linearAlgebra.dim(matrix);
@@ -47,10 +41,8 @@ function mean(matrix) {
     var n = dimension[1];
 
     if (undefined === m || undefined === n) {
-        throw {
-            name: "InvalidArgument",
-            message: "argument matrix has to be a matrix (2-dimensional array)"
-        };
+        throw new Error("InvalidArgument: " +
+                        "argument matrix has to be a matrix (2-dimensional array)");
     }
 
     // create an empty vector for median values
@@ -95,20 +87,15 @@ function variance(arr, isPopulation) {
 
 function covariance(matrix, isPopulation) {
     if (matrix === undefined || 0 === matrix.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "matrix is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: matrix is either undefined or empty");
     }
 
     var rowNum = matrix.length;
     var colNum = matrix[0].length;
 
-    if (undefined === rowNum || undefined === colNum) {
-        throw {
-            name: "InvalidArgument",
-            message: "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix"
-        };
+    if ("number" !== typeof rowNum || "number" !== typeof colNum) {
+        throw new Error("InvalidArgument: " +
+                        "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix");
     }
 
     // create an empty result matrix (colNum x colNum)
@@ -154,10 +141,8 @@ function covariance(matrix, isPopulation) {
  */
 function calculateReturnRatesFromPrices(prices) {
     if (prices === undefined || 0 === prices.length) {
-        throw {
-            name: "InvalidArgument",
-            message: "Array prices argument is either undefined or empty"
-        };
+        throw new Error("InvalidArgument: " +
+                        "Array prices argument is either undefined or empty");
     }
 
     var result = new Array(prices.length - 1);

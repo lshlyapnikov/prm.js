@@ -78,31 +78,20 @@ function transpose(matrixMxN) {
 // TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
 function multiplyMatrices(mXn, nXm) {
     if (undefined === mXn) {
-        throw {
-            name: "InvalidArgument",
-            message: "Argument mXn is undefined"
-        };
+        throw new Error("InvalidArgument: Argument mXn is undefined");
     }
 
     if (undefined === nXm) {
-        throw {
-            name: "InvalidArgument",
-            message: "Argument nXm is undefined"
-        };
+        throw new Error("InvalidArgument: Argument nXm is undefined");
     }
 
     var dim0 = dim(mXn);
     var dim1 = dim(nXm);
 
     if (dim0[1] !== dim1[0]) {
-        throw {
-            name: "InvalidArgument",
-            message: "Invalid matrix dimensions. Cannot multiply " + dim0 + " matrix by " + dim1
-        };
+        throw new Error("InvalidArgument: " +
+                        "Invalid matrix dimensions. Cannot multiply " + dim0 + " matrix by " + dim1);
     }
-
-    //var m = dim0[0];
-    //var n = dim0[1];
 
     // delegate to numeric.js
     return numeric.dot(mXn, nXm);    
