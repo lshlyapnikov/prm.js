@@ -1,0 +1,56 @@
+{
+    "private": true,
+    "name": "prm.js",
+    "version": "0.0.1",
+    "description": "Portfolio Risk Management",
+    "author": "Leonid Shlyapnikov",
+    "license": "BSD",
+    "gitHead": "3d4a98309355b4cf89092f976b22dbaa8b0b20c8",
+    "readmeFilename": "README.md",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "postinstall": "grunt",
+        "start": "node app.js",
+        "test": "grunt test",
+        "test-fast": "grunt test-fast"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lshlyapnikov/prm.js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/lshlyapnikov/prm.js/issues"
+    },
+    "keywords": [
+        "node.js",
+        "nodejs",
+        "portfolio",
+        "risk",
+        "management",
+        "mean-variance",
+        "efficient",
+        "frontier"
+    ],
+    "engines": {
+        "node": ">=0.8.20",
+        "npm": ">=1.2.20"
+    },
+    "dependencies": {
+        "request": "2.21.x",
+        "csv": "0.3.x",
+        "q": "0.9.x",
+        "numeric": "1.2.x"
+    },
+    "devDependencies": {
+        "mocha": "1.9.x",
+        "grunt": "0.4.x",
+        "grunt-cli": "0.1.x",
+        "jshint": "2.x.x",
+        "watch": "0.8.x",
+        "grunt-contrib-jshint": "0.6.x",
+        "grunt-mocha-test": "0.6.x",
+        "grunt-contrib-watch": "0.5.x"
+    }
+}
