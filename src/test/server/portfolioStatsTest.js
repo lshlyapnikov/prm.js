@@ -7,6 +7,7 @@
 
 var portfolioStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
+var testData = require("./testData");
 var assert = require("assert");
 var numeric = require("numeric");
 
@@ -41,8 +42,8 @@ describe("portfolioStats", function() {
             assert.equal("Error", caught.name);
         });
     });
-    describe("#meanValue() [4]", function() {
-        it("should throw up when array is empty", function() {
+    describe("#meanValue()", function() {
+        it("[4] should throw up when array is empty", function() {
             var caught;
             try {
                 portfolioStats.meanValue([]);
@@ -51,6 +52,12 @@ describe("portfolioStats", function() {
             }
             assert.equal(true, caught !== undefined);
             assert.equal("Error", caught.name);
+        });
+    });
+    describe.skip("#meanValue()", function() {
+        it("[5] should calcualte mean value", function() {
+            var actual = portfolioStats.meanValue(testData.NYX);
+            assert.equal(actual, 123.0);
         });
     });
     describe("#mean() [1]", function() {
@@ -188,6 +195,10 @@ describe("portfolioStats", function() {
             assert.equal(JSON.stringify(expected, null, 4), JSON.stringify(actual, null, 4));
         });
     });
+    describe("#covariance()", function() {
+        it("[3] should calculate sample covariance using testData", function() {
+        });
+    });      
     describe("#calculateReturnRatesFromPrices()", function() {
         it("[1] should calculate return rates from provided prices", function() {
             // GIVEN

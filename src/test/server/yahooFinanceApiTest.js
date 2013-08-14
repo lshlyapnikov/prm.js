@@ -15,9 +15,9 @@ describe("yahooFinanceApi @IntegrationTest", function() {
     describe("#loadStockHistoryAsString()", function() {
         it("should load expected CSV string  [3 days]", function(done) {
             var expectedCsv = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
-                "2013-04-12,37.86,38.05,37.76,38.05,783400,38.05\n" + 
-                "2013-04-11,37.97,38.18,37.81,37.99,931200,37.99\n" +
-                "2013-04-10,37.57,37.99,37.46,37.93,1043600,37.93\n";
+                "2013-04-12,37.86,38.05,37.76,38.05,783400,37.77\n" + 
+                "2013-04-11,37.97,38.18,37.81,37.99,931200,37.71\n" +
+                "2013-04-10,37.57,37.99,37.46,37.93,1043600,37.65\n";
             yahooFinanceApi.loadStockHistoryAsString(
                 "NYX", 
                 new Date(2013, 03, 10), 
@@ -30,7 +30,7 @@ describe("yahooFinanceApi @IntegrationTest", function() {
         });
         it("should load expected CSV string [1 day]", function(done) {
             var expectedCsv = "Date,Open,High,Low,Close,Volume,Adj Close\n" + 
-                "2013-04-01,38.65,38.75,38.20,38.32,820600,38.32\n";
+                "2013-04-01,38.65,38.75,38.20,38.32,820600,38.04\n";
             yahooFinanceApi.loadStockHistoryAsString(
                 "NYX", 
                 new Date(2013, 03, 1), 
@@ -58,9 +58,9 @@ describe("yahooFinanceApi @IntegrationTest", function() {
     describe("#loadStockHistory()", function() {
         it("[1] should load historical prices as array of arrays  [3 days]", function(done) {
             var expectedObject = [
-                ["2013-04-12", "37.86", "38.05", "37.76", "38.05", "783400", "38.05"],
-                ["2013-04-11", "37.97", "38.18", "37.81", "37.99", "931200", "37.99"],
-                ["2013-04-10", "37.57", "37.99", "37.46", "37.93", "1043600", "37.93"]
+                ["2013-04-12", "37.86", "38.05", "37.76", "38.05", "783400", "37.77"],
+                ["2013-04-11", "37.97", "38.18", "37.81", "37.99", "931200", "37.71"],
+                ["2013-04-10", "37.57", "37.99", "37.46", "37.93", "1043600", "37.65"]
             ];
             yahooFinanceApi.loadStockHistory(
                 "NYX",
@@ -80,9 +80,9 @@ describe("yahooFinanceApi @IntegrationTest", function() {
         });
         it("[2] should load 'Adj Close' prices as Numbers [3 days]", function(done) {
             var expectedObject = [
-                [38.05],
-                [37.99],
-                [37.93]
+                [37.77],
+                [37.71],
+                [37.65]
             ];
             yahooFinanceApi.loadStockHistory(
                 "NYX",
@@ -101,9 +101,9 @@ describe("yahooFinanceApi @IntegrationTest", function() {
         });
         it("[3] should load 'Volume' and 'Adj Close' prices as Numbers [3 days]", function(done) {
             var expectedObject = [
-                [783400, 38.05],
-                [931200, 37.99],
-                [1043600, 37.93]
+                [783400, 37.77],
+                [931200, 37.71],
+                [1043600, 37.65]
             ];
             yahooFinanceApi.loadStockHistory(
                 "NYX",

@@ -31,7 +31,7 @@ describe("mvef @IntegrationTest", function() {
     describe("#mvef()", function() {
         it("[1] should load historical prices using the specified provider and return MVEF numbers", function(done) {
             // GIVEN
-            var prices = testData.historicalPrices_INTC_NYX;
+            var prices = [testData.NYX];
 
             function mockHistoricalPricesProvider(symbol) {
                 var deferred = Q.defer();

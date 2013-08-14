@@ -62,7 +62,6 @@ function mvefYahooFinanceApi(symbols, fromDate, toDate, interval, numberOfRandom
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
 function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
-    debugger;
     var deferred = Q.defer();
 
     if ("function" !== typeof loadHistoricalPrices) {
