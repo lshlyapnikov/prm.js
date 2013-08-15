@@ -12,7 +12,7 @@ var Q = require("q");
 var testData = require("./testData");
 
 describe("mvef @IntegrationTest", function() {
-    describe.skip("#mvefYahooFinanceApi()", function() {
+    describe("#mvefYahooFinanceApi()", function() {
         it("[1] should load historical prices from Yahoo Finance and return MVEF numbers", function(done) {
             var numOfRandomWeights = 100;
             mvef.mvefYahooFinanceApi(["NYX", "INTC"],
@@ -29,7 +29,7 @@ describe("mvef @IntegrationTest", function() {
         });
     });
     describe("#mvef()", function() {
-        it("[1] should load historical prices using the specified provider and return MVEF numbers", function(done) {
+        it("[2] should load historical prices using the specified provider and return MVEF numbers", function(done) {
             // GIVEN
             var prices = [testData.NYX];
 
