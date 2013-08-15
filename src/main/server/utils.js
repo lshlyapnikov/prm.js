@@ -13,7 +13,7 @@ function convertArrayElements(arr, convertOneElement) {
         throw new Error("Array arr is either undefined or empty");
     }
 
-    if (typeof convertOneElement != "function") {
+    if (typeof convertOneElement !== "function") {
         throw new Error("convertOneElement argument should be a function with one argument");
     }
 
@@ -48,7 +48,7 @@ function updateMatrixElements(matrix, convertOneElement) {
         throw new Error("InvalidArgument:  matrix is either undefined or empty");
     }
 
-    if (typeof convertOneElement != "function") {
+    if (typeof convertOneElement !== "function") {
         throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
     }
 

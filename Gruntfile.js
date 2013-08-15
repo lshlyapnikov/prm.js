@@ -6,7 +6,7 @@
 /* global module */
 
 module.exports = function(grunt) {
-
+    var runIntegrationTests = grunt.option("IntegrationTest") || false;
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
@@ -23,20 +23,12 @@ module.exports = function(grunt) {
             }
         },
 
-        mochaTestFast: {
-            test: {
-                options: {
-                    reporter: 'spec',
-                    grep: '@IntegrationTest',
-                    invert: true
-                },
-                src: ['src/test/server/*.js']
-            }
-        },
         mochaTest: {
             test: {
                 options: {
                     reporter: 'spec',
+                    grep: '@IntegrationTest',
+                    invert: !runIntegrationTests,
                 },
                 src: ['src/test/server/*.js']
             }
@@ -57,7 +49,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
-    grunt.registerTask('test-fast', ['jshint', "mochaTestFast"]);
     grunt.registerTask('test', ['jshint', "mochaTest"]);
     grunt.registerTask('default', ['jshint', 'mochaTest']);
 };

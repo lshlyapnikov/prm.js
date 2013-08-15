@@ -54,10 +54,10 @@ describe("portfolioStats", function() {
             assert.equal("Error", caught.name);
         });
     });
-    describe.skip("#meanValue()", function() {
+    describe("#meanValue()", function() {
         it("[5] should calcualte mean value", function() {
             var actual = portfolioStats.meanValue(testData.NYX);
-            assert.equal(actual, 123.0);
+            assert.equal(actual.toFixed(5), 36.75465);
         });
     });
     describe("#mean() [1]", function() {

@@ -14,7 +14,7 @@
         "postinstall": "grunt",
         "start": "node app.js",
         "test": "grunt test",
-        "test-fast": "grunt test-fast"
+        "integration-test": "grunt --IntegrationTest=true"
     },
     "repository": {
         "type": "git",
