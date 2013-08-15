@@ -11,8 +11,8 @@ var assert = require("assert");
 var Q = require("q");
 var testData = require("./testData");
 
-describe("mvef @IntegrationTest", function() {
-    describe("#mvefYahooFinanceApi()", function() {
+describe("mvef", function() {
+    describe("#mvefYahooFinanceApi() @IntegrationTest", function() {
         it("[1] should load historical prices from Yahoo Finance and return MVEF numbers", function(done) {
             var numOfRandomWeights = 100;
             mvef.mvefYahooFinanceApi(["NYX", "INTC"],

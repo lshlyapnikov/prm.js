@@ -88,7 +88,6 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
         promises[i] = loadHistoricalPrices(symbols[i]);
     }
 
-    //Q.allSettled(promises)
     Q.allSettled(promises)
         .then(function(promises) {
             var transposedPriceMatrix = new Array(n);
@@ -96,13 +95,12 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
             for (var i = 0; i < n; i++) {
                 p = promises[i];
                 if (p.state === 'fulfilled') {
-                    transposedPriceMatrix[i] = p.valueOf();
+                    transposedPriceMatrix[i] = p.value;
                 } else {
                     deferred.reject(new Error("Could not load symbol: " + symbols[i] +
                                               ", i: " + i));
                 }
             }
-            
             return transposedPriceMatrix;
         })
         .then(function(transposedPriceMatrix) {

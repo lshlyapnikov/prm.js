@@ -26,7 +26,7 @@ module.exports = function(grunt) {
         mochaTest: {
             test: {
                 options: {
-                    reporter: 'spec',
+                    reporter: 'list',
                     grep: '@IntegrationTest',
                     invert: !runIntegrationTests,
                 },

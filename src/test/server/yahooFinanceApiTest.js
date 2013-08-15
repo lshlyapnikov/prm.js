@@ -3,7 +3,7 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global require, describe, it, console */
+/* global require, describe, it */
 
 var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
 var utils = require("../../main/server/utils");
@@ -131,7 +131,7 @@ describe("yahooFinanceApi @IntegrationTest", function() {
                 .then(function() {
                     done(new Error("Expecting an eror due to unknown symbol"));
                 }, function(error) {
-                    console.log("expected error: ", error);
+                    //console.log("expected error: ", error);
                     assert.ok(error, "Expecting an error due to unknown symbol");
                     done();
                 });
@@ -148,7 +148,7 @@ describe("yahooFinanceApi @IntegrationTest", function() {
             ).then(function() {
                 done(new Error("Expecting an error due to uknown field name"));
             }, function(error) {
-                console.log("expected error:", error);
+                //console.log("expected error:", error);
                 assert.ok(error, "Expecting an error due to uknown field name");
                 done();
             });
@@ -164,7 +164,7 @@ describe("yahooFinanceApi @IntegrationTest", function() {
             ).then(function() {
                 done(new Error("Expecting an error: 2 fields -- 2 converters, passed only 1"));
             }, function(error) {
-                console.log("expected error:", error);
+                //console.log("expected error:", error);
                 assert.ok(error, "Expecting an error: 2 fields -- 2 converters, passed only 1");
                 done();
             });
