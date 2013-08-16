@@ -112,6 +112,10 @@ function noop(str) {
     return str;
 }
 
+exports.defined = function(v) {
+    return typeof v !== "undefined" && v !== null;
+};
+
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
 exports.updateMatrixElements = updateMatrixElements;

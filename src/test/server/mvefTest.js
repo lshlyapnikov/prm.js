@@ -59,7 +59,7 @@ describe("mvef", function() {
                             minStd = pStd[i];
                         }
                     }
-                    
+
                     console.log("min Std, %: ", minStd * 100);
                     console.log("return rate, %: ", pR[minStdIndx] * 100);
                     console.log("weights: ", JSON.stringify(result.portfolioWeightsMxN[minStdIndx]));

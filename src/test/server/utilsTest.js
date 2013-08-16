@@ -97,4 +97,24 @@ describe("utils", function() {
             }
         });
     });
+    describe("#defined", function() {
+        it("should return true when variable is defined", function() {
+            assert.equal(true, utils.defined(10));
+            var myVar = 100;
+            assert.equal(true, utils.defined(myVar));
+        });
+    });
+    describe("#defined", function() {
+        it("should return false when variable is undefined", function() {
+            var myVar;
+            assert.equal(false, utils.defined(myVar));
+        });
+    });
+    describe("#defined", function() {
+        it("should return false when variable is null", function() {
+            var myVar = null;
+            assert.equal(false, utils.defined(myVar));
+            assert.equal(false, utils.defined(null));
+        });
+    });
 });
