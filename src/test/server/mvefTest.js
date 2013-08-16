@@ -6,7 +6,6 @@
 /* global describe, it, require, console */
 
 var mvef = require("../../main/server/mvef");
-//var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
 var assert = require("assert");
 var Q = require("q");
 var testData = require("./testData");
@@ -31,12 +30,11 @@ describe("mvef", function() {
     describe("#mvef()", function() {
         it("[2] should load historical prices using the specified provider and return MVEF numbers", function(done) {
             // GIVEN
-            var prices = [testData.NYX];
+            var prices = {NYX: testData.NYX, INTC: testData.INTC};
 
             function mockHistoricalPricesProvider(symbol) {
                 var deferred = Q.defer();
                 var result = prices[symbol];
-                console.log("symbol: ", symbol);
                 deferred.resolve(result);
                 return deferred.promise;
             }            
@@ -47,7 +45,6 @@ describe("mvef", function() {
             mvef.mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
                 .then(function(result) {
                     // THEN
-                    //console.log("result: " + JSON.stringify(result, null, 4));
                     assert.equal(numOfRandomWeights, result.portfolioExpReturnRates.length);
                     assert.equal(numOfRandomWeights, result.portfolioStdDevs.length);
                     var pR = result.portfolioExpReturnRates;
@@ -75,5 +72,3 @@ describe("mvef", function() {
         });
     });
 });
-
-
