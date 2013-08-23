@@ -12,16 +12,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         jshint: {
-            files: ['Gruntfile.js', 'src/main/server/*.js', 'src/test/server/*.js'],
-            options: {
-                // options here to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    require: true,
-                    exports: true
-                }
-            }
+            files: ['Gruntfile.js', 'src/**/*.js'],
         },
 
         mochaTest: {
@@ -39,7 +30,8 @@ module.exports = function(grunt) {
                 files: ['<%= jshint.files %>'],
                 tasks: ['jshint'],
                 options: {
-                    spawn: false
+                    spawn: false,
+                    interrupt: true
                 }
             }
         }

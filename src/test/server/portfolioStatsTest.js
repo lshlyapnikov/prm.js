@@ -5,7 +5,7 @@
 /* jshint browser: true */
 /* global require, describe, it */
 
-var portfolioStats = require("../../main/server/portfolioStats");
+var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
 var testData = require("./testData");
 var assert = require("assert");
@@ -15,26 +15,21 @@ describe("portfolioStats", function() {
     describe("#meanValue()", function() {
         it("[1] should calculate mean", function() {
             var expectedMean = 2870;
-            var actualMean = portfolioStats.meanValue([123, 456, 789, 10112]);
+            var actualMean = pStats.meanValue([123, 456, 789, 10112]);
             assert.equal(actualMean, expectedMean);
         });
     });
     describe("#meanValue()", function() {
         it("[2] should calculate mean", function() {
-            // R:
-            // >  a = c(-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234);
-            // > mean(a)
-            // [1] 397.793
-            var expectedMean = [397.793];
-            var actualMean = portfolioStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
-            assert.equal(actualMean.toFixed(3), expectedMean);
+            var actualMean = pStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
+            assert.equal(397.79303, actualMean.toFixed(5));
         });
     });
     describe("#meanValue()", function() {
         it("[3] should throw up when array is undefined", function() {
             var caught;
             try {
-                portfolioStats.meanValue(undefined);
+                pStats.meanValue(undefined);
             } catch(e) {
                 caught = e;
             }
@@ -46,7 +41,7 @@ describe("portfolioStats", function() {
         it("[4] should throw up when array is empty", function() {
             var caught;
             try {
-                portfolioStats.meanValue([]);
+                pStats.meanValue([]);
             } catch(e) {
                 caught = e;
             }
@@ -56,14 +51,14 @@ describe("portfolioStats", function() {
     });
     describe("#meanValue()", function() {
         it("[5] should calcualte mean value", function() {
-            var actual = portfolioStats.meanValue(testData.NYX);
+            var actual = pStats.meanValue(testData.NYX);
             assert.equal(actual.toFixed(5), 36.75465);
         });
     });
     describe("#mean() [1]", function() {
         it("should calculate vector of mean values", function() {
             var expectedMean = [[2.5], [25], [250]];
-            var actualMean = portfolioStats.mean([
+            var actualMean = pStats.mean([
                 [1, 10, 100],
                 [2, 20, 200],
                 [3, 30, 300],
@@ -72,14 +67,22 @@ describe("portfolioStats", function() {
         });
     });
     describe("#variance()", function() {
-        it("should calculate sample variance", function() {
-            // R:
-            // >  a = c(-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234);
-            // > var(a)
-            // [1] 248102.9
-            var expected = 248102.9;
-            var actual = portfolioStats.variance([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
-            assert.equal(expected, actual.toFixed(1));
+        var arr = [-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234];
+        it("[1] should calculate sample variance", function() {
+            var actual = pStats.variance(arr);
+            assert.equal(248102.91444, actual.toFixed(5));
+        });
+        it("[2] should calculate sample variance", function() {
+            var actual = pStats.variance([1, 2, 3], false);
+            assert.equal(1, actual);
+        });
+        it("[3] should calculate population variance", function() {
+            var actual = pStats.variance(arr, true);
+            assert(220535.92394, actual.toFixed(5));
+        });
+        it("[4] should calculate population variance", function() {
+            var actual = pStats.variance([1, 2, 3], true);
+            assert.equal(0.6666667, actual.toFixed(7));
         });
     });
     describe("#covariance()", function() {
@@ -112,7 +115,7 @@ describe("portfolioStats", function() {
                 [343.80, 434.25, 524.70]];
 
             // WHEN
-            var actual = portfolioStats.covariance(m);
+            var actual = pStats.covariance(m);
 
             // THEN
             var rowNum = numeric.dim(actual)[0];
@@ -176,7 +179,7 @@ describe("portfolioStats", function() {
 
 
             // WHEN
-            var actual = portfolioStats.covariance(m);
+            var actual = pStats.covariance(m);
 
             // THEN
             var rowNum = numeric.dim(actual)[0];
@@ -206,7 +209,7 @@ describe("portfolioStats", function() {
             var expected = [0.231921694, 0.091859899, 0.246677062];
 
             // WHEN
-            var actual = portfolioStats.calculateReturnRatesFromPrices(prices);
+            var actual = pStats.calculateReturnRatesFromPrices(prices);
 
             // THEN
             utils.updateArrayElements(expected, function(num) {
@@ -225,7 +228,7 @@ describe("portfolioStats", function() {
             var expected = [];
 
             // WHEN
-            var actual = portfolioStats.calculateReturnRatesFromPrices(prices);
+            var actual = pStats.calculateReturnRatesFromPrices(prices);
 
             // THEN
             assert.deepEqual(expected, actual);
@@ -242,7 +245,7 @@ describe("portfolioStats", function() {
                 [0.998771511, 0.89047195],
                 [0.499692689, 0.471031559]];
             // WHEN
-            var actual = portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
+            var actual = pStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
 
             // THEN
             utils.updateMatrixElements(expected, function(num) {
@@ -261,7 +264,7 @@ describe("portfolioStats", function() {
             var actual;
             // WHEN
             try {
-                portfolioStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
+                pStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
             } catch (e) {
                 actual = e;
             }
@@ -281,7 +284,7 @@ describe("portfolioStats", function() {
             ];
             var expected = 0.07586538;
             // WHEN
-            var actual = portfolioStats.portfolioStdDev(weights1xN, covarianceNxN);
+            var actual = pStats.portfolioStdDev(weights1xN, covarianceNxN);
             // THEN
             assert.equal(expected.toFixed(5), actual.toFixed(5));
         });
@@ -297,7 +300,7 @@ describe("portfolioStats", function() {
             ];
             var expected = 0.4193;
             // WHEN
-            var actual = portfolioStats.portfolioStdDev(weights1xN, covarianceNxN);
+            var actual = pStats.portfolioStdDev(weights1xN, covarianceNxN);
             // THEN
             assert.equal(expected.toFixed(4), actual.toFixed(4));
         });
