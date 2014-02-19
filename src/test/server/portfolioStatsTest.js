@@ -7,6 +7,7 @@
 
 var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
+var linearAlgebra = require("../../main/server/linearAlgebra")
 var testData = require("./testData");
 var assert = require("assert");
 var numeric = require("numeric");
@@ -157,7 +158,15 @@ describe("portfolioStats", function() {
         });
 
         it("[3] should calculate sample covariance using testData", function() {
-            assert.ok(false);
+            var mXn = linearAlgebra.transpose([testData.INTC, testData.NYX]);
+            var expected = [
+                [11.4424425066996  -0.5151149866007],
+                [-0.5151149866007, 343.7836414553700]];
+            var actual = pStats.covariance(mXn);
+            console.log(JSON.stringify(expected, null, 4))
+            assert.deepEqual(linearAlgebra.dim(actual), [2, 2]);
+            assert.equal(actual[0].length, 2)
+            assert.deepEqual(expected, actual);
         });
     });      
     describe("#calculateReturnRatesFromPrices()", function() {

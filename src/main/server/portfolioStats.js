@@ -108,17 +108,15 @@ function covariance(matrix, isPopulation) {
 
     var i, j, k;
 
+    var divisor = true === isPopulation ? rowNum : (rowNum - 1);
+
     // calculate the diagonal elements and the half that is below the diagonal
     for (j = 0; j < colNum; j++) {
         for (k = 0; k <= j; k++) {
             for (i = 0; i < rowNum; i++) {
                 result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0]);
             }
-            if (true === isPopulation) {
-                result[j][k] = result[j][k] / rowNum;
-            } else {
-                result[j][k] = result[j][k] / (rowNum - 1);
-            }
+            result[j][k] = result[j][k] / divisor
         }
     }
 

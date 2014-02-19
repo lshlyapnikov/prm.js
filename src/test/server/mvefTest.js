@@ -15,8 +15,8 @@ describe("mvef", function() {
         it("[1] should load historical prices from Yahoo Finance and return MVEF numbers", function(done) {
             var numOfRandomWeights = 100;
             mvef.mvefYahooFinanceApi(["NYX", "INTC"],
-                                     new Date(2013, 03, 10),
-                                     new Date(2013, 03, 12),
+                                     new Date(2013, 3, 10),
+                                     new Date(2013, 3, 12),
                                      "d",
                                      numOfRandomWeights)
                 .then(function(result) {
