@@ -87,21 +87,6 @@ describe("portfolioStats", function() {
     });
     describe("#covariance()", function() {
         it("[1] should calculate sample covariance", function() {
-            // R:
-            // > m = rbind(c(1,2,3), c(40,50,60), c(7,8,9), c(10, 11, 12), c(13, 14,15));
-            // > m
-            //      [,1] [,2] [,3]
-            // [1,]    1    2    3
-            // [2,]   40   50   60
-            // [3,]    7    8    9
-            // [4,]   10   11   12
-            // [5,]   13   14   15
-            // > var(m)
-            //        [,1]   [,2]   [,3]
-            // [1,] 227.70 285.75 343.80
-            // [2,] 285.75 360.00 434.25
-            // [3,] 343.80 434.25 524.70
-
             // GIVEN
             var m = [
                 [1,2,3],
@@ -129,35 +114,8 @@ describe("portfolioStats", function() {
 
             assert.deepEqual(expected, actual);
         });
-    });
 
-    describe("#covariance()", function() {
         it("[2] should calculate sample covariance", function() {
-            /*
-            R:
-            > m = matrix(data = rexp(50, rate = 10), nrow = 10, ncol = 5)
-            > m
-                        [,1]       [,2]       [,3]       [,4]        [,5]
-             [1,] 0.05176742 0.19649658 0.08032437 0.02009803 0.303612848
-             [2,] 0.15598153 0.03217524 0.05623585 0.16309296 0.008880331
-             [3,] 0.03739765 0.24896220 0.05287603 0.11171264 0.141389348
-             [4,] 0.09215301 0.08065653 0.01932586 0.18225324 0.117325248
-             [5,] 0.05081828 0.04087132 0.04067674 0.34652004 0.037860078
-             [6,] 0.05710076 0.17920232 0.15726811 0.13579958 0.262676459
-             [7,] 0.07683365 0.03858374 0.04612419 0.06733188 0.045760640
-             [8,] 0.12567096 0.04273011 0.33551670 0.08045967 0.195531782
-             [9,] 0.29584858 0.22294231 0.13388306 0.01525325 0.170752117
-            [10,] 0.03883857 0.24567795 0.08235735 0.37050856 0.623400103
-            > var(m)
-                          [,1]          [,2]          [,3]          [,4]         [,5]
-            [1,]  0.0063291394 -0.0002684659  0.0019511242 -0.0044080703 -0.003824659
-            [2,] -0.0002684659  0.0087617333 -0.0005644795 -0.0008499264  0.011248949
-            [3,]  0.0019511242 -0.0005644795  0.0086286935 -0.0035181307  0.003089374
-            [4,] -0.0044080703 -0.0008499264 -0.0035181307  0.0152021828  0.006795891
-            [5,] -0.0038246587  0.0112489494  0.0030893736  0.0067958912  0.032313534
-            */
-
-
             // GIVEN
             var m = [
                 [0.05176742, 0.19649658, 0.08032437, 0.02009803, 0.303612848],
@@ -197,9 +155,9 @@ describe("portfolioStats", function() {
             }
             assert.equal(JSON.stringify(expected, null, 4), JSON.stringify(actual, null, 4));
         });
-    });
-    describe("#covariance()", function() {
+
         it("[3] should calculate sample covariance using testData", function() {
+            assert.ok(false);
         });
     });      
     describe("#calculateReturnRatesFromPrices()", function() {
@@ -220,8 +178,6 @@ describe("portfolioStats", function() {
             });
             assert.deepEqual(expected, actual);
         });
-    });
-    describe("#calculateReturnRatesFromPrices()", function() {
         it("[2] should return empty array", function() {
             // GIVEN
             var prices = [100.12];
@@ -256,8 +212,6 @@ describe("portfolioStats", function() {
             });
             assert.deepEqual(expected, actual);
         });
-    });
-    describe("#calculateReturnRatesFromPriceMatrix()", function() {
         it("[2] should throw up if not enough data points to calculate return rate", function() {
             // GIVEN
             var priceMatrix = [[100.123, 1.123]]; // not enough data points to calculate return rates.
@@ -288,8 +242,6 @@ describe("portfolioStats", function() {
             // THEN
             assert.equal(expected.toFixed(5), actual.toFixed(5));
         });
-    });
-    describe("#portfolioStdDev()", function() {
         it("[2] should calculate portfolio Std Dev", function() {
             // GIVEN
             var weights1xN = [[0.2, 0.4, 0.4]];
