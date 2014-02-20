@@ -16,7 +16,7 @@ var numeric = require("numeric");
 
 function dim(matrixMxN) {
     if ("undefined" === typeof matrixMxN) {
-        throw new Error("InvalidArgument: argument matrixMxN is not a number: " + matrixMxN);
+        throw new Error("InvalidArgument: argument matrixMxN is undefined");
     }
 
     var m = matrixMxN.length;
@@ -97,7 +97,30 @@ function multiplyMatrices(mXn, nXm) {
     return numeric.dot(mXn, nXm);    
 }
 
+function validateMatrix(mXn) {
+    var mn = dim(mXn);
+    var m = mn[0];
+    var n = mn[1];
+
+    if (m === 0) {
+        throw new Error("InvalidArgument: matrix has 0 rows");
+    }
+
+    if (n === 0) {
+        throw new Error("InvalidArgument: matrix has 0 columns");
+    }
+
+    var i, shouldBeN;
+    for (i = 1; i < m; i++) {
+        shouldBeN = mXn[i].length;
+        if (shouldBeN !== n) {
+            throw new Error("InvalidArgument: expected " + n + " elements in row: " + i);
+        }
+    }
+}
+
 exports.dim = dim;
 exports.matrix = matrix;
 exports.transpose = transpose;
 exports.multiplyMatrices = multiplyMatrices;
+exports.validateMatrix = validateMatrix;

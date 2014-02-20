@@ -3,11 +3,11 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global require, describe, it */
+/* global require, describe, it, console */
 
 var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
-var linearAlgebra = require("../../main/server/linearAlgebra")
+var linearAlgebra = require("../../main/server/linearAlgebra");
 var testData = require("./testData");
 var assert = require("assert");
 var numeric = require("numeric");
@@ -90,11 +90,11 @@ describe("portfolioStats", function() {
         it("[1] should calculate sample covariance", function() {
             // GIVEN
             var m = [
-                [1,2,3],
-                [40,50,60],
-                [7,8,9], 
-                [10, 11, 12], 
-                [13, 14,15]];
+                [1, 2, 3],
+                [40, 50, 60],
+                [7, 8, 9],
+                [10, 11, 12],
+                [13, 14, 15]];
             var expected = [
                 [227.70, 285.75, 343.80],
                 [285.75, 360.00, 434.25],
@@ -159,13 +159,14 @@ describe("portfolioStats", function() {
 
         it("[3] should calculate sample covariance using testData", function() {
             var mXn = linearAlgebra.transpose([testData.INTC, testData.NYX]);
+            assert.equal(testData.INTC.length, testData.NYX.length);
             var expected = [
                 [11.4424425066996  -0.5151149866007],
                 [-0.5151149866007, 343.7836414553700]];
             var actual = pStats.covariance(mXn);
-            console.log(JSON.stringify(expected, null, 4))
+            console.log(JSON.stringify(expected, null, 4));
             assert.deepEqual(linearAlgebra.dim(actual), [2, 2]);
-            assert.equal(actual[0].length, 2)
+            assert.equal(actual[0].length, 2);
             assert.deepEqual(expected, actual);
         });
     });      
