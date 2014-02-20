@@ -11,17 +11,17 @@ var assert = require("assert");
 
 // turned it off to avoid spaming yahoo finance
 // should be turned into some kind of integration test
-describe.skip("yahooFinanceApi @IntegrationTest", function() {
+describe("yahooFinanceApi @IntegrationTest", function() {
   describe("#loadStockHistoryAsString()", function() {
     it("should load expected CSV string  [3 days]", function(done) {
       var expectedCsv = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
-        "2013-04-12,37.86,38.05,37.76,38.05,783400,37.77\n" +
-        "2013-04-11,37.97,38.18,37.81,37.99,931200,37.71\n" +
-        "2013-04-10,37.57,37.99,37.46,37.93,1043600,37.65\n";
+        "1975-03-05,214.50,220.25,214.25,215.38,1867200,4.89\n" +
+        "1975-03-04,220.00,224.75,214.25,214.50,2065600,4.87\n" +
+        "1975-03-03,216.00,220.00,216.00,220.00,1267200,5.00\n";
       yahooFinanceApi.loadStockHistoryAsString(
-        "NYX",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        "IBM",
+        new Date(1975, 2, 3),
+        new Date(1975, 2, 5),
         "d")
         .then(function(actualCsv) {
           assert.equal(expectedCsv, actualCsv);
@@ -34,11 +34,11 @@ describe.skip("yahooFinanceApi @IntegrationTest", function() {
     });
     it("should load expected CSV string [1 day]", function(done) {
       var expectedCsv = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
-        "2013-04-01,38.65,38.75,38.20,38.32,820600,38.04\n";
+        "1975-03-05,214.50,220.25,214.25,215.38,1867200,4.89\n";
       yahooFinanceApi.loadStockHistoryAsString(
-        "NYX",
-        new Date(2013, 03, 1),
-        new Date(2013, 03, 1),
+        "IBM",
+        new Date(1975, 2, 5),
+        new Date(1975, 2, 5),
         "d")
         .then(function(actualCsv) {
           assert.equal(expectedCsv, actualCsv);
@@ -52,8 +52,8 @@ describe.skip("yahooFinanceApi @IntegrationTest", function() {
     it("should return error due to unknown symbol", function(done) {
       yahooFinanceApi.loadStockHistoryAsString(
         "UnknownSymbol",
-        new Date(2013, 03, 1),
-        new Date(2013, 03, 1),
+        new Date(2013, 3, 1),
+        new Date(2013, 3, 1),
         "d")
         .then(function() {
           done(new Error("Expecting an eror due to unknown symbol"));
@@ -63,7 +63,7 @@ describe.skip("yahooFinanceApi @IntegrationTest", function() {
         });
     });
   });
-  describe("#loadStockHistory()", function() {
+  describe.skip("#loadStockHistory()", function() {
     it("[1] should load historical prices as array of arrays  [3 days]", function(done) {
       var expectedObject = [
         ["2013-04-12", "37.86", "38.05", "37.76", "38.05", "783400", "37.77"],
