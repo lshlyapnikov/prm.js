@@ -9,20 +9,21 @@ var utils = require("../../main/server/utils");
 var assert = require("assert");
 var numeric = require("numeric");
 
-describe("utils", function() {
-    describe("#convertArrayElements()", function() {
-        it("should convert array of object to array of numbers", function() {
+describe("utils", function () {
+    describe("#convertArrayElements()", function () {
+        it("should convert array of object to array of numbers", function () {
             // GIVEN
 
             var objArray = [
-            {Date: "2013-04-12", Open: "37.86", High: "38.05", Low: "37.76", Close: "38.05", Volume: "783400",  "Adj Close": "38.05"},
-            {Date: "2013-04-11", Open: "37.97", High: "38.18", Low: "37.81", Close: "37.99", Volume: "931200",  "Adj Close": "37.99"},
-            {Date: "2013-04-10", Open: "37.57", High: "37.99", Low: "37.46", Close: "37.93", Volume: "1043600", "Adj Close": "37.93"}];
+                {Date: "2013-04-12", Open: "37.86", High: "38.05", Low: "37.76", Close: "38.05", Volume: "783400", "Adj Close": "38.05"},
+                {Date: "2013-04-11", Open: "37.97", High: "38.18", Low: "37.81", Close: "37.99", Volume: "931200", "Adj Close": "37.99"},
+                {Date: "2013-04-10", Open: "37.57", High: "37.99", Low: "37.46", Close: "37.93", Volume: "1043600", "Adj Close": "37.93"}
+            ];
 
             var expected = [38.05, 37.99, 37.93];
 
             // WHEN
-            var actual = utils.convertArrayElements(objArray, function(obj) {
+            var actual = utils.convertArrayElements(objArray, function (obj) {
                 return Number(obj["Adj Close"]);
             });
 
@@ -30,8 +31,8 @@ describe("utils", function() {
             assert.deepEqual(expected, actual);
         });
     });
-    describe("#generateRandomWeightsMatrix", function() {
-        it("should generate a matrix of random weights", function() {
+    describe("#generateRandomWeightsMatrix", function () {
+        it("should generate a matrix of random weights", function () {
             // GIVEN
             var rowNum = 30;
             var colNum = 10;
@@ -41,9 +42,7 @@ describe("utils", function() {
             var sum = numeric.sum(weights);
             assert.equal(rowNum, sum);
         });
-    });
-    describe("#generateRandomWeightsMatrix", function() {
-        it("should generate a new weights matrix if called consequently", function() {
+        it("should generate a new weights matrix if called consequently", function () {
             // GIVEN
             var rowNum = 30;
             var colNum = 10;
@@ -61,9 +60,7 @@ describe("utils", function() {
                 assert.notDeepEqual(weights0[i], weights1[i]);
             }
         });
-    });
-    describe("#generateRandomWeightsMatrix", function() {
-        it("should throw up when invalid arguments passed", function() {
+        it("should throw up when invalid arguments passed", function () {
             // GIVEN
             // Valid arguments: rowNum > 0 and colNum > 1
             var invalidArguments = [
@@ -97,21 +94,17 @@ describe("utils", function() {
             }
         });
     });
-    describe("#defined", function() {
-        it("should return true when variable is defined", function() {
+    describe("#defined", function () {
+        it("should return true when variable is defined", function () {
             assert.equal(utils.defined(10), true);
             var myVar = 100;
             assert.equal(utils.defined(myVar), true);
         });
-    });
-    describe("#defined", function() {
-        it("should return false when variable is undefined", function() {
+        it("should return false when variable is undefined", function () {
             var myVar;
             assert.equal(utils.defined(myVar), false);
         });
-    });
-    describe("#defined", function() {
-        it("should return false when variable is null", function() {
+        it("should return false when variable is null", function () {
             var myVar = null;
             assert.equal(utils.defined(myVar), false);
             assert.equal(utils.defined(null), false);

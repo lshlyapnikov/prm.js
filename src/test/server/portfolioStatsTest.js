@@ -31,14 +31,10 @@ describe("portfolioStats", function () {
             var actualMean = pStats.meanValue([123, 456, 789, 10112]);
             assert.equal(actualMean, expectedMean);
         });
-    });
-    describe("#meanValue()", function () {
         it("[2] should calculate mean", function () {
             var actualMean = pStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
             assert.equal(397.79303, actualMean.toFixed(5));
         });
-    });
-    describe("#meanValue()", function () {
         it("[3] should throw up when array is undefined", function () {
             var caught;
             try {
@@ -49,8 +45,6 @@ describe("portfolioStats", function () {
             assert.equal(true, caught !== undefined);
             assert.equal("Error", caught.name);
         });
-    });
-    describe("#meanValue()", function () {
         it("[4] should throw up when array is empty", function () {
             var caught;
             try {
@@ -61,14 +55,12 @@ describe("portfolioStats", function () {
             assert.equal(true, caught !== undefined);
             assert.equal("Error", caught.name);
         });
-    });
-    describe("#meanValue()", function () {
         it("[5] should calcualte mean value", function () {
             var actual = pStats.meanValue(testData.NYX);
             assert.equal(actual.toFixed(5), 36.75465);
         });
     });
-    describe("#mean() [1]", function () {
+    describe("#mean()", function () {
         it("should calculate vector of mean values", function () {
             var expectedMean = [
                 [2.5],
@@ -130,11 +122,8 @@ describe("portfolioStats", function () {
                     actual[i][j] = actual[i][j].toFixed(2);
                 }
             }
-            //console.log("actual: " + JSON.stringify(actual, null, 4));
-
             assert.deepEqual(expected, actual);
         });
-
         it("[2] should calculate sample covariance", function () {
             // GIVEN
             var m = [
@@ -166,7 +155,6 @@ describe("portfolioStats", function () {
             setMatrixElemtnsScale(actual, 5);
             assert.equal(JSON.stringify(expected, null, 4), JSON.stringify(actual, null, 4));
         });
-
         it("[3] should calculate sample covariance using testData", function () {
             // GIVEN
             var mXn = linearAlgebra.transpose([testData.INTC, testData.NYX]);
