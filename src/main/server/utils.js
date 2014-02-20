@@ -9,58 +9,58 @@
 /* global exports */
 
 function convertArrayElements(arr, convertOneElement) {
-    if (arr === undefined || 0 === arr.length) {
-        throw new Error("Array arr is either undefined or empty");
-    }
+  if(arr === undefined || 0 === arr.length) {
+    throw new Error("Array arr is either undefined or empty");
+  }
 
-    if (typeof convertOneElement !== "function") {
-        throw new Error("convertOneElement argument should be a function with one argument");
-    }
+  if(typeof convertOneElement !== "function") {
+    throw new Error("convertOneElement argument should be a function with one argument");
+  }
 
-    var length = arr.length;
-    var result = new Array(length);
+  var length = arr.length;
+  var result = new Array(length);
 
-    var i;
-    for (i = 0; i < length; i++) {
-        result[i] = convertOneElement(arr[i]);
-    }
+  var i;
+  for(i = 0; i < length; i++) {
+    result[i] = convertOneElement(arr[i]);
+  }
 
-    return result;
+  return result;
 }
 
 function updateArrayElements(arr, convertOneElement) {
-    if (arr === undefined || 0 === arr.length) {
-        throw new Error("InvalidArgument: Array arr is either undefined or empty");
-    }
+  if(arr === undefined || 0 === arr.length) {
+    throw new Error("InvalidArgument: Array arr is either undefined or empty");
+  }
 
-    if (typeof convertOneElement !== "function") {
-        throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
-    }
+  if(typeof convertOneElement !== "function") {
+    throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
+  }
 
-    var i;
-    for (i = 0; i < arr.length; i++) {
-        arr[i] = convertOneElement(arr[i]);
-    }
+  var i;
+  for(i = 0; i < arr.length; i++) {
+    arr[i] = convertOneElement(arr[i]);
+  }
 }
 
 function updateMatrixElements(matrix, convertOneElement) {
-    if (matrix === undefined || 0 === matrix.length) {
-        throw new Error("InvalidArgument:  matrix is either undefined or empty");
-    }
+  if(matrix === undefined || 0 === matrix.length) {
+    throw new Error("InvalidArgument:  matrix is either undefined or empty");
+  }
 
-    if (typeof convertOneElement !== "function") {
-        throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
-    }
+  if(typeof convertOneElement !== "function") {
+    throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument");
+  }
 
-    var m = matrix.length;
-    var n = matrix[0].length;
+  var m = matrix.length;
+  var n = matrix[0].length;
 
-    var i, j;
-    for (i = 0; i < m; i++) {
-        for (j = 0; j < n; j++) {
-            matrix[i][j] = convertOneElement(matrix[i][j]);
-        }
+  var i, j;
+  for(i = 0; i < m; i++) {
+    for(j = 0; j < n; j++) {
+      matrix[i][j] = convertOneElement(matrix[i][j]);
     }
+  }
 }
 
 /**
@@ -73,52 +73,52 @@ function updateMatrixElements(matrix, convertOneElement) {
  * @return {Matrix}          rowNum x colNum matrix, where one row is one random set of weights.
  */
 function generateRandomWeightsMatrix(rowNum, colNum) {
-    if ("number" !== typeof rowNum || rowNum <= 0) {
-        throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0");
-    }
+  if("number" !== typeof rowNum || rowNum <= 0) {
+    throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0");
+  }
 
-    if ("number" !== typeof colNum || colNum <= 1) {
-        throw new Error("Invalid argument colNum: " + colNum + ", must be > 1");
-    }
+  if("number" !== typeof colNum || colNum <= 1) {
+    throw new Error("Invalid argument colNum: " + colNum + ", must be > 1");
+  }
 
-    var matrix = new Array(rowNum);
+  var matrix = new Array(rowNum);
 
-    var i, j;
-    var vector;
-    var sum;
-    for (i = 0; i < rowNum; i++) {
-        vector = new Array(colNum);
-        sum = 0;
-        // generate random numbers
-        for (j = 0; j < colNum; j++) {
-            vector[j] = Math.random();
-            sum += vector[j];
-        }
-        // normalize all numbers, so vector sum equals 1
-        for (j = 0; j < colNum; j++) {
-            vector[j] /= sum;
-        }
-        matrix[i] = vector;
+  var i, j;
+  var vector;
+  var sum;
+  for(i = 0; i < rowNum; i++) {
+    vector = new Array(colNum);
+    sum = 0;
+    // generate random numbers
+    for(j = 0; j < colNum; j++) {
+      vector[j] = Math.random();
+      sum += vector[j];
     }
-    
-    return matrix;
+    // normalize all numbers, so vector sum equals 1
+    for(j = 0; j < colNum; j++) {
+      vector[j] /= sum;
+    }
+    matrix[i] = vector;
+  }
+
+  return matrix;
 }
 
 function strToNumber(str) {
-    return Number(str);
+  return Number(str);
 }
 
 function noop(str) {
-    return str;
+  return str;
 }
 
 exports.defined = function(v) {
-    return typeof v !== "undefined" && v !== null;
+  return typeof v !== "undefined" && v !== null;
 };
 
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
 exports.updateMatrixElements = updateMatrixElements;
-exports.generateRandomWeightsMatrix=generateRandomWeightsMatrix;
+exports.generateRandomWeightsMatrix = generateRandomWeightsMatrix;
 exports.strToNumber = strToNumber;
 exports.noop = noop;
