@@ -86,9 +86,7 @@ function variance(arr, isPopulation) {
 }
 
 function covariance(matrix, isPopulation) {
-    if (matrix === undefined || 0 === matrix.length) {
-        throw new Error("InvalidArgument: matrix is either undefined or empty");
-    }
+    linearAlgebra.validateMatrix(matrix);
 
     var rowNum = matrix.length;
     var colNum = matrix[0].length;
@@ -116,7 +114,7 @@ function covariance(matrix, isPopulation) {
             for (i = 0; i < rowNum; i++) {
                 result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0]);
             }
-            result[j][k] = result[j][k] / divisor
+            result[j][k] = result[j][k] / divisor;
         }
     }
 
@@ -126,6 +124,8 @@ function covariance(matrix, isPopulation) {
             result[k][j] = result[j][k];
         }
     }
+
+    linearAlgebra.validateMatrix(result);
 
     // that's it, now we have the covariance matrix
     return result;
