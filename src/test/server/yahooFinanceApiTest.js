@@ -73,7 +73,7 @@ describe("yahooFinanceApi @IntegrationTest", function() {
       yahooFinanceApi.loadStockHistory(
         "NYX",
         new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 12),
         "d",
         ["Date", "Open", "High", "Low", "Close", "Volume", "Adj Close"],
         [utils.noop, utils.noop, utils.noop, utils.noop, utils.noop, utils.noop, utils.noop]
@@ -94,8 +94,8 @@ describe("yahooFinanceApi @IntegrationTest", function() {
       ];
       yahooFinanceApi.loadStockHistory(
         "NYX",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 10),
+        new Date(2013, 3, 12),
         "d",
         ["Adj Close"],
         [utils.strToNumber]
@@ -115,8 +115,8 @@ describe("yahooFinanceApi @IntegrationTest", function() {
       ];
       yahooFinanceApi.loadStockHistory(
         "NYX",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 10),
+        new Date(2013, 3, 12),
         "d",
         ["Volume", "Adj Close"],
         [utils.strToNumber, utils.strToNumber]
@@ -131,8 +131,8 @@ describe("yahooFinanceApi @IntegrationTest", function() {
     it("[4] should return error due to unknown symbol [3 days]", function(done) {
       yahooFinanceApi.loadStockHistory(
         "UnknownSymbol",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 10),
+        new Date(2013, 3, 12),
         "d",
         ["Adj Close"],
         [function(str) {
@@ -150,8 +150,8 @@ describe("yahooFinanceApi @IntegrationTest", function() {
       var UNKNOWN_FIELD_NAME = "UnknownFieldName";
       yahooFinanceApi.loadStockHistory(
         "NYX",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 10),
+        new Date(2013, 3, 12),
         "d",
         [UNKNOWN_FIELD_NAME],
         [utils.strToNumber]
@@ -166,8 +166,8 @@ describe("yahooFinanceApi @IntegrationTest", function() {
     it("[6] should return error: 2 fields, but only 1 converter", function(done) {
       yahooFinanceApi.loadStockHistory(
         "NYX",
-        new Date(2013, 03, 10),
-        new Date(2013, 03, 12),
+        new Date(2013, 3, 10),
+        new Date(2013, 3, 12),
         "d",
         ["Volume", "Adj Close"],
         [utils.strToNumber]
