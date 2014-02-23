@@ -5,7 +5,7 @@
 /* jshint browser: true */
 /* global require, describe, it */
 
-var yahooFinanceApi = require("../../main/server/yahooFinanceApi");
+var yahooFinanceApi = require("../../main/yahoo/yahooFinanceApi");
 var utils = require("../../main/server/utils");
 var async = require("../../main/server/async");
 var assert = require("assert");

@@ -11,7 +11,7 @@
 var utils = require("./utils");
 var linearAlgebra = require("./linearAlgebra");
 var portfolioStats = require("./portfolioStats");
-var yahooFinanceApi = require("./yahooFinanceApi");
+var yahooFinanceApi = require("./../yahoo/yahooFinanceApi");
 var Q = require("q");
 
 // function extractPrices(objArr) {

@@ -7,7 +7,7 @@
 
 module.exports = function(grunt) {
   var mochaTestGrep = grunt.option('mocha-test-grep') || '';
-  var mochaTestSrc = grunt.option('mocha-test-src') || 'src/test/server/*.js';
+  var mochaTestSrc = grunt.option('mocha-test-src') || 'src/test/*/*.js';
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
