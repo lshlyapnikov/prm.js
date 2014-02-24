@@ -119,6 +119,23 @@ function validateMatrix(mXn) {
   }
 }
 
+exports.copyMatrix = function(mXn) {
+  validateMatrix(mXn);
+  var mn = dim(mXn);
+  var m = mn[0];
+  var n = mn[1];
+
+  var result = matrix(m, n, NaN);
+  var i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      result[i][j] = Number(mXn[i][j]);
+    }
+  }
+
+  return result;
+};
+
 exports.dim = dim;
 exports.matrix = matrix;
 exports.transpose = transpose;

@@ -116,6 +116,20 @@ exports.defined = function(v) {
   return typeof v !== "undefined" && v !== null;
 };
 
+exports.setMatrixElementsScale = function(matrix, scale) {
+  updateMatrixElements(matrix, function (num) {
+    return num.toFixed(scale);
+  });
+  return matrix;
+};
+
+exports.setArrayElementsScale = function(arr, scale) {
+  updateArrayElements(arr, function (num) {
+    return num.toFixed(scale);
+  });
+  return arr;
+};
+
 exports.convertArrayElements = convertArrayElements;
 exports.updateArrayElements = updateArrayElements;
 exports.updateMatrixElements = updateMatrixElements;
