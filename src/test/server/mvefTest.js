@@ -9,7 +9,6 @@ var mvef = require("../../main/server/mvef");
 var testData = require("./testData");
 var linearAlgebra = require("../../main/server/linearAlgebra");
 var portfolioStats = require("../../main/server/portfolioStats");
-var utils = require("../../main/server/utils");
 var matrixAssert = require("./matrixAssert");
 var assert = require("assert");
 var Q = require("q");
