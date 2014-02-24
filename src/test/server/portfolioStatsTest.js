@@ -8,6 +8,7 @@
 var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
 var linearAlgebra = require("../../main/server/linearAlgebra");
+var matrixAssert = require("./matrixAssert");
 var testData = require("./testData");
 var assert = require("assert");
 var numeric = require("numeric");
@@ -72,8 +73,7 @@ describe("portfolioStats", function () {
       ];
       var returnRatesMatrix = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN);
       var meanReturnRatesMatrix = pStats.mean(returnRatesMatrix);
-      assert.deepEqual(utils.setMatrixElementsScale(meanReturnRatesMatrix, 5),
-        utils.setMatrixElementsScale(expectedMeanReturnRatesMatrix, 5));
+      matrixAssert.equal(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 5);
     });
   });
   describe("#variance()", function () {
@@ -150,9 +150,8 @@ describe("portfolioStats", function () {
       var actual = pStats.covariance(m);
 
       // THEN
-      utils.setMatrixElementsScale(expected, 5);
-      utils.setMatrixElementsScale(actual, 5);
-      assert.equal(JSON.stringify(expected, null, 4), JSON.stringify(actual, null, 4));
+
+      matrixAssert.equal(actual, expected, 5);
     });
     it("[3] should calculate sample covariance using testData", function () {
       // GIVEN
@@ -164,11 +163,9 @@ describe("portfolioStats", function () {
       // WHEN
       var actual = pStats.covariance(mXn);
       // THEN
-      utils.setMatrixElementsScale(expected, 5);
-      utils.setMatrixElementsScale(actual, 5);
       assert.deepEqual(linearAlgebra.dim(actual), [2, 2]);
       assert.equal(actual[0].length, 2);
-      assert.deepEqual(expected, actual);
+      matrixAssert.equal(expected, actual, 5);
     });
   });
   describe("#calculateReturnRatesFromPrices()", function () {
@@ -212,9 +209,7 @@ describe("portfolioStats", function () {
       var actual = pStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
 
       // THEN
-      utils.setMatrixElementsScale(expected, 5);
-      utils.setMatrixElementsScale(actual, 5);
-      assert.deepEqual(expected, actual);
+      matrixAssert.equal(expected, actual, 5);
       assert.equal(actual.length, priceMatrix.length - 1);
     });
     it("[2] should throw up if not enough data points to calculate return rate", function () {
