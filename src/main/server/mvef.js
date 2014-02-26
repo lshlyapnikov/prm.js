@@ -142,7 +142,7 @@ function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
  * @param {Matrix} weightsMxN      M x N matrix of weights, where
  *                                 M is the number of random draws,
  *                                 N is the number of stocks in portfolio;
- * @param {Matrix} returnRatsKxN   K x N return rates matrix, where
+ * @param {Matrix} returnRatesKxN   K x N return rates matrix, where
  *                                 K is the number of historical intervals,
  *                                 N is the number of stocks in portfolio;
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
