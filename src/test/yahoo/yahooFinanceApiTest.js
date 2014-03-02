@@ -63,11 +63,11 @@ describe("yahooFinanceApi @IntegrationTest", function () {
     });
   });
   describe("#loadStockHistory()", function () {
-    it("[1] should load historical prices as array of arrays  [3 days]", function (done) {
+    it("[1] should load historical prices as array of arrays in the chronological order [3 days]", function (done) {
       var expectedObject = [
-        ["1975-03-05", "214.50", "220.25", "214.25", "215.38", "1867200", "4.89"],
+        ["1975-03-03", "216.00", "220.00", "216.00", "220.00", "1267200", "5.00"],
         ["1975-03-04", "220.00", "224.75", "214.25", "214.50", "2065600", "4.87"],
-        ["1975-03-03", "216.00", "220.00", "216.00", "220.00", "1267200", "5.00"]
+        ["1975-03-05", "214.50", "220.25", "214.25", "215.38", "1867200", "4.89"]
       ];
       yahooFinanceApi.loadStockHistory(
         "IBM",
@@ -84,11 +84,11 @@ describe("yahooFinanceApi @IntegrationTest", function () {
           done(error);
         });
     });
-    it("[2] should load 'Adj Close' prices as Numbers [3 days]", function (done) {
+    it("[2] should load 'Adj Close' prices as Numbers in the chronological order [3 days]", function (done) {
       var expectedObject = [
-        [4.89],
+        [5.0],
         [4.87],
-        [5.0]
+        [4.89]
       ];
       yahooFinanceApi.loadStockHistory(
         "IBM",
@@ -105,11 +105,11 @@ describe("yahooFinanceApi @IntegrationTest", function () {
           done(error);
         });
     });
-    it("[3] should load 'Volume' and 'Adj Close' prices as Numbers [3 days]", function (done) {
+    it("[3] should load 'Volume' and 'Adj Close' prices as Numbers in the chronolical order [3 days]", function (done) {
       var expectedObject = [
-        [1867200, 4.89],
+        [1267200, 5.00],
         [2065600, 4.87],
-        [1267200, 5.00]
+        [1867200, 4.89]
       ];
       yahooFinanceApi.loadStockHistory(
         "IBM",

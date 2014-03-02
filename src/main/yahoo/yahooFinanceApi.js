@@ -118,7 +118,8 @@ function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldC
     .then(function(csvStr) {
       return extractFields(csvStr, fieldNames, fieldConverters);
     }).then(function(arr) {
-      return deferred.resolve(arr);
+      var result = (undefined === arr) ? []: arr.reverse();
+      return deferred.resolve(result);
     }, function(error) {
       deferred.reject(error);
     })
