@@ -129,4 +129,20 @@ describe("linearAlgebra", function () {
       assert.equal(matrix[0][0], 1.1);
     });
   });
+  describe("#inverseMatrix", function() {
+    it("should inverse matrix", function() {
+      var matrix = [
+        [1, 3, 3],
+        [1, 4, 3],
+        [1, 3, 4]
+      ];
+      var actual = linearAlgebra.inverseMatrix(matrix);
+      var expected = [
+        [7, -3, -3],
+        [-1, 1, 0],
+        [-1, 0, 1]
+      ];
+      matrixAssert.equal(actual, expected, 4);
+    });
+  });
 });

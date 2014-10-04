@@ -9,7 +9,7 @@
 /* global require, exports */
 
 // for some reason the current numeric.js implementation does not check matrix dimensions before multiplication.
-// numeric.dot() does too many assumption/deductions -- don't really like it. Want my functions to throw up
+// numeric.dot() does too many assumptions/deductions -- don't really like it. Want my functions to throw
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.
 
 var numeric = require("numeric");
@@ -134,6 +134,10 @@ exports.copyMatrix = function(mXn) {
   }
 
   return result;
+};
+
+exports.inverseMatrix = function(mXn) {
+  return numeric.inv(mXn);
 };
 
 exports.dim = dim;

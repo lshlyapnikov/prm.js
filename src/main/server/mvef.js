@@ -25,16 +25,13 @@ var Q = require("q");
  * Generates portfolio MVEF for the specified symbols, using
  * Yahoo Finance API as a historical prices provider.
  *
- * @param {function} loadHistoricalPrices   function(symbol) provider of historical prices,
- *                                          takes a symbol,  returns a promise to
- *                                          an array of historical prices;
  * @param {Array} symbols   The stock symbols you are interested in,
  *                          1st parameter in loadStockHistoryAsObject();
  * @param {Date} fromDate   Specifies the start of the interval, inclusive,
  *                          2nd parameter in loadStockHistoryAsObject();
  * @param {Date} toDate     Specifies the end of the interval, inclusive,
  *                          3rd parameter in loadStockHistoryAsObject();
- * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly,
+ * @param {String} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly,
  *                               4th parameter in loadStockHistoryAsObject();
  * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
  *                                         to generate MVEF.
@@ -104,11 +101,9 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
       return transposedPriceMatrix;
     })
     .then(function(transposedPriceMatrix) {
-      var result = mvefFromHistoricalPrices(
+      return mvefFromHistoricalPrices(
         utils.generateRandomWeightsMatrix(m, n),
         linearAlgebra.transpose(transposedPriceMatrix));
-
-      return result;
     })
     .then(function(result) {
       deferred.resolve(result);
@@ -121,10 +116,10 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
 /**
  * Calculates portofolio MVEF using provided price matrix.
  *
- * @param {Matrix} weightsMxN    M x N matrix of weights, where
+ * @param {Array} weightsMxN     M x N matrix of weights, where
  *                               M is the number of random draws,
  *                               N is the number of stocks in portfolio;
- * @param {Matrix} pricesKxN     K x N price matrix, where
+ * @param {Array} pricesKxN      K x N price matrix, where
  *                               K is the number of historical prices,
  *                               N is the number of stocks in portfolio;
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
@@ -132,17 +127,16 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
 function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
   // K x N (actually K-1 x N)
   var returnRatesKxN = portfolioStats.calculateReturnRatesFromPriceMatrix(pricesKxN);
-  var result = mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN);
-  return result;
+  return mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN);
 }
 
 /**
  * Calculates portofolio MVEF using provided price matrix.
  *
- * @param {Matrix} weightsMxN      M x N matrix of weights, where
+ * @param {Array} weightsMxN       M x N matrix of weights, where
  *                                 M is the number of random draws,
  *                                 N is the number of stocks in portfolio;
- * @param {Matrix} returnRatesKxN   K x N return rates matrix, where
+ * @param {Array} returnRatesKxN   K x N return rates matrix, where
  *                                 K is the number of historical intervals,
  *                                 N is the number of stocks in portfolio;
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
@@ -178,13 +172,11 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
     throw new Error("InvalidState: portfolioStdDevArr.length !== " + m);
   }
 
-  var result = {
+  return {
     portfolioExpReturnRates: portfolioExpReturnRateArr,
     portfolioStdDevs: portfolioStdDevArr,
     portfolioWeightsMxN: weightsMxN
   };
-
-  return result;
 }
 
 exports.mvefYahooFinanceApi = mvefYahooFinanceApi;

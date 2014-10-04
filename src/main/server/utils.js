@@ -69,8 +69,8 @@ function updateMatrixElements(matrix, convertOneElement) {
  *
  * @param {Integer} rowNum   Number of rows, number of random weight sets, must be > 0.
  * @param {Integer} colNum   Number of columns, number of stock weights per set, must be > 1.
- * @throws {name: "InvalidArgument", message: "description"}   when invalid argument passed.
- * @return {Matrix}          rowNum x colNum matrix, where one row is one random set of weights.
+ * @throws {Object} {name: "InvalidArgument", message: "description"}   when invalid argument passed.
+ * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
 function generateRandomWeightsMatrix(rowNum, colNum) {
   if("number" !== typeof rowNum || rowNum <= 0) {
