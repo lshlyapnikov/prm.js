@@ -42,9 +42,9 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
  * @param {String} symbol   The stock symbol you are interested in;
  * @param {Date} fromDate   Specifies the start of the interval, inclusive;
  * @param {Date} toDate     Specifies the end of the interval, inclusive;
- * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
+ * @param {char} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
  *
- * @return {Promise} that contains CSV string.
+ * @return {promise} a Promise that contains CSV string.
  */
 function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
   var deferred = Q.defer();
@@ -90,7 +90,7 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
  * @param {String} symbol   The stock symbol you are interested in;
  * @param {Date} fromDate   Specifies the start of the interval, inclusive;
  * @param {Date} toDate     Specifies the end of the interval, inclusive;
- * @param {Character} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly;
+ * @param {char} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly;
  * @param {Array} fieldNames   fields that should be extracted from the CSV;
  * @param {Array} fieldConverters   field converters;
  *

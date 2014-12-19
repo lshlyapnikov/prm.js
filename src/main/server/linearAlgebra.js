@@ -19,9 +19,17 @@ function dim(matrixMxN) {
     throw new Error("InvalidArgument: argument matrixMxN is undefined");
   }
 
+  if (!Array.isArray(matrixMxN)) {
+    throw new Error("InvalidArgument: argument matrixMxN has to be an Array");
+  }
+
   var m = matrixMxN.length;
   if("number" !== typeof m) {
-    throw new Error("InvalidArgument: argument matrix does not have rows");
+    throw new Error("InvalidArgument: argument matrixMxN does not have rows");
+  }
+
+  if (!Array.isArray(matrixMxN[0])) {
+    throw new Error("InvalidArgument: matrixMxN is not a matrix");
   }
 
   var n = matrixMxN[0].length;
@@ -58,6 +66,17 @@ function matrix(m, n, initialValue) {
   return result;
 }
 
+function rowMatrix(vector) {
+  if (!Array.isArray(vector)) {
+    throw new Error("InvalidArgument: argument vector has to be an Array");
+  }
+  return [vector];
+}
+
+function columnMatrix(vector) {
+  return transpose(rowMatrix(vector));
+}
+
 // TODO(lshlyapnikov) will be slow, C++ Node plugin???
 function transpose(matrixMxN) {
   var dimensions = dim(matrixMxN);
@@ -88,13 +107,32 @@ function multiplyMatrices(mXn, nXm) {
   var dim0 = dim(mXn);
   var dim1 = dim(nXm);
 
+//  if (dim0[1] === 1 || dim0[0] === 1) {
+//    throw new Error("InvalidArgument: first argument is a vector, use multiplyVectors function");
+//  }
+
   if(dim0[1] !== dim1[0]) {
     throw new Error("InvalidArgument: " +
       "Invalid matrix dimensions. Cannot multiply " + dim0 + " matrix by " + dim1);
   }
 
   // delegate to numeric.js
-  return numeric.dot(mXn, nXm);
+  return numeric.sdotMM(mXn, nXm);
+}
+
+function multiplyVectors(v0, v1) {
+  var d0 = v0.length;
+  var d1 = v1.length;
+  if (Array.isArray(v0[0])) {
+    throw new Error("InvalidArgument: 1st argument has to be a vector");
+  }
+  if (Array.isArray(v1[0])) {
+    throw new Error("InvalidArgument: 2nd argument has to be a vector");
+  }
+  if (d0 !== d1) {
+    throw new Error("InvalidArgument: vectors have different dimensions: " + d0 + " and " + d1);
+  }
+  return numeric.dotVV(v0, v1);
 }
 
 function validateMatrix(mXn) {
@@ -136,12 +174,31 @@ exports.copyMatrix = function(mXn) {
   return result;
 };
 
+exports.copyMatrixInto = function(mXn, outputMatrix) {
+  validateMatrix(mXn);
+  var mn = dim(mXn);
+  var m = mn[0];
+  var n = mn[1];
+
+  var i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      outputMatrix[i][j] = Number(mXn[i][j]);
+    }
+  }
+
+  return outputMatrix;
+};
+
 exports.inverseMatrix = function(mXn) {
   return numeric.inv(mXn);
 };
 
 exports.dim = dim;
 exports.matrix = matrix;
+exports.rowMatrix = rowMatrix;
+exports.columnMatrix = columnMatrix;
 exports.transpose = transpose;
 exports.multiplyMatrices = multiplyMatrices;
+exports.multiplyVectors = multiplyVectors;
 exports.validateMatrix = validateMatrix;

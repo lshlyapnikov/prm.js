@@ -3,56 +3,61 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global require, describe, it */
+/* global require, describe, it, console */
 
 var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");
-var linearAlgebra = require("../../main/server/linearAlgebra");
+var la = require("../../main/server/linearAlgebra");
 var matrixAssert = require("./matrixAssert");
 var testData = require("./testData");
 var assert = require("assert");
 var numeric = require("numeric");
 
-var priceMatrixMxN = linearAlgebra.transpose([testData.NYX, testData.INTC]);
+var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC]);
 
-describe("portfolioStats", function () {
-  describe("#meanValue()", function () {
-    it("[1] should calculate mean", function () {
+function mockHistoricalPricesProvider(symbol) {
+  var prices = {NYX: testData.NYX, INTC: testData.INTC};
+  return prices[symbol];
+}
+
+describe("portfolioStats", function() {
+  describe("#meanValue()", function() {
+    it("[1] should calculate mean", function() {
       var expectedMean = 2870;
       var actualMean = pStats.meanValue([123, 456, 789, 10112]);
       assert.equal(actualMean, expectedMean);
     });
-    it("[2] should calculate mean", function () {
+    it("[2] should calculate mean", function() {
       var actualMean = pStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
       assert.equal(397.79303, actualMean.toFixed(5));
     });
-    it("[3] should throw up when array is undefined", function () {
+    it("[3] should throw up when array is undefined", function() {
       var caught;
       try {
         pStats.meanValue(undefined);
-      } catch (e) {
+      } catch(e) {
         caught = e;
       }
       assert.equal(true, caught !== undefined);
       assert.equal("Error", caught.name);
     });
-    it("[4] should throw up when array is empty", function () {
+    it("[4] should throw up when array is empty", function() {
       var caught;
       try {
         pStats.meanValue([]);
-      } catch (e) {
+      } catch(e) {
         caught = e;
       }
       assert.equal(true, caught !== undefined);
       assert.equal("Error", caught.name);
     });
-    it("[5] should calcualte mean value", function () {
+    it("[5] should calcualte mean value", function() {
       var actual = pStats.meanValue(testData.NYX);
       assert.equal(actual.toFixed(5), 36.75465);
     });
   });
-  describe("#mean()", function () {
-    it("should calculate vector of mean values", function () {
+  describe("#mean()", function() {
+    it("should calculate vector of mean values", function() {
       var expectedMean = [
         [2.5],
         [25],
@@ -66,7 +71,7 @@ describe("portfolioStats", function () {
       ]);
       assert.deepEqual(expectedMean, actualMean);
     });
-    it("should calculate vector mean values using test data", function () {
+    it("should calculate vector mean values using test data", function() {
       var expectedMeanReturnRatesMatrix = [
         [0.01674256058568205],
         [0.00504504938397936]
@@ -76,27 +81,27 @@ describe("portfolioStats", function () {
       matrixAssert.equal(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 5);
     });
   });
-  describe("#variance()", function () {
+  describe("#variance()", function() {
     var arr = [-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234];
-    it("[1] should calculate sample variance", function () {
+    it("[1] should calculate sample variance", function() {
       var actual = pStats.variance(arr);
       assert.equal(248102.91444, actual.toFixed(5));
     });
-    it("[2] should calculate sample variance", function () {
+    it("[2] should calculate sample variance", function() {
       var actual = pStats.variance([1, 2, 3], false);
       assert.equal(1, actual);
     });
-    it("[3] should calculate population variance", function () {
+    it("[3] should calculate population variance", function() {
       var actual = pStats.variance(arr, true);
       assert(220535.92394, actual.toFixed(5));
     });
-    it("[4] should calculate population variance", function () {
+    it("[4] should calculate population variance", function() {
       var actual = pStats.variance([1, 2, 3], true);
       assert.equal(0.6666667, actual.toFixed(7));
     });
   });
-  describe("#covariance()", function () {
-    it("[1] should calculate sample covariance", function () {
+  describe("#covariance()", function() {
+    it("[1] should calculate sample covariance", function() {
       // GIVEN
       var m = [
         [1, 2, 3],
@@ -117,14 +122,14 @@ describe("portfolioStats", function () {
       // THEN
       var rowNum = numeric.dim(actual)[0];
       var colNum = numeric.dim(actual)[1];
-      for (var i = 0; i < rowNum; i++) {
-        for (var j = 0; j < colNum; j++) {
+      for(var i = 0; i < rowNum; i++) {
+        for(var j = 0; j < colNum; j++) {
           actual[i][j] = actual[i][j].toFixed(2);
         }
       }
       assert.deepEqual(expected, actual);
     });
-    it("[2] should calculate sample covariance", function () {
+    it("[2] should calculate sample covariance", function() {
       // GIVEN
       var m = [
         [0.05176742, 0.19649658, 0.08032437, 0.02009803, 0.303612848],
@@ -153,9 +158,9 @@ describe("portfolioStats", function () {
 
       matrixAssert.equal(actual, expected, 5);
     });
-    it("[3] should calculate sample covariance using testData", function () {
+    it("[3] should calculate sample covariance using testData", function() {
       // GIVEN
-      var mXn = linearAlgebra.transpose([testData.INTC, testData.NYX]);
+      var mXn = la.transpose([testData.INTC, testData.NYX]);
       var expected = [
         [11.4424425066996, -0.5151149866007],
         [-0.5151149866007, 343.7836414553700]
@@ -163,13 +168,13 @@ describe("portfolioStats", function () {
       // WHEN
       var actual = pStats.covariance(mXn);
       // THEN
-      assert.deepEqual(linearAlgebra.dim(actual), [2, 2]);
+      assert.deepEqual(la.dim(actual), [2, 2]);
       assert.equal(actual[0].length, 2);
       matrixAssert.equal(expected, actual, 5);
     });
   });
-  describe("#calculateReturnRatesFromPrices()", function () {
-    it("[1] should calculate return rates from provided prices", function () {
+  describe("#calculateReturnRatesFromPrices()", function() {
+    it("[1] should calculate return rates from provided prices", function() {
       // GIVEN
       var prices = [100.12, 123.34, 134.67, 167.89];
       var expected = [0.231921694, 0.091859899, 0.246677062];
@@ -183,7 +188,7 @@ describe("portfolioStats", function () {
       utils.setArrayElementsScale(actual, 5);
       assert.deepEqual(expected, actual);
     });
-    it("[2] should return empty array", function () {
+    it("[2] should return empty array", function() {
       // GIVEN
       var prices = [100.12];
       var expected = [];
@@ -193,8 +198,8 @@ describe("portfolioStats", function () {
       assert.deepEqual(expected, actual);
     });
   });
-  describe("#calculateReturnRatesFromPriceMatrix()", function () {
-    it("[1] should calculate return rates from price matrix", function () {
+  describe("#calculateReturnRatesFromPriceMatrix()", function() {
+    it("[1] should calculate return rates from price matrix", function() {
       // GIVEN
       var priceMatrix = [
         [100.123, 1.123],
@@ -212,7 +217,7 @@ describe("portfolioStats", function () {
       matrixAssert.equal(expected, actual, 5);
       assert.equal(actual.length, priceMatrix.length - 1);
     });
-    it("[2] should throw up if not enough data points to calculate return rate", function () {
+    it("[2] should throw up if not enough data points to calculate return rate", function() {
       // GIVEN
       var priceMatrix = [
         [100.123, 1.123]
@@ -221,7 +226,7 @@ describe("portfolioStats", function () {
       // WHEN
       try {
         pStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
-      } catch (e) {
+      } catch(e) {
         actual = e;
       }
       // THEN
@@ -229,8 +234,8 @@ describe("portfolioStats", function () {
       assert.equal("Error", actual.name);
     });
   });
-  describe("#portfolioStdDev()", function () {
-    it("[1] should calculate portfolio Std Dev", function () {
+  describe("#portfolioStdDev()", function() {
+    it("[1] should calculate portfolio Std Dev", function() {
       // GIVEN
       var weights1xN = [
         [1 / 3, 1 / 3, 1 / 3]
@@ -246,7 +251,7 @@ describe("portfolioStats", function () {
       // THEN
       assert.equal(expected.toFixed(5), actual.toFixed(5));
     });
-    it("[2] should calculate portfolio Std Dev", function () {
+    it("[2] should calculate portfolio Std Dev", function() {
       // GIVEN
       var weights1xN = [
         [0.2, 0.4, 0.4]
@@ -261,6 +266,78 @@ describe("portfolioStats", function () {
       var actual = pStats.portfolioStdDev(weights1xN, covarianceNxN);
       // THEN
       assert.equal(expected.toFixed(4), actual.toFixed(4));
+    });
+  });
+  describe("#globalMinVariancePortfolio", function() {
+    it("should calculate global minimum variance portfolio", function() {
+      var rrCov = [
+        [0.0100, 0.0018, 0.0011],
+        [0.0018, 0.0109, 0.0026],
+        [0.0011, 0.0026, 0.0199]
+      ];
+      var actual = pStats.globalMinVariancePortfolioFromReturnRatesCovariance(rrCov);
+      console.log("actual: " + numeric.prettyPrint(actual) + "\n");
+      assert.deepEqual(numeric.dim(actual), [3]);
+      utils.setArrayElementsScale(actual, 4);
+      assert.deepEqual(actual, [0.4411, 0.3656, 0.1933]);
+    });
+    it("should calculate global minimum variance portfolio for NYX and INTC", function() {
+      var minVariancePortfolio = {
+        expectedRisk: 7.3711904990101,
+        expectedReturnRate: 0.0064,
+        expectedWeights: [0.1127, 0.8873]
+      };
+
+      var actualWeights = pStats.globalMinVariancePortfolioFromReturnRates(
+        pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN));
+
+      utils.setArrayElementsScale(actualWeights, 4);
+      assert.deepEqual(minVariancePortfolio.expectedWeights, actualWeights);
+
+      var expReturnsNx1 = pStats.mean(pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN));
+      var returnRate1x1 = la.multiplyMatrices(la.rowMatrix(actualWeights), expReturnsNx1);
+      assert.equal(minVariancePortfolio.expectedReturnRate, returnRate1x1[0][0].toFixed(4));
+
+      // calculate risk and assert it
+    });
+  });
+  describe("#createAMatrix", function() {
+    function testCreateAMatrix(rrCov) {
+      var n = la.dim(rrCov)[0];
+      var a = n + 1;
+
+      var aMatrix = pStats.createAMatrix(rrCov);
+
+      console.log("aMatrix: \n" + numeric.prettyPrint(aMatrix) + "\n");
+
+      assert.deepEqual(la.dim(aMatrix), [a, a]);
+      var i, j;
+      for(i = 0; i < n; i++) {
+        for(j = 0; j < n; j++) {
+          assert.equal(aMatrix[i][j], 2 * rrCov[i][j]);
+        }
+      }
+      for(i = 0; i < a - 1; i++) {
+        assert.equal(aMatrix[a - 1][i], 1);
+        assert.equal(aMatrix[i][a - 1], 1);
+      }
+      assert.equal(aMatrix[a - 1][a - 1], 0);
+    }
+
+    it("should create 4x4 A matrix from 3x3 return rate covariance matrix", function() {
+      testCreateAMatrix(numeric.random([3, 3]));
+    });
+    it("should create 5x5 A matrix from 4x4 return rate covariance matrix", function() {
+      testCreateAMatrix(numeric.random([4, 4]));
+    });
+    it("should create 10x10 A matrix from 9x9 return rate covariance matrix", function() {
+      testCreateAMatrix(numeric.random([9, 9]));
+    });
+  });
+  describe("#loadPriceMatrix", function() {
+    it("should return price matrix", function() {
+      var actual = pStats.loadPriceMatrix(mockHistoricalPricesProvider, ["NYX", "INTC"]);
+      assert.deepEqual(actual, priceMatrixMxN);
     });
   });
 });
