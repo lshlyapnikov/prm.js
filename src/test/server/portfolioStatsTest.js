@@ -269,17 +269,21 @@ describe("portfolioStats", function() {
     });
   });
   describe("#globalMinVariancePortfolio", function() {
-    it("should calculate global minimum variance portfolio", function() {
+    it("should calculate global minimum variance portfolio from return rate covariance matrix", function() {
+      // numbers taken from the econ424 lecture
       var rrCov = [
         [0.0100, 0.0018, 0.0011],
         [0.0018, 0.0109, 0.0026],
         [0.0011, 0.0026, 0.0199]
       ];
+      var expectedWeights = [0.4411, 0.3656, 0.1933];
+
       var actual = pStats.globalMinVariancePortfolioFromReturnRatesCovariance(rrCov);
       console.log("actual: " + numeric.prettyPrint(actual) + "\n");
+
       assert.deepEqual(numeric.dim(actual), [3]);
       utils.setArrayElementsScale(actual, 4);
-      assert.deepEqual(actual, [0.4411, 0.3656, 0.1933]);
+      assert.deepEqual(actual, expectedWeights);
     });
     it("should calculate global minimum variance portfolio for NYX and INTC", function() {
       var minVariancePortfolio = {

@@ -11,6 +11,7 @@ var testData = require("./testData");
 var linearAlgebra = require("../../main/server/linearAlgebra");
 var portfolioStats = require("../../main/server/portfolioStats");
 var matrixAssert = require("./matrixAssert");
+var utils = require("../../main/server/utils");
 var assert = require("assert");
 var Q = require("q");
 var numeric = require("numeric");
@@ -46,9 +47,9 @@ describe("mvef", function () {
     it("should load historical prices using the specified provider and return MVEF numbers", function (done) {
       // GIVEN
       var prices = {NYX: testData.NYX, INTC: testData.INTC};
-      var expectedMinRisk = 7.3711904990101;
-      var expectedReturnRate = 0.6352; // 0.6343087457802533;
-      var expectedWeights = [0.11096702977589218, 0.8890329702241079];
+      var expectedMinRisk = 7.3712;
+      var expectedReturnRate = 0.64;
+      var expectedWeights = [0.11, 0.89];
 
       function mockHistoricalPricesProvider(symbol) {
         var deferred = Q.defer();
@@ -86,12 +87,9 @@ describe("mvef", function () {
           console.log("return rate, %: ", actualReturnRate);
           console.log("weights: ", numeric.prettyPrint(actualWeights));
 
-//          var globalMinVariance = portfolioStats.globalMinVariancePortfolioFromReturnRatesCovariance();
-//          console.log("globalMinVariance weights: " + numeric.prettyPrint(globalMinVariance));
-
-          assert.equal(actualMinRisk.toFixed(4), expectedMinRisk.toFixed(4));
-          assert.equal(actualReturnRate.toFixed(2), expectedReturnRate.toFixed(2));
-          assert.deepEqual(expectedWeights, actualWeights);
+          assert.equal(actualMinRisk.toFixed(4), expectedMinRisk);
+          assert.equal(actualReturnRate.toFixed(2), expectedReturnRate);
+          assert.deepEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights);
         })
         .then(function () {
           done();
