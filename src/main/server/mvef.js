@@ -173,11 +173,11 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
     throw new Error("InvalidState: portfolioStdDevArr.length !== " + m);
   }
 
-  return {
-    portfolioExpReturnRates: portfolioExpReturnRateArr,
-    portfolioStdDevs: portfolioStdDevArr,
-    portfolioWeightsMxN: weightsMxN
-  };
+  var result = portfolioStats.PortfolioStats();
+  result.weights = weightsMxN;
+  result.expectedReturnRate = portfolioExpReturnRateArr;
+  result.stdDev = portfolioStdDevArr;
+  return result;
 }
 
 exports.mvefYahooFinanceApi = mvefYahooFinanceApi;

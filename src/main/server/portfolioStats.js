@@ -11,6 +11,14 @@
 var linearAlgebra = require("./linearAlgebra");
 var numeric = require("numeric");
 
+function PortfolioStats() {
+  return {
+    weights: NaN,
+    expectedReturnRate: NaN,
+    stdDev: NaN
+  };
+}
+
 function meanValue(arr){
   if(arr === undefined || 0 === arr.length){
     throw new Error("InvalidArgument: Array arr is either undefined or empty");
@@ -29,7 +37,7 @@ function meanValue(arr){
  * Calculates a vector of expected values (mean values).
  *
  * @param {Array} matrix   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
- * @returns {Array}   Returns a vector of N elemetns (1 x N matrix). Each element is an expected value for the
+ * @returns {Array}   Returns a vector of N elements (N x 1 matrix). Each element is an expected value for the
  *                    corresponding column in the matrix argument.
  */
 function mean(matrix){
@@ -46,7 +54,6 @@ function mean(matrix){
       "argument matrix has to be a matrix (2-dimensional array)");
   }
 
-  // create an empty vector for median values
   var mu = linearAlgebra.matrix(n, 1, 0);
 
   var i, j;
@@ -191,7 +198,6 @@ function portfolioStdDev(weights1xN, covarianceNxN){
   var tmp1x1 = linearAlgebra.multiplyMatrices(tmp1xN, transposedWeightsNx1);
   var result = tmp1x1[0][0];
   result = Math.sqrt(result);
-
   return result;
 }
 
@@ -204,10 +210,24 @@ function portfolioStdDev(weights1xN, covarianceNxN){
  */
 function globalMinVariancePortfolioFromReturnRates(returnRatesKxN){
   var returnRatesCovarianceNxN = covariance(returnRatesKxN);
-  return exports.globalMinVariancePortfolioFromReturnRatesCovariance(returnRatesCovarianceNxN);
+  var weightsN = exports.globalMinVariancePortfolioWeightsFromReturnRatesCovariance(returnRatesCovarianceNxN);
+  var weights1xN = [weightsN];
+  var meanRrNx1 = mean(returnRatesKxN);
+  var rr1x1 = linearAlgebra.multiplyMatrices(weights1xN, meanRrNx1);
+
+  var portfolio = PortfolioStats();
+  portfolio.weights = weightsN;
+  portfolio.stdDev = portfolioStdDev(weights1xN, returnRatesCovarianceNxN);
+  portfolio.expectedReturnRate = rr1x1[0][0];
+
+  return portfolio;
 }
 
-function globalMinVariancePortfolioFromReturnRatesCovariance(returnRatesCovarianceNxN){
+/**
+  * @param returnRatesCovarianceNxN
+ * @returns {Array} an array of N elements. Every element is a stock weight in the portfolio.
+ */
+function globalMinVariancePortfolioWeightsFromReturnRatesCovariance(returnRatesCovarianceNxN){
   var b = linearAlgebra.dim(returnRatesCovarianceNxN)[0] + 1;
   var aMatrix = createAMatrix(returnRatesCovarianceNxN);
   var bMatrix = createBMatrix(b);
@@ -262,6 +282,7 @@ function loadPriceMatrix(loadHistoricalPricesFn, symbols) {
   return linearAlgebra.transpose(transposedPriceMatrix);
 }
 
+exports.PortfolioStats = PortfolioStats;
 exports.meanValue = meanValue;
 exports.mean = mean;
 exports.variance = variance;
@@ -270,7 +291,7 @@ exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices;
 exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix;
 exports.portfolioStdDev = portfolioStdDev;
 exports.globalMinVariancePortfolioFromReturnRates = globalMinVariancePortfolioFromReturnRates;
-exports.globalMinVariancePortfolioFromReturnRatesCovariance = globalMinVariancePortfolioFromReturnRatesCovariance;
+exports.globalMinVariancePortfolioWeightsFromReturnRatesCovariance = globalMinVariancePortfolioWeightsFromReturnRatesCovariance;
 exports.createAMatrix = createAMatrix;
 exports.createBMatrix  = createBMatrix;
 exports.loadPriceMatrix = loadPriceMatrix;

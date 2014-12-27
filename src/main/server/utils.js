@@ -9,7 +9,7 @@
 /* global exports */
 
 function convertArrayElements(arr, convertOneElement) {
-  if(arr === undefined || 0 === arr.length) {
+  if(!Array.isArray(arr)) {
     throw new Error("Array arr is either undefined or empty");
   }
 
@@ -29,7 +29,7 @@ function convertArrayElements(arr, convertOneElement) {
 }
 
 function updateArrayElements(arr, convertOneElement) {
-  if(arr === undefined || 0 === arr.length) {
+  if(!Array.isArray(arr)) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty");
   }
 
@@ -44,7 +44,7 @@ function updateArrayElements(arr, convertOneElement) {
 }
 
 function updateMatrixElements(matrix, convertOneElement) {
-  if(matrix === undefined || 0 === matrix.length) {
+  if(!Array.isArray(matrix)) {
     throw new Error("InvalidArgument:  matrix is either undefined or empty");
   }
 
@@ -128,6 +128,22 @@ exports.setArrayElementsScale = function(arr, scale) {
     return num.toFixed(scale);
   });
   return arr;
+};
+
+exports.newArrayWithScale = function(arr, scale) {
+  if(!Array.isArray(arr)) {
+    throw new Error("InvalidArgument: arr must be a non-empty array object");
+  }
+
+  var n = arr.length;
+  var result = new Array(n);
+
+  var i;
+  for(i = 0; i < n; i++) {
+    result[i] = arr[i].toFixed(scale);
+  }
+
+  return result;
 };
 
 exports.convertArrayElements = convertArrayElements;

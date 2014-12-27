@@ -47,7 +47,7 @@ describe("mvef", function () {
     it("should load historical prices using the specified provider and return MVEF numbers", function (done) {
       // GIVEN
       var prices = {NYX: testData.NYX, INTC: testData.INTC};
-      var expectedMinRisk = 7.3712;
+      var expectedMinRisk = 7.37;
       var expectedReturnRate = 0.64;
       var expectedWeights = [0.11, 0.89];
 
@@ -58,36 +58,33 @@ describe("mvef", function () {
         return deferred.promise;
       }
 
-      var numOfRandomWeights = 1000;
+      var numOfRandomWeights = 5000;
 
       // WHEN
       mvef.mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
-        .then(function (result) {
+        .then(function (portfolio) {
           // THEN
-          assert.equal(numOfRandomWeights, result.portfolioExpReturnRates.length);
-          assert.equal(numOfRandomWeights, result.portfolioStdDevs.length);
-          var pR = result.portfolioExpReturnRates;
-          var pStd = result.portfolioStdDevs;
-
+          assert.equal(numOfRandomWeights, portfolio.expectedReturnRate.length);
+          assert.equal(numOfRandomWeights, portfolio.stdDev.length);
           var i;
           var minStd = Number.MAX_VALUE;
           var minStdIndx = -1;
           for (i = 0; i < numOfRandomWeights; i++) {
-            if (pStd[i] < minStd) {
+            if (portfolio.stdDev[i] < minStd) {
               minStdIndx = i;
-              minStd = pStd[i];
+              minStd = portfolio.stdDev[i];
             }
           }
 
           var actualMinRisk = minStd * 100;
-          var actualReturnRate = pR[minStdIndx] * 100;
-          var actualWeights = result.portfolioWeightsMxN[minStdIndx];
+          var actualReturnRate = portfolio.expectedReturnRate[minStdIndx] * 100;
+          var actualWeights = portfolio.weights[minStdIndx];
 
           console.log("min Std, %: ", actualMinRisk);
           console.log("return rate, %: ", actualReturnRate);
           console.log("weights: ", numeric.prettyPrint(actualWeights));
 
-          assert.equal(actualMinRisk.toFixed(4), expectedMinRisk);
+          assert.equal(actualMinRisk.toFixed(2), expectedMinRisk);
           assert.equal(actualReturnRate.toFixed(2), expectedReturnRate);
           assert.deepEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights);
         })

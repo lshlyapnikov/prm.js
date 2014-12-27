@@ -271,38 +271,39 @@ describe("portfolioStats", function() {
   describe("#globalMinVariancePortfolio", function() {
     it("should calculate global minimum variance portfolio from return rate covariance matrix", function() {
       // numbers taken from the econ424 lecture
-      var rrCov = [
+      // 08.2 portfolioTheoryMatrix.pdf, page 31: 1.2 PORTFOLIO ANALYSIS FUNCTIONS IN R
+      var rrCovarianceMatrix = [
         [0.0100, 0.0018, 0.0011],
         [0.0018, 0.0109, 0.0026],
         [0.0011, 0.0026, 0.0199]
       ];
-      var expectedWeights = [0.4411, 0.3656, 0.1933];
+      var weights1x3 = [0.4411, 0.3656, 0.1933];
+      var stdDev = 0.07267607;
+      //expectedReturnRate = 0.02489184;
 
-      var actual = pStats.globalMinVariancePortfolioFromReturnRatesCovariance(rrCov);
-      console.log("actual: " + numeric.prettyPrint(actual) + "\n");
+      var actualWeights = pStats.globalMinVariancePortfolioWeightsFromReturnRatesCovariance(rrCovarianceMatrix);
+      console.log("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n");
+      assert.deepEqual(numeric.dim(actualWeights), [3]);
+      utils.setArrayElementsScale(actualWeights, 4);
+      assert.deepEqual(actualWeights, weights1x3);
 
-      assert.deepEqual(numeric.dim(actual), [3]);
-      utils.setArrayElementsScale(actual, 4);
-      assert.deepEqual(actual, expectedWeights);
+      var actualWeights1x3 = [actualWeights];
+      var actualStdDev = pStats.portfolioStdDev(actualWeights1x3, rrCovarianceMatrix);
+      console.log("actualStdDev: " + actualStdDev);
+      assert.equal(actualStdDev.toFixed(8), stdDev);
     });
     it("should calculate global minimum variance portfolio for NYX and INTC", function() {
-      var minVariancePortfolio = {
-        expectedRisk: 7.3711904990101,
-        expectedReturnRate: 0.0064,
-        expectedWeights: [0.1127, 0.8873]
-      };
+      var expectedPortfolio = pStats.PortfolioStats();
+      expectedPortfolio.weights = [0.1127, 0.8873];
+      expectedPortfolio.expectedReturnRate = 0.0064;
+      expectedPortfolio.stdDev = 0.0737;
 
-      var actualWeights = pStats.globalMinVariancePortfolioFromReturnRates(
+      var actualPortfolio = pStats.globalMinVariancePortfolioFromReturnRates(
         pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN));
 
-      utils.setArrayElementsScale(actualWeights, 4);
-      assert.deepEqual(minVariancePortfolio.expectedWeights, actualWeights);
-
-      var expReturnsNx1 = pStats.mean(pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN));
-      var returnRate1x1 = la.multiplyMatrices(la.rowMatrix(actualWeights), expReturnsNx1);
-      assert.equal(minVariancePortfolio.expectedReturnRate, returnRate1x1[0][0].toFixed(4));
-
-      // calculate risk and assert it
+      assert.deepEqual(utils.newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights);
+      assert.equal(actualPortfolio.expectedReturnRate.toFixed(4), expectedPortfolio.expectedReturnRate);
+      assert.equal(actualPortfolio.stdDev.toFixed(4), expectedPortfolio.stdDev);
     });
   });
   describe("#createAMatrix", function() {
