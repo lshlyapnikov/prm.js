@@ -215,7 +215,7 @@ function globalMinVariancePortfolioFromReturnRates(returnRatesKxN){
   var meanRrNx1 = mean(returnRatesKxN);
   var rr1x1 = linearAlgebra.multiplyMatrices(weights1xN, meanRrNx1);
 
-  var portfolio = PortfolioStats();
+  var portfolio = Object.create(PortfolioStats);
   portfolio.weights = weightsN;
   portfolio.stdDev = portfolioStdDev(weights1xN, returnRatesCovarianceNxN);
   portfolio.expectedReturnRate = rr1x1[0][0];

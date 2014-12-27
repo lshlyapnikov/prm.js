@@ -293,7 +293,7 @@ describe("portfolioStats", function() {
       assert.equal(actualStdDev.toFixed(8), stdDev);
     });
     it("should calculate global minimum variance portfolio for NYX and INTC", function() {
-      var expectedPortfolio = pStats.PortfolioStats();
+      var expectedPortfolio = Object.create(pStats.PortfolioStats);
       expectedPortfolio.weights = [0.1127, 0.8873];
       expectedPortfolio.expectedReturnRate = 0.0064;
       expectedPortfolio.stdDev = 0.0737;

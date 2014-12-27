@@ -173,7 +173,7 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
     throw new Error("InvalidState: portfolioStdDevArr.length !== " + m);
   }
 
-  var result = portfolioStats.PortfolioStats();
+  var result = Object.create(portfolioStats.PortfolioStats);
   result.weights = weightsMxN;
   result.expectedReturnRate = portfolioExpReturnRateArr;
   result.stdDev = portfolioStdDevArr;
