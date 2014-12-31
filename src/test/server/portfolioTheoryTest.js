@@ -14,7 +14,7 @@ var assert = require("assert");
 var numeric = require("numeric");
 
 describe("portfolioTheory", function() {
-  var globalMinVariancePortfolio = pTheory.GlobalMinVariancePortfolio();
+  var globalMinVariancePortfolio = Object.create(pTheory.GlobalMinVariancePortfolio);
   describe("Global Minimum Variance Portfolio", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", function() {
       // numbers taken from the econ424 lecture
