@@ -5,8 +5,7 @@
 /* jshint strict: false */
 /* jshint undef: true */
 /* jshint unused: true */
-/* jshint browser: true */
-/* global require, exports */
+/* jshint node:true */
 
 var linearAlgebra = require("./linearAlgebra");
 var pStats = require("./portfolioStats");
