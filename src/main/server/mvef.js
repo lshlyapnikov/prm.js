@@ -14,14 +14,6 @@ var portfolioStats = require("./portfolioStats");
 var yahooFinanceApi = require("./../yahoo/yahooFinanceApi");
 var Q = require("q");
 
-// TODO: remove it?
-// function extractPrices(objArr) {
-//     var result = utils.convertArrayElemetns(objArr, function(obj) {
-//         return Number(obj["Adj Close"]);
-//     });
-//     return result;
-// }
-
 /**
  * Generates portfolio MVEF for the specified symbols, using
  * Yahoo Finance API as a historical prices provider.
@@ -132,7 +124,7 @@ function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
 }
 
 /**
- * Calculates portofolio MVEF using provided price matrix.
+ * Calculates portfolio MVEF using provided price matrix.
  *
  * @param {Array} weightsMxN       M x N matrix of weights, where
  *                                 M is the number of random draws,
