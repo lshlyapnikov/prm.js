@@ -69,7 +69,23 @@ exports.GlobalMinVariancePortfolio = {
 };
 
 exports.TangencyPortfolio = {
-
+  /**
+   * @param expectedReturnRatesNx1
+   * @param returnRatesCovarianceNxN
+   * @param riskFreeReturnRate
+   * @returns {Array} an array of N elements. Every element is a stock weight in the portfolio.
+   */
+  calculate: function(expectedReturnRatesNx1, returnRatesCovarianceNxN, riskFreeReturnRate) {
+    var n = linearAlgebra.dim(returnRatesCovarianceNxN)[0];
+    var returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN);
+    var riskFreeReturnRateNx1 = linearAlgebra.matrix(n, 1, riskFreeReturnRate);
+    var muMinusRfNx1 = numeric.sub(expectedReturnRatesNx1, riskFreeReturnRateNx1);
+    var topNx1 = linearAlgebra.multiplyMatrices(returnRatesCovarianceInvertedNxN, muMinusRfNx1);
+    var one1xN = linearAlgebra.matrix(1, n, 1);
+    var bot1x1 = linearAlgebra.multiplyMatrices(one1xN, topNx1);
+    var resultNx1 = numeric.div(topNx1, bot1x1[0][0]);
+    return linearAlgebra.transpose(resultNx1)[0];
+  }
 };
 
 //exports.efficientPortfolios = function(){
