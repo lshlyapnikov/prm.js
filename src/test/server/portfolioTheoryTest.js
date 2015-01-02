@@ -44,6 +44,9 @@ describe("portfolioTheory", function() {
       var actualStdDev = pStats.portfolioStdDev(actualWeights1x3, rrCovarianceMatrix);
       console.log("actualStdDev: " + actualStdDev);
       assert.equal(actualStdDev.toFixed(8), expectedGlobalMinVariancePortfolio.stdDev);
+
+      var portfolioRr = la.multiplyMatrices(actualWeights1x3, expectedRr);
+      assert.equal(portfolioRr[0][0].toFixed(4), expectedGlobalMinVariancePortfolio.expectedReturnRate.toFixed(4));
     });
     it("should calculate global min variance portfolio for NYX and INTC using historic prices", function() {
       var expectedPortfolio = Object.create(pStats.PortfolioStats);
