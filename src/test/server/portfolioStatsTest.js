@@ -2,8 +2,8 @@
 /* jshint strict: false */
 /* jshint undef: true */
 /* jshint unused: true */
-/* jshint browser: true */
-/* global require, describe, it, console */
+/* jshint node:true */
+/* global require, describe, it */
 
 var pStats = require("../../main/server/portfolioStats");
 var utils = require("../../main/server/utils");

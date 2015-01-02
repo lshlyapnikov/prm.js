@@ -9,7 +9,6 @@
 /* global require, exports */
 
 var linearAlgebra = require("./linearAlgebra");
-var numeric = require("numeric");
 
 function PortfolioStats() {
   return {
