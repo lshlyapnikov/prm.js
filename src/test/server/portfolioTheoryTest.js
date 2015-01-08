@@ -30,8 +30,8 @@ describe("portfolioTheory", function() {
   describe("Global Minimum Variance Portfolio", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", function() {
       var expectedGlobalMinVariancePortfolio = Object.create(pStats.PortfolioStats);
-      expectedGlobalMinVariancePortfolio.expectedReturnRate = 0.02489184;
       expectedGlobalMinVariancePortfolio.weights = [0.4411, 0.3656, 0.1933];
+      expectedGlobalMinVariancePortfolio.expectedReturnRate = 0.02489184;
       expectedGlobalMinVariancePortfolio.stdDev = 0.07267607;
 
       var actualWeights = globalMinVariancePortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceMatrix);
