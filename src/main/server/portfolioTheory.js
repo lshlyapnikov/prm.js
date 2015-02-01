@@ -15,7 +15,7 @@ exports.GlobalMinVariancePortfolio = {
   /**
    * Calculates Global Minimum Variance Portfolio.
    *
-   * @param {Array} returnRatesKxN   K x N return rates matrix, where
+   * @param {Array.<Array.<number>>} returnRatesKxN   K x N return rates matrix, where
    *                                 K is the number of historical intervals,
    *                                 N is the number of stocks in portfolio;
    */
@@ -36,7 +36,7 @@ exports.GlobalMinVariancePortfolio = {
 
   /**
    * @param returnRatesCovarianceNxN
-   * @returns {Array} an array of N elements. Every element is a stock weight in the portfolio.
+   * @returns {Array.<number>} an array of N elements. Every element is a stock weight in the portfolio.
    */
   calculateWeightsFromReturnRatesCovariance: function(returnRatesCovarianceNxN) {
     var b = linearAlgebra.dim(returnRatesCovarianceNxN)[0] + 1;
@@ -87,6 +87,12 @@ exports.TangencyPortfolio = {
     return linearAlgebra.transpose(resultNx1)[0];
   }
 };
+
+// efficient portfolio with target return
+// A and B matrices are different from global minimum efficient portfolio
+
+// efficient portfolio frontier with no short sale
+// 09 portfoliotheorynoshortsalesslides.pdf, page 12
 
 //exports.efficientPortfolios = function(){
 //

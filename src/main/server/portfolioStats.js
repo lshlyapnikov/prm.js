@@ -9,12 +9,13 @@
 /* global require, exports */
 
 var linearAlgebra = require("./linearAlgebra");
+var _ = require('underscore');
 
 function PortfolioStats() {
   return {
-    weights: NaN,
-    expectedReturnRate: NaN,
-    stdDev: NaN
+    weights /** {number[]} */: NaN,
+    expectedReturnRate /** {number} */: NaN,
+    stdDev /** {number} */: NaN
   };
 }
 
@@ -22,14 +23,8 @@ function meanValue(arr) {
   if(arr === undefined || 0 === arr.length) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty");
   }
-
-  var sum = 0;
-  var length = arr.length;
-  for(var i = 0; i < length; i++) {
-    sum += arr[i];
-  }
-
-  return sum / length;
+  var sum = _.reduce(arr, function(memo, num) { return memo + num; });
+  return sum / arr.length;
 }
 
 /**
