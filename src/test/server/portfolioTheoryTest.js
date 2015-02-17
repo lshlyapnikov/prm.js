@@ -26,7 +26,7 @@ describe("portfolioTheory", function() {
 
   var riskFreeRr = 0.005
 
-  var globalMinVariancePortfolio = Object.create(pTheory.GlobalMinimumVariancePortfolio)
+  var globalMinVariancePortfolio = pTheory.GlobalMinimumVariancePortfolio
 
   describe("Global Minimum Variance Portfolio", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", function() {
@@ -133,7 +133,7 @@ describe("portfolioTheory", function() {
       var actualMatrixB = pTheory.EfficientPortfolioWithTargetReturn.createMatrixB(5, 10)
       assert.deepEqual(actualMatrixB, la.columnMatrix([0, 0, 0, 10, 1]))
     })
-    it("should calculate portfolio weight", function() {
+    it("should calculate efficient portfolio weights for the specified target return rate", function() {
       var expectedWeights = [0.82745, -0.09075, 0.26329]
 
       var actualWeights = pTheory.EfficientPortfolioWithTargetReturn.calculate(
@@ -143,4 +143,3 @@ describe("portfolioTheory", function() {
     })
   })
 })
-

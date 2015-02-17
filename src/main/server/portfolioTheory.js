@@ -20,6 +20,7 @@ exports.GlobalMinimumVariancePortfolio = {
    *                                 K is the number of historical intervals,
    *                                 N is the number of stocks in portfolio
    */
+  // TODO(lshlyapnikov): get rid of this method, covariance and return rates matrices used by other functions too
   calculateFromReturnRates: function(returnRatesKxN) {
     var returnRatesCovarianceNxN = pStats.covariance(returnRatesKxN)
     var weightsN = this.calculateWeightsFromReturnRatesCovariance(returnRatesCovarianceNxN)
