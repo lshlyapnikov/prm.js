@@ -9,7 +9,7 @@
 /* global require, exports */
 
 var linearAlgebra = require("./linearAlgebra");
-var _ = require('underscore');
+var _ = require("underscore");
 
 function PortfolioStats() {
   return {
