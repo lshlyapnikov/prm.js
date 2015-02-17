@@ -141,7 +141,7 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
   var covarianceNxN = portfolioStats.covariance(returnRatesKxN);
 
   var m = linearAlgebra.dim(weightsMxN)[0];
-  //var n = linearAlgebra.dim(weightsMxN)[1];
+  //var n = la.dim(weightsMxN)[1];
 
   // MxN x Nx1 = Nx1
   var portfolioExpReturnRatesMx1 = linearAlgebra.multiplyMatrices(
