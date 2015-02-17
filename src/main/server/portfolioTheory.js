@@ -41,7 +41,8 @@ exports.GlobalMinimumVariancePortfolio = {
    * @returns {Array.<number>} an array of N elements. Every element is a stock weight in the portfolio.
    */
   calculateWeightsFromReturnRatesCovariance: function(returnRatesCovarianceNxN) {
-    var b = la.dim(returnRatesCovarianceNxN)[0] + 1
+    var n = la.dim(returnRatesCovarianceNxN)[0]
+    var b = n + 1
     var matrixA = this.createMatrixA(returnRatesCovarianceNxN)
     var matrixB = this.createMatrixB(b)
     var matrixZ = numeric.solve(matrixA, matrixB)
@@ -96,7 +97,8 @@ exports.TangencyPortfolio = {
 exports.EfficientPortfolioWithTargetReturn = {
 
   calculate: function(expectedReturnRatesNx1, returnRatesCovarianceNxN, targetReturnRate) {
-    var b = la.dim(returnRatesCovarianceNxN)[0] + 2
+    var n = la.dim(returnRatesCovarianceNxN)[0]
+    var b = n + 2
     var matrixA = this.createMatrixA(expectedReturnRatesNx1, returnRatesCovarianceNxN)
     var matrixB = this.createMatrixB(b, targetReturnRate)
     var matrixZ = numeric.solve(matrixA, matrixB)
