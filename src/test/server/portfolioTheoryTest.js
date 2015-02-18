@@ -15,18 +15,18 @@ var assert = require("assert")
 var numeric = require("numeric")
 
 describe("portfolioTheory", function() {
-  // numbers taken from the econ424 lecture
-  // 08.2 portfolioTheoryMatrix.pdf, page 31: 1.2 PORTFOLIO ANALYSIS FUNCTIONS IN R
+  // numbers taken from econ424/08.2 portfolioTheoryMatrix.pdf, p. 4, example 2
+  // MSFT, NORD, SBUX
+
+  var expectedRr = la.columnMatrix([0.0427, 0.0015, 0.0285])
+
   var rrCovarianceMatrix = [
     [0.0100, 0.0018, 0.0011],
     [0.0018, 0.0109, 0.0026],
     [0.0011, 0.0026, 0.0199]
   ]
-  var expectedRr = la.columnMatrix([0.0427, 0.0015, 0.0285])
 
   var riskFreeRr = 0.005
-
-  var globalMinVariancePortfolio = pTheory.GlobalMinimumVariancePortfolio
 
   describe("Global Minimum Variance Portfolio", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", function() {
@@ -35,7 +35,8 @@ describe("portfolioTheory", function() {
       expectedGlobalMinVariancePortfolio.expectedReturnRate = 0.02489184
       expectedGlobalMinVariancePortfolio.stdDev = 0.07267607
 
-      var actualWeights = globalMinVariancePortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceMatrix)
+      var actualWeights =
+        pTheory.GlobalMinimumVariancePortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceMatrix)
       console.log("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
       assert.deepEqual(numeric.dim(actualWeights), [3])
       utils.setArrayElementsScale(actualWeights, 4)
@@ -57,7 +58,7 @@ describe("portfolioTheory", function() {
 
       var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
 
-      var actualPortfolio = globalMinVariancePortfolio.calculateFromReturnRates(
+      var actualPortfolio = pTheory.GlobalMinimumVariancePortfolio.calculateFromReturnRates(
         pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN))
 
       assert.deepEqual(utils.newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights)
@@ -69,7 +70,7 @@ describe("portfolioTheory", function() {
         var n = la.dim(rrCov)[0]
         var a = n + 1
 
-        var matrixA = globalMinVariancePortfolio.createMatrixA(rrCov)
+        var matrixA = pTheory.GlobalMinimumVariancePortfolio.createMatrixA(rrCov)
 
         console.log("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
 
@@ -133,13 +134,23 @@ describe("portfolioTheory", function() {
       var actualMatrixB = pTheory.EfficientPortfolioWithTargetReturn.createMatrixB(5, 10)
       assert.deepEqual(actualMatrixB, la.columnMatrix([0, 0, 0, 10, 1]))
     })
-    it("should calculate efficient portfolio weights for the specified target return rate", function() {
+    it("should calculate efficient portfolio with the same expected return as Microsoft", function() {
+      // econ424/08.2 portfolioTheoryMatrix.pdf, p. 13, example 6
       var expectedWeights = [0.82745, -0.09075, 0.26329]
 
       var actualWeights = pTheory.EfficientPortfolioWithTargetReturn.calculate(
         expectedRr, rrCovarianceMatrix, expectedRr[0][0])
 
       assert.deepEqual(utils.newArrayWithScale(actualWeights, 5), expectedWeights)
+    })
+    it("should calculate efficient portfolio with the same expected return as Starbucks", function() {
+      // econ424/08.2 portfolioTheoryMatrix.pdf, p. 14, example 7
+      var expectedWeights = [0.5194, 0.2732, 0.2075]
+
+      var actualWeights = pTheory.EfficientPortfolioWithTargetReturn.calculate(
+        expectedRr, rrCovarianceMatrix, expectedRr[2][0])
+
+      assert.deepEqual(utils.newArrayWithScale(actualWeights, 4), expectedWeights)
     })
   })
 })
