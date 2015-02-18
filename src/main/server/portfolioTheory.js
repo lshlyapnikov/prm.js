@@ -11,8 +11,9 @@
 var la = require("./linearAlgebra")
 var pStats = require("./portfolioStats")
 var numeric = require("numeric")
+var _ = require("underscore")
 
-exports.GlobalMinimumVariancePortfolio = {
+exports.GlobalMinimumVarianceEfficientPortfolio = {
   /**
    * Calculates Global Minimum Variance Portfolio.
    *
@@ -22,18 +23,10 @@ exports.GlobalMinimumVariancePortfolio = {
    */
   // TODO(lshlyapnikov): get rid of this method, covariance and return rates matrices used by other functions too
   calculateFromReturnRates: function(returnRatesKxN) {
-    var returnRatesCovarianceNxN = pStats.covariance(returnRatesKxN)
-    var weightsN = this.calculateWeightsFromReturnRatesCovariance(returnRatesCovarianceNxN)
-    var weights1xN = [weightsN]
     var meanRrNx1 = pStats.mean(returnRatesKxN)
-    var rr1x1 = la.multiplyMatrices(weights1xN, meanRrNx1)
-
-    var portfolio = Object.create(pStats.PortfolioStats)
-    portfolio.weights = weightsN
-    portfolio.stdDev = pStats.portfolioStdDev(weights1xN, returnRatesCovarianceNxN)
-    portfolio.expectedReturnRate = rr1x1[0][0]
-
-    return portfolio
+    var rrCovarianceNxN = pStats.covariance(returnRatesKxN)
+    var weightsN = this.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN)
+    return pStats.createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN)
   },
 
   /**
@@ -94,7 +87,7 @@ exports.TangencyPortfolio = {
  * See econ424/08.2 portfolioTheoryMatrix.pdf, p12, matrix formula 1.18.
  * A and B matrices are different from global minimum efficient portfolio.
  */
-exports.EfficientPortfolioWithTargetReturn = {
+exports.TargetReturnEfficientPortfolio = {
 
   calculate: function(expectedReturnRatesNx1, returnRatesCovarianceNxN, targetReturnRate) {
     var n = la.dim(returnRatesCovarianceNxN)[0]
@@ -136,9 +129,41 @@ exports.EfficientPortfolioWithTargetReturn = {
  * econ424/08.2 portfolioTheoryMatrix.pdf, p.21
  */
 exports.EfficientPortfolioFrontier = {
-  calculate: function(expectedReturnRatesNx1, returnRatesCovarianceNxN) {
+  calculate: function(returnRatesKxN) {
+    var expectedRrNx1 = pStats.mean(returnRatesKxN)
+    var maxExpectedRr = _.max(expectedRrNx1, function(row) { return row[0] })
+    var rrCovarianceNxN = pStats.covariance(returnRatesKxN)
 
+    var globalMinVarianceEp = pStats.createPortfolioStats(
+      exports.GlobalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN),
+      expectedRrNx1,
+      rrCovarianceNxN)
+
+    var maxReturnEp = pStats.createPortfolioStats(
+      exports.TargetReturnEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN, maxExpectedRr),
+      expectedRrNx1,
+      rrCovarianceNxN)
+
+    var alpha = -1
+    var i
+    var result = new Array(21)
+
+    for (var i = 0; i <= 21; i++) {
+      result[i] = pStats.createPortfolioStats(
+        this._calculateEfficientPortfolioWeights(globalMinVarianceEp.weights, maxReturnEp.fontWeights, alpha),
+        expectedRrNx1,
+        rrCovarianceNxN)
+      alpha += 0.1
+    }
+
+    return result
   },
+
+  _calculateEfficientPortfolioWeights: function(globalMinVarianceEpWeigthsN, maxReturnEpWeightsN, alpha) {
+    var x = _.map(globalMinVarianceEpWeigthsN, function(n) { return alpha * n})
+    var y = _.map(maxReturnEpWeightsN, function(n) { return (1 - alpha) * n })
+    return numeric.add(x, y)
+  }
 }
 
 // efficient portfolio frontier with no short sale

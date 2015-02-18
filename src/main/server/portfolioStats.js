@@ -8,23 +8,37 @@
 /* jshint browser: true */
 /* global require, exports */
 
-var linearAlgebra = require("./linearAlgebra");
-var _ = require("underscore");
+var la = require("./linearAlgebra")
+var _ = require("underscore")
 
 function PortfolioStats() {
   return {
     weights /** {number[]} */: NaN,
     expectedReturnRate /** {number} */: NaN,
     stdDev /** {number} */: NaN
-  };
+  }
+}
+
+function createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN) {
+  var portfolio = Object.create(PortfolioStats)
+
+  portfolio.weights = weightsN
+
+  var weights1xN = [weightsN]
+  var expectedRr1x1 = la.multiplyMatrices(weights1xN, meanRrNx1)
+  portfolio.expectedReturnRate = expectedRr1x1[0][0]
+
+  portfolio.stdDev = portfolioStdDev(weights1xN, rrCovarianceNxN)
+
+  return portfolio
 }
 
 function meanValue(arr) {
   if(arr === undefined || 0 === arr.length) {
-    throw new Error("InvalidArgument: Array arr is either undefined or empty");
+    throw new Error("InvalidArgument: Array arr is either undefined or empty")
   }
-  var sum = _.reduce(arr, function(memo, num) { return memo + num; });
-  return sum / arr.length;
+  var sum = _.reduce(arr, function(memo, num) { return memo + num; })
+  return sum / arr.length
 }
 
 /**
@@ -36,33 +50,33 @@ function meanValue(arr) {
  */
 function mean(matrix) {
   if(matrix === undefined || 0 === matrix.length) {
-    throw new Error("InvalidArgument: matrix is either undefined or empty");
+    throw new Error("InvalidArgument: matrix is either undefined or empty")
   }
 
-  var dimension = linearAlgebra.dim(matrix);
-  var m = dimension[0];
-  var n = dimension[1];
+  var dimension = la.dim(matrix)
+  var m = dimension[0]
+  var n = dimension[1]
 
   if(undefined === m || undefined === n) {
     throw new Error("InvalidArgument: " +
-      "argument matrix has to be a matrix (2-dimensional array)");
+      "argument matrix has to be a matrix (2-dimensional array)")
   }
 
-  var mu = linearAlgebra.matrix(n, 1, 0);
+  var mu = la.matrix(n, 1, 0)
 
-  var i, j;
+  var i, j
 
   for(i = 0; i < m; i++) {
     for(j = 0; j < n; j++) {
-      mu[j][0] += matrix[i][j];
+      mu[j][0] += matrix[i][j]
     }
   }
 
   for(j = 0; j < n; j++) {
-    mu[j][0] = mu[j][0] / m;
+    mu[j][0] = mu[j][0] / m
   }
 
-  return mu;
+  return mu
 }
 
 /**
@@ -72,65 +86,65 @@ function mean(matrix) {
  * @param {bool} isPopulation   Optional parameter. If true, isPopulation variance returned, else sample variance.
  */
 function variance(arr, isPopulation) {
-  var mu = meanValue(arr);
+  var mu = meanValue(arr)
 
-  var sum = 0;
-  var length = arr.length;
+  var sum = 0
+  var length = arr.length
   for(var i = 0; i < length; i++) {
-    sum += Math.pow(arr[i] - mu, 2);
+    sum += Math.pow(arr[i] - mu, 2)
   }
 
   if(true === isPopulation) {
-    return sum / length;
+    return sum / length
   } else {
-    return sum / (length - 1);
+    return sum / (length - 1)
   }
 }
 
 function covariance(matrix, isPopulation) {
-  linearAlgebra.validateMatrix(matrix);
+  la.validateMatrix(matrix)
 
-  var rowNum = matrix.length;
-  var colNum = matrix[0].length;
+  var rowNum = matrix.length
+  var colNum = matrix[0].length
 
   if("number" !== typeof rowNum || "number" !== typeof colNum) {
     throw new Error("InvalidArgument: " +
-      "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix");
+      "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix")
   }
 
   // create an empty result matrix (colNum x colNum)
-  var result = linearAlgebra.matrix(colNum, colNum, 0);
+  var result = la.matrix(colNum, colNum, 0)
 
   // calculate medians (Mx1 matrix)
-  var muMx1 = mean(matrix);
+  var muMx1 = mean(matrix)
 
   // calculate the covariance matrix
 
-  var i, j, k;
+  var i, j, k
 
-  var divisor = true === isPopulation ? rowNum : (rowNum - 1);
+  var divisor = true === isPopulation ? rowNum : (rowNum - 1)
 
   // calculate the diagonal elements and the half that is below the diagonal
   for(j = 0; j < colNum; j++) {
     for(k = 0; k <= j; k++) {
       for(i = 0; i < rowNum; i++) {
-        result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0]);
+        result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0])
       }
-      result[j][k] = result[j][k] / divisor;
+      result[j][k] = result[j][k] / divisor
     }
   }
 
   // copy the half from under the diagonal to the part that is above the diagonal
   for(j = 0; j < colNum; j++) {
     for(k = 0; k < j; k++) {
-      result[k][j] = result[j][k];
+      result[k][j] = result[j][k]
     }
   }
 
-  linearAlgebra.validateMatrix(result);
+  la.validateMatrix(result)
 
   // that's it, now we have the covariance matrix
-  return result;
+  return result
 }
 
 /**
@@ -142,16 +156,16 @@ function covariance(matrix, isPopulation) {
 function calculateReturnRatesFromPrices(prices) {
   if(prices === undefined || 0 === prices.length) {
     throw new Error("InvalidArgument: " +
-      "Array prices argument is either undefined or empty");
+      "Array prices argument is either undefined or empty")
   }
 
-  var result = new Array(prices.length - 1);
-  var i;
+  var result = new Array(prices.length - 1)
+  var i
   for(i = 0; i < (prices.length - 1); i++) {
-    result[i] = prices[i + 1] / prices[i] - 1;
+    result[i] = prices[i + 1] / prices[i] - 1
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -162,63 +176,64 @@ function calculateReturnRatesFromPrices(prices) {
  * @returns {Array}  M-1 x N matrix of return rates.
  */
 function calculateReturnRatesFromPriceMatrix(priceMatrix) {
-  var dimensions = linearAlgebra.dim(priceMatrix);
-  var m = dimensions[0];
-  var n = dimensions[1];
+  var dimensions = la.dim(priceMatrix)
+  var m = dimensions[0]
+  var n = dimensions[1]
 
-  var result = linearAlgebra.matrix(m - 1, n);
+  var result = la.matrix(m - 1, n)
 
-  var i, j;
+  var i, j
   for(i = 0; i < (m - 1); i++) {
     for(j = 0; j < n; j++) {
-      result[i][j] = priceMatrix[i + 1][j] / priceMatrix[i][j] - 1;
+      result[i][j] = priceMatrix[i + 1][j] / priceMatrix[i][j] - 1
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * Calculates portfolio's Return Rate Standard Deviation.
  *
- * @param {Array} weights1xN   vector of stock weights in the portfolio;
+ * @param {Array} weights1xN   vector of stock weights in the portfolio
  * @param {Array} covarianceNxN   portfolio covariance matrix.
  *
  * @return {Number}   Portfolio's Standard Deviation.
  */
 function portfolioStdDev(weights1xN, covarianceNxN) {
-  var transposedWeightsNx1 = linearAlgebra.transpose(weights1xN);
-  var tmp1xN = linearAlgebra.multiplyMatrices(weights1xN, covarianceNxN);
-  var tmp1x1 = linearAlgebra.multiplyMatrices(tmp1xN, transposedWeightsNx1);
-  var result = tmp1x1[0][0];
-  result = Math.sqrt(result);
-  return result;
+  var transposedWeightsNx1 = la.transpose(weights1xN)
+  var tmp1xN = la.multiplyMatrices(weights1xN, covarianceNxN)
+  var tmp1x1 = la.multiplyMatrices(tmp1xN, transposedWeightsNx1)
+  var result = tmp1x1[0][0]
+  result = Math.sqrt(result)
+  return result
 }
 
 function loadPriceMatrix(loadHistoricalPricesFn, symbols) {
   if("function" !== typeof loadHistoricalPricesFn) {
-    throw new Error("InvalidArgument: loadHistoricalPricesFn must be a function");
+    throw new Error("InvalidArgument: loadHistoricalPricesFn must be a function")
   }
   if(undefined === symbols || 0 === symbols.length) {
-    throw new Error("InvalidArgument: symbols array is either undefined or empty");
+    throw new Error("InvalidArgument: symbols array is either undefined or empty")
   }
 
-  var n = symbols.length;
-  var transposedPriceMatrix = new Array(n);
+  var n = symbols.length
+  var transposedPriceMatrix = new Array(n)
 
   for(var i = 0; i < n; i++) {
-    transposedPriceMatrix[i] = loadHistoricalPricesFn(symbols[i]);
+    transposedPriceMatrix[i] = loadHistoricalPricesFn(symbols[i])
   }
 
-  return linearAlgebra.transpose(transposedPriceMatrix);
+  return la.transpose(transposedPriceMatrix)
 }
 
-exports.PortfolioStats = PortfolioStats;
-exports.meanValue = meanValue;
-exports.mean = mean;
-exports.variance = variance;
-exports.covariance = covariance;
-exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices;
-exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix;
-exports.portfolioStdDev = portfolioStdDev;
-exports.loadPriceMatrix = loadPriceMatrix;
+exports.PortfolioStats = PortfolioStats
+exports.createPortfolioStats = createPortfolioStats
+exports.meanValue = meanValue
+exports.mean = mean
+exports.variance = variance
+exports.covariance = covariance
+exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices
+exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix
+exports.portfolioStdDev = portfolioStdDev
+exports.loadPriceMatrix = loadPriceMatrix
