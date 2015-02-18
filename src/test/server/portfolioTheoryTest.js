@@ -28,27 +28,27 @@ describe("portfolioTheory", function() {
 
   var riskFreeRr = 0.005
 
+  var globalMinVariancePortfolio = Object.create(pStats.PortfolioStats)
+  globalMinVariancePortfolio.weights = [0.4411, 0.3656, 0.1933]
+  globalMinVariancePortfolio.expectedReturnRate = 0.02489184
+  globalMinVariancePortfolio.stdDev = 0.07267607
+
   describe("Global Minimum Variance Portfolio", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", function() {
-      var expectedGlobalMinVariancePortfolio = Object.create(pStats.PortfolioStats)
-      expectedGlobalMinVariancePortfolio.weights = [0.4411, 0.3656, 0.1933]
-      expectedGlobalMinVariancePortfolio.expectedReturnRate = 0.02489184
-      expectedGlobalMinVariancePortfolio.stdDev = 0.07267607
-
       var actualWeights =
         pTheory.GlobalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovariance3x3)
       console.log("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
       assert.deepEqual(numeric.dim(actualWeights), [3])
       utils.setArrayElementsScale(actualWeights, 4)
-      assert.deepEqual(actualWeights, expectedGlobalMinVariancePortfolio.weights)
+      assert.deepEqual(actualWeights, globalMinVariancePortfolio.weights)
 
       var actualWeights1x3 = [actualWeights]
       var actualStdDev = pStats.portfolioStdDev(actualWeights1x3, rrCovariance3x3)
       console.log("actualStdDev: " + actualStdDev)
-      assert.equal(actualStdDev.toFixed(8), expectedGlobalMinVariancePortfolio.stdDev)
+      assert.equal(actualStdDev.toFixed(8), globalMinVariancePortfolio.stdDev)
 
       var portfolioRr = la.multiplyMatrices(actualWeights1x3, expectedRr3x1)
-      assert.equal(portfolioRr[0][0].toFixed(4), expectedGlobalMinVariancePortfolio.expectedReturnRate.toFixed(4))
+      assert.equal(portfolioRr[0][0].toFixed(4), globalMinVariancePortfolio.expectedReturnRate.toFixed(4))
     })
     it("should calculate global min variance portfolio for NYX and INTC using historic prices", function() {
       var expectedPortfolio = Object.create(pStats.PortfolioStats)
@@ -107,11 +107,6 @@ describe("portfolioTheory", function() {
       assert.deepEqual(utils.newArrayWithScale(actualWeights, 4), expectedTangencyPortfolioWeights)
     })
   })
-  describe("Efficient Portfolio Frontier", function() {
-    it("should calculate efficient portfolio frontier", function() {
-
-    })
-  })
   describe("Efficient Portfolio with Target Return", function() {
     it("should create expected matrix A", function() {
       var expectedRr3x1 = la.columnMatrix([1, 2, 3])
@@ -155,6 +150,15 @@ describe("portfolioTheory", function() {
   })
   describe("Efficient Portfolio Frontier", function() {
     it("should calculate frontier for the lecture example", function() {
+      var actualFrontier = pTheory.EfficientPortfolioFrontier._calculate(expectedRr3x1, rrCovariance3x3)
+      assert.equal(21, actualFrontier.length)
+      var hasToBeGlobalMinVariancePortfolio = actualFrontier[0]
+      assert.deepEqual(
+        utils.newArrayWithScale(hasToBeGlobalMinVariancePortfolio.weights, 4),
+        globalMinVariancePortfolio.weights)
+      console.log(numeric.prettyPrint(actualFrontier))
+    })
+    it("should calculate frontier for NYX and INTC", function() {
       var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
       var returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
       var frontier = pTheory.EfficientPortfolioFrontier.calculate(returnRatesKxN)

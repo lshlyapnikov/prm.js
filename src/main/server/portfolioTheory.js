@@ -131,8 +131,12 @@ exports.TargetReturnEfficientPortfolio = {
 exports.EfficientPortfolioFrontier = {
   calculate: function(returnRatesKxN) {
     var expectedRrNx1 = pStats.mean(returnRatesKxN)
-    var maxExpectedRr = _.max(expectedRrNx1, function(row) { return row[0] })
     var rrCovarianceNxN = pStats.covariance(returnRatesKxN)
+    return this._calculate(expectedRrNx1, rrCovarianceNxN)
+  },
+
+  _calculate: function(expectedRrNx1, rrCovarianceNxN) {
+    var maxExpectedRr = _.max(expectedRrNx1, function(row) { return row[0] })
 
     var globalMinVarianceEp = pStats.createPortfolioStats(
       exports.GlobalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN),
@@ -144,16 +148,14 @@ exports.EfficientPortfolioFrontier = {
       expectedRrNx1,
       rrCovarianceNxN)
 
-    var alpha = -1
-    var i
-    var result = new Array(21)
+    var maxNum = 21
+    var result = new Array(maxNum)
 
-    for (var i = 0; i <= 21; i++) {
+    for (var i = 0, alpha = 1; i < maxNum; i++, alpha -= 0.1) {
       result[i] = pStats.createPortfolioStats(
         this._calculateEfficientPortfolioWeights(globalMinVarianceEp.weights, maxReturnEp.weights, alpha),
         expectedRrNx1,
         rrCovarianceNxN)
-      alpha += 0.1
     }
 
     return result
