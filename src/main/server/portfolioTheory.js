@@ -150,7 +150,7 @@ exports.EfficientPortfolioFrontier = {
 
     for (var i = 0; i <= 21; i++) {
       result[i] = pStats.createPortfolioStats(
-        this._calculateEfficientPortfolioWeights(globalMinVarianceEp.weights, maxReturnEp.fontWeights, alpha),
+        this._calculateEfficientPortfolioWeights(globalMinVarianceEp.weights, maxReturnEp.weights, alpha),
         expectedRrNx1,
         rrCovarianceNxN)
       alpha += 0.1
