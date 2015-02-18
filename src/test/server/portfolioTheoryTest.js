@@ -159,6 +159,7 @@ describe("portfolioTheory", function() {
       var returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
       var frontier = pTheory.EfficientPortfolioFrontier.calculate(returnRatesKxN)
       console.log(numeric.prettyPrint(frontier))
+      // TODO(lshlyapnikov): assertion!!!
     })
   })
 })
