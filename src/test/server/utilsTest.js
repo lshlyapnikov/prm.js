@@ -87,9 +87,7 @@ describe("utils", function() {
         assert.notEqual(undefined, actualException, debugMsg);
         assert.equal("Error", actualException.name, debugMsg);
       }
-
-      var i;
-      for(i = 0; i < invalidArguments.length; i++) {
+      for(var i = 0; i < invalidArguments.length; i++) {
         test(invalidArguments[i][0], invalidArguments[i][1]);
       }
     });
