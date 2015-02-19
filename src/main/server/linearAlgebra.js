@@ -107,16 +107,11 @@ function multiplyMatrices(mXn, nXm) {
   var dim0 = dim(mXn);
   var dim1 = dim(nXm);
 
-//  if (dim0[1] === 1 || dim0[0] === 1) {
-//    throw new Error("InvalidArgument: first argument is a vector, use multiplyVectors function");
-//  }
-
   if(dim0[1] !== dim1[0]) {
     throw new Error("InvalidArgument: " +
       "Invalid matrix dimensions. Cannot multiply " + dim0 + " matrix by " + dim1);
   }
 
-  // delegate to numeric.js
   return numeric.sdotMM(mXn, nXm);
 }
 
