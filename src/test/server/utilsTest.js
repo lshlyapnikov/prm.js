@@ -55,8 +55,7 @@ describe("utils", function() {
       assert.equal(rowNum, sum0);
       assert.equal(rowNum, sum1);
       assert.notDeepEqual(weights0, weights1);
-      var i;
-      for(i = 0; i < rowNum; i++) {
+      for(var i = 0; i < rowNum; i++) {
         assert.notDeepEqual(weights0[i], weights1[i]);
       }
     });
