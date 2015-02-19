@@ -85,9 +85,8 @@ function transpose(matrixMxN) {
   var n = dimensions[1]
 
   var resultNxM = matrix(n, m)
-  var i, j
-  for(i = 0; i < m; i++) {
-    for(j = 0; j < n; j++) {
+  for(var i = 0; i < m; i++) {
+    for(var j = 0; j < n; j++) {
       resultNxM[j][i] = matrixMxN[i][j]
     }
   }
