@@ -14,8 +14,8 @@ var _ = require("underscore")
 function PortfolioStats() {
   return {
     weights /** {number[]} */: NaN,
-    expectedReturnRate /** {number} */: NaN,
-    stdDev /** {number} */: NaN
+    stdDev /** {number} */: NaN,
+    expectedReturnRate /** {number} */: NaN
   }
 }
 
@@ -34,7 +34,7 @@ function createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN) {
 }
 
 function meanValue(arr) {
-  if(arr === undefined || 0 === arr.length) {
+  if(!_.isArray(arr) || 0 === arr.length) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty")
   }
   var sum = _.reduce(arr, function(memo, num) { return memo + num; })
@@ -49,7 +49,7 @@ function meanValue(arr) {
  *                    corresponding column in the matrix argument.
  */
 function mean(matrix) {
-  if(matrix === undefined || 0 === matrix.length) {
+  if(!_.isArray(matrix) || 0 === matrix.length) {
     throw new Error("InvalidArgument: matrix is either undefined or empty")
   }
 
@@ -58,8 +58,7 @@ function mean(matrix) {
   var n = dimension[1]
 
   if(undefined === m || undefined === n) {
-    throw new Error("InvalidArgument: " +
-      "argument matrix has to be a matrix (2-dimensional array)")
+    throw new Error("InvalidArgument: argument matrix has to be a matrix (2-dimensional array)")
   }
 
   var mu = la.matrix(n, 1, 0)
@@ -107,9 +106,8 @@ function covariance(matrix, isPopulation) {
   var rowNum = matrix.length
   var colNum = matrix[0].length
 
-  if("number" !== typeof rowNum || "number" !== typeof colNum) {
-    throw new Error("InvalidArgument: " +
-      "covariance(maxtrix, isPopulation) -- 1st argument must be a matrix")
+  if(!_.isNumber(rowNum) || !_.isNumber(colNum)) {
+    throw new Error("InvalidArgument: covariance(maxtrix, isPopulation) -- 1st argument must be a matrix")
   }
 
   // create an empty result matrix (colNum x colNum)
@@ -154,14 +152,12 @@ function covariance(matrix, isPopulation) {
  * @returns {Array} return ratess for every price interval.
  */
 function calculateReturnRatesFromPrices(prices) {
-  if(prices === undefined || 0 === prices.length) {
-    throw new Error("InvalidArgument: " +
-      "Array prices argument is either undefined or empty")
+  if(!_.isArray(prices) || 0 === prices.length) {
+    throw new Error("InvalidArgument: Array prices argument is either undefined or empty")
   }
 
   var result = new Array(prices.length - 1)
-  var i
-  for(i = 0; i < (prices.length - 1); i++) {
+  for(var i = 0; i < (prices.length - 1); i++) {
     result[i] = prices[i + 1] / prices[i] - 1
   }
 
@@ -210,10 +206,10 @@ function portfolioStdDev(weights1xN, covarianceNxN) {
 }
 
 function loadPriceMatrix(loadHistoricalPricesFn, symbols) {
-  if("function" !== typeof loadHistoricalPricesFn) {
+  if(!_.isFunction(loadHistoricalPricesFn)) {
     throw new Error("InvalidArgument: loadHistoricalPricesFn must be a function")
   }
-  if(undefined === symbols || 0 === symbols.length) {
+  if(!_.isArray(symbols) || 0 === symbols.length) {
     throw new Error("InvalidArgument: symbols array is either undefined or empty")
   }
 

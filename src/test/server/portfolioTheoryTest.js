@@ -152,18 +152,19 @@ describe("portfolioTheory", function() {
     it("should calculate frontier for the lecture example", function() {
       var actualFrontier = pTheory.EfficientPortfolioFrontier._calculate(expectedRr3x1, rrCovariance3x3)
       assert.equal(21, actualFrontier.length)
-      var hasToBeGlobalMinVariancePortfolio = actualFrontier[0]
-      assert.deepEqual(
-        utils.newArrayWithScale(hasToBeGlobalMinVariancePortfolio.weights, 4),
-        globalMinVariancePortfolio.weights)
       console.log(numeric.prettyPrint(actualFrontier))
+      assert.deepEqual(
+        utils.newArrayWithScale(actualFrontier[0].weights, 4),
+        globalMinVariancePortfolio.weights)
     })
     it("should calculate frontier for NYX and INTC", function() {
       var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
       var returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
       var frontier = pTheory.EfficientPortfolioFrontier.calculate(returnRatesKxN)
       console.log(numeric.prettyPrint(frontier))
-      // TODO(lshlyapnikov): assertion!!!
+      assert.deepEqual(
+        utils.newArrayWithScale(frontier[0].weights, 4),
+        [0.1127, 0.8873])
     })
   })
 })
