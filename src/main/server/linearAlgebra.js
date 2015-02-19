@@ -142,9 +142,8 @@ function validateMatrix(mXn) {
     throw new Error("InvalidArgument: matrix has 0 columns")
   }
 
-  var i, shouldBeN
-  for(i = 1; i < m; i++) {
-    shouldBeN = mXn[i].length
+  for(var i = 1; i < m; i++) {
+    var shouldBeN = mXn[i].length
     if(shouldBeN !== n) {
       throw new Error("InvalidArgument: expected " + n + " elements in row: " + i)
     }
@@ -158,9 +157,8 @@ exports.copyMatrix = function(mXn) {
   var n = mn[1]
 
   var result = matrix(m, n, NaN)
-  var i, j
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
+  for (var i = 0; i < m; i++) {
+    for (var j = 0; j < n; j++) {
       result[i][j] = Number(mXn[i][j])
     }
   }
@@ -174,9 +172,8 @@ exports.copyMatrixInto = function(mXn, outputMatrix) {
   var m = mn[0]
   var n = mn[1]
 
-  var i, j
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
+  for (var i = 0; i < m; i++) {
+    for (var j = 0; j < n; j++) {
       outputMatrix[i][j] = Number(mXn[i][j])
     }
   }
