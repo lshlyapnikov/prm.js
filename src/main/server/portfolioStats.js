@@ -5,7 +5,7 @@
 /* jshint strict: false */
 /* jshint undef: true */
 /* jshint unused: true */
-/* jshint browser: true */
+/* jshint -W033 */
 /* global require, exports */
 
 var la = require("./linearAlgebra")
