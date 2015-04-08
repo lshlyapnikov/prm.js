@@ -5,18 +5,18 @@
 /* jshint node:true */
 /* global require, describe, it */
 
-var pStats = require("../../main/server/portfolioStats");
-var utils = require("../../main/server/utils");
-var la = require("../../main/server/linearAlgebra");
-var matrixAssert = require("./matrixAssert");
-var testData = require("./testData");
-var assert = require("assert");
-var numeric = require("numeric");
+const pStats = require("../../main/server/portfolioStats");
+const utils = require("../../main/server/utils");
+const la = require("../../main/server/linearAlgebra");
+const matrixAssert = require("./matrixAssert");
+const testData = require("./testData");
+const assert = require("assert");
+const numeric = require("numeric");
 
-var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC]);
+const priceMatrixMxN = la.transpose([testData.NYX, testData.INTC]);
 
 function mockHistoricalPricesProvider(symbol) {
-  var prices = {NYX: testData.NYX, INTC: testData.INTC};
+  const prices = {NYX: testData.NYX, INTC: testData.INTC};
   return prices[symbol];
 }
 
