@@ -6,36 +6,36 @@
 /* jshint -W033 */
 /* global require, describe, it, console */
 
-var pStats = require("../../main/server/portfolioStats")
-var pTheory = require("../../main/server/portfolioTheory")
-var la = require("../../main/server/linearAlgebra")
-var utils = require("../../main/server/utils")
-var testData = require("./testData")
-var assert = require("assert")
-var numeric = require("numeric")
+const pStats = require("../../main/server/portfolioStats")
+const pTheory = require("../../main/server/portfolioTheory")
+const la = require("../../main/server/linearAlgebra")
+const utils = require("../../main/server/utils")
+const testData = require("./testData")
+const assert = require("assert")
+const numeric = require("numeric")
 
 describe("portfolioTheory", function() {
   // numbers taken from econ424/08.2 portfolioTheoryMatrix.pdf, p. 4, example 2
   // MSFT, NORD, SBUX
 
-  var expectedRr3x1 = la.columnMatrix([0.0427, 0.0015, 0.0285])
+  const expectedRr3x1 = la.columnMatrix([0.0427, 0.0015, 0.0285])
 
-  var rrCovariance3x3 = [
+  const rrCovariance3x3 = [
     [0.0100, 0.0018, 0.0011],
     [0.0018, 0.0109, 0.0026],
     [0.0011, 0.0026, 0.0199]
   ]
 
-  var riskFreeRr = 0.005
+  const riskFreeRr = 0.005
 
-  var globalMinVariancePortfolio = Object.create(pStats.PortfolioStats)
+  const globalMinVariancePortfolio = Object.create(pStats.PortfolioStats)
   globalMinVariancePortfolio.weights = [0.4411, 0.3656, 0.1933]
   globalMinVariancePortfolio.expectedReturnRate = 0.02489184
   globalMinVariancePortfolio.stdDev = 0.07267607
 
-  describe("Global Minimum Variance Portfolio", function() {
-    it("should calculate global min variance portfolio from return rate covariance matrix", function() {
-      var actualWeights =
+  describe("Global Minimum Variance Portfolio", () => {
+    it("should calculate global min variance portfolio from return rate covariance matrix", () => {
+      const actualWeights =
         pTheory.GlobalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovariance3x3)
       console.log("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
       assert.deepEqual(numeric.dim(actualWeights), [3])

@@ -5,7 +5,9 @@
 /* jshint strict: false */
 /* jshint undef: true */
 /* jshint unused: true */
+/* jshint esnext: true */
 /* jshint -W033 */
+/* jshint -W119 */
 /* global require, exports */
 
 var la = require("./linearAlgebra")
@@ -37,7 +39,7 @@ function meanValue(arr) {
   if(!_.isArray(arr) || 0 === arr.length) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty")
   }
-  var sum = _.reduce(arr, function(memo, num) { return memo + num; })
+  const sum = _.reduce(arr, (memo, num) => memo + num )
   return sum / arr.length
 }
 

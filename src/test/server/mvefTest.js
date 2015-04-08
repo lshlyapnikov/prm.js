@@ -5,21 +5,20 @@
 /* jshint browser: true */
 /* global describe, it, require, console */
 
-var mvef = require("../../main/server/mvef");
+const mvef = require("../../main/server/mvef");
+const testData = require("./testData");
+const linearAlgebra = require("../../main/server/linearAlgebra");
+const portfolioStats = require("../../main/server/portfolioStats");
+const matrixAssert = require("./matrixAssert");
+const utils = require("../../main/server/utils");
+const assert = require("assert");
+const Q = require("q");
+const numeric = require("numeric");
 
-var testData = require("./testData");
-var linearAlgebra = require("../../main/server/linearAlgebra");
-var portfolioStats = require("../../main/server/portfolioStats");
-var matrixAssert = require("./matrixAssert");
-var utils = require("../../main/server/utils");
-var assert = require("assert");
-var Q = require("q");
-var numeric = require("numeric");
-
-describe("mvef", function () {
-  describe("#mvef()", function () {
-    it("step by step", function () {
-      var pricesMxN = linearAlgebra.transpose([testData.NYX, testData.INTC]);
+describe("mvef", () => {
+  describe("#mvef()", () => {
+    it("step by step", () => {
+      const pricesMxN = linearAlgebra.transpose([testData.NYX, testData.INTC]);
 
       // Return Rate Matrix Calculation
       var nyxR = [-0.0205761316872428, 0.164705882352941, 0.308802308802309, -0.0573318632855567, -0.0953216374269006, -0.0116354234001294, -0.0562459123610203, 0.836451836451837, 0.0569811320754718, 0.132809710817565, 0.0381342578001891, -0.0601092896174863, 0.0494186046511629, 0.212065250846414, 0.149060436769934, -0.0990055248618784, 0.136865342163355, 0.131175836030205, 0.232500476826245, -0.162178891983906, -0.0993719985223495, 0.144995898277277, -0.091706967580154, -0.046539144153027, 0.260599793174767, -0.00935192780968008, 0.351606492215965, -0.0289180247518687, 0.0286435331230284, -0.150883218842002, 0.104305114128864, -0.100470957613815, -0.0148342059336826, -0.1108650723354, 0.0461564004648847, -0.0555467386129186, 0.0920853638044026, 0.182489613786736, -0.0749512036434612, 0.0163173442115627, -0.104498269896194, -0.164451313755796, -0.0566037735849056, 0.0711764705882354, -0.0329489291598024, -0.203482869581677, -0.0674904942965778, -0.140672782874618, -0.0269869513641755, -0.229807985370314, -0.210922041946973, 0.162988966900702, -0.196636481241915, -0.232420826623725, 0.079020979020979, 0.294232015554115, 0.294942413620431, -0.0823665893271461, -0.0109565950273915, 0.0515551768214744, 0.030388978930308, -0.105387337790012, -0.021978021978022, 0.0125842696629215, -0.0745672436750998, 0.126618705035971, 0.134525329927629, 0.102063789868668, -0.121212121212121, -0.0259589306470359, 0.0485282418456643, -0.0424886191198787, 0.0404120443740097, 0.0723533891850723, -0.108309659090909, 0.108323377140581, 0.0610851598993893, 0.163223840162547, -0.0413391557496361, 0.138779228666869, -0.0909333333333332, -0.0504546787914346, -0.0237874575223972, -0.184493670886076, -0.138145129996119, 0.143628995947771, 0.0748031496062993, -0.0761904761904763, 0.0178429817605077, 0.120763537202961, 0.0184219673270769, -0.1419795221843, -0.0556881463802705, 0.0652906486941871, -0.00395413206801098, -0.0170702659785629, -0.00444264943457207, -0.0344827586206896];
@@ -44,25 +43,25 @@ describe("mvef", function () {
       var returnRatesCovariance = portfolioStats.covariance(returnRatesMatrix);
       matrixAssert.equal(returnRatesCovariance, expectedReturnRatesCovariance, 6);
     });
-    it("should load historical prices using the specified provider and return MVEF numbers", function (done) {
+    it("should load historical prices using the specified provider and return MVEF numbers", (done) => {
       // GIVEN
-      var prices = {NYX: testData.NYX, INTC: testData.INTC};
-      var expectedMinRisk = 7.37;
-      var expectedReturnRate = 0.64;
-      var expectedWeights = [0.11, 0.89];
+      const prices = {NYX: testData.NYX, INTC: testData.INTC};
+      const expectedMinRisk = 7.37;
+      const expectedReturnRate = 0.64;
+      const expectedWeights = [0.11, 0.89];
 
       function mockHistoricalPricesProvider(symbol) {
-        var deferred = Q.defer();
-        var result = prices[symbol];
+        const deferred = Q.defer();
+        const result = prices[symbol];
         deferred.resolve(result);
         return deferred.promise;
       }
 
-      var numOfRandomWeights = 5000;
+      const numOfRandomWeights = 5000;
 
       // WHEN
       mvef.mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
-        .then(function (portfolio) {
+        .then((portfolio) => {
           // THEN
           assert.equal(numOfRandomWeights, portfolio.expectedReturnRate.length);
           assert.equal(numOfRandomWeights, portfolio.stdDev.length);
@@ -76,9 +75,9 @@ describe("mvef", function () {
             }
           }
 
-          var actualMinRisk = minStd * 100;
-          var actualReturnRate = portfolio.expectedReturnRate[minStdIndx] * 100;
-          var actualWeights = portfolio.weights[minStdIndx];
+          const actualMinRisk = minStd * 100;
+          const actualReturnRate = portfolio.expectedReturnRate[minStdIndx] * 100;
+          const actualWeights = portfolio.weights[minStdIndx];
 
           console.log("min Std, %: ", actualMinRisk);
           console.log("return rate, %: ", actualReturnRate);
@@ -88,11 +87,7 @@ describe("mvef", function () {
           assert.equal(actualReturnRate.toFixed(2), expectedReturnRate);
           assert.deepEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights);
         })
-        .then(function () {
-          done();
-        }, function (error) {
-          done(error);
-        });
+        .then(() => done(), (error) => done(error))
     });
   });
 });
