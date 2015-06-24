@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html ng-app="prm">
+<head>
+  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+
+<script type="text/javascript" src="bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript" src="bower_components/Chart.js/Chart.js"></script>
+<script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+
+<div class="container-fluid">
+  <h1 class="page-header">Portfolio Risk Management</h1>
+</div>
+
+<div class="container-fluid" ng-controller="PrmController as prmCtrl">
+  <form>
+    <div class="row">
+
+      <div class="col-md-6">
+        <label>Stock Symbols (comma-separated):</label>
+
+        <p class="input-group">
+          <input type="text" class="form-control" ng-model="prmCtrl.symbols" ng-required="true" size="512"
+                 placeholder="example: IBM, MSFT, ORCL"/>
+        </p>
+      </div>
+
+      <div class="col-md-2">
+        <label>Start Date:</label>
+
+        <p class="input-group">
+          <input type="text" class="form-control" datepicker-popup="MM/dd/yyyy" ng-model="prmCtrl.startDate"
+                 is-open="prmCtrl.startDateOpened" ng-required="true" close-text="Close" show-weeks="false"/>
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="prmCtrl.openStartDate($event)">
+                  <i class="glyphicon glyphicon-calendar"></i>
+                </button>
+              </span>
+        </p>
+      </div>
+
+      <div class="col-md-2">
+        <label>End Date:</label>
+
+        <p class="input-group">
+          <input type="text" class="form-control" datepicker-popup="MM/dd/yyyy" ng-model="prmCtrl.endDate"
+                 is-open="prmCtrl.endDateOpened" ng-required="true" close-text="Close" show-weeks="false"/>
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="prmCtrl.openEndDate($event)">
+                  <i class="glyphicon glyphicon-calendar"></i>
+                </button>
+              </span>
+        </p>
+      </div>
+
+      <div class="col-md-1">
+        <label>&nbsp;</label>
+
+        <p class="input-group">
+          <button type="button" class="btn btn-primary" ng-click="prmCtrl.submit()">Submit</button>
+        </p>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+</body>
+</html>
