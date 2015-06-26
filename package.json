@@ -38,10 +38,11 @@
     "npm": ">=1.2.20"
   },
   "dependencies": {
-    "request": "2.21.x",
     "csv": "x.x.x",
-    "q": "x.x.x",
+    "express": "^4.13.0",
     "numeric": "1.2.x",
+    "q": "x.x.x",
+    "request": "2.21.x",
     "underscore": "1.x.x"
   },
   "devDependencies": {
