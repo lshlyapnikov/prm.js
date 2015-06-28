@@ -1,15 +1,7 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* jshint -W033 */
-/* jshint -W119 */
-
-var Rx = require('rx')
-var linearAlgebra = require("./linearAlgebra");
-var portfolioStats = require("./portfolioStats");
-var yahooFinanceApi = require("./../yahoo/yahooFinanceApi");
+//var Rx = require('rx')
+//var linearAlgebra = require("./linearAlgebra");
+//var portfolioStats = require("./portfolioStats");
+//var yahooFinanceApi = require("./../yahoo/yahooFinanceApi");
 
 
 exports.AppController = {
@@ -23,8 +15,8 @@ exports.AppController = {
    * @param {String} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly, 4th parameter in loadStockHistoryAsObject();
    * @return {Object}         RxObservable[Array], one element contains historical prices for the specified interval.
    */
-  loadHistoricalPricesFromYahoo: function (symbols, fromDate, toDate, interval) {
-    return yahooFinanceApi.loadStockHistory(symbol, fromDate, toDate, interval,
-      ["Adj Close"], [utils.strToNumber])
-  }
+  //loadHistoricalPricesFromYahoo: function (symbols, fromDate, toDate, interval) {
+  //  return yahooFinanceApi.loadStockHistory(symbols, fromDate, toDate, interval,
+  //    ["Adj Close"], [utils.strToNumber])
+  //}
 }

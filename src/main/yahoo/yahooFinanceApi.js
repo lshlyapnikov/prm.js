@@ -1,16 +1,6 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint -W033 */
-/* jshint -W119 */
-/* jshint -W116 */
-/* jshint browser: true */
-/* global require, exports */
-
 const request = require("request")
 const Q = require("q")
 const _ = require("underscore-contrib")

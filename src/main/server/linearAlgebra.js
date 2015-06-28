@@ -1,19 +1,12 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint -W033 */
-/* global require, exports */
-
 // for some reason the current numeric.js implementation does not check matrix dimensions before multiplication.
 // numeric.dot() does too many assumptions/deductions -- don't really like it. Want my functions to throw
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.
 
-var numeric = require("numeric")
-var _ = require("underscore")
+const numeric = require("numeric")
+const _ = require("underscore")
 
 function dim(matrixMxN) {
   if(_.isUndefined(matrixMxN)) {

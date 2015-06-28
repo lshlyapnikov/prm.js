@@ -1,10 +1,3 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* global exports, require */
-
 var linearAlgebra = require("../../main/server/linearAlgebra");
 var utils = require("../../main/server/utils");
 var assert = require("assert");

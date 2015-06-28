@@ -1,9 +1,4 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* global require, describe, it */
+/* global describe, it */
 
 var async = require("../../main/server/async");
 var assert = require("assert");

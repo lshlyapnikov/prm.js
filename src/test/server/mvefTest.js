@@ -1,9 +1,4 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* global describe, it, require */
+/* global describe, it */
 
 const mvef = require("../../main/server/mvef")
 const testData = require("./testData")

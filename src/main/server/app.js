@@ -1,13 +1,5 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* jshint -W033 */
-/* jshint -W119 */
-
-var express = require('express');
-var app = express();
+const express = require('express')
+const app = express()
 //var _ = require("underscore")
 
 app.get('/', (req, res) => {

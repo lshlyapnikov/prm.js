@@ -1,9 +1,4 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint node:true */
-/* global require, describe, it */
+/* global describe, it */
 
 const pStats = require("../../main/server/portfolioStats");
 const utils = require("../../main/server/utils");
@@ -84,7 +79,7 @@ describe("portfolioStats", () => {
   describe("#variance()", () => {
     var arr = [-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234];
     it("[1] should calculate sample variance", () => {
-      var actual = pStats.variance(arr);
+      var actual = pStats.variance(arr, false);
       assert.equal(248102.91444, actual.toFixed(5));
     });
     it("[2] should calculate sample variance", () => {

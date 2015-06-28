@@ -1,17 +1,8 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint esnext: true */
-/* jshint -W033 */
-/* jshint -W119 */
-/* global require, exports */
-
-var la = require("./linearAlgebra")
-var _ = require("underscore")
+const la = require("./linearAlgebra")
+const _ = require("underscore")
 
 function PortfolioStats() {
   return {

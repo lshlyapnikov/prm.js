@@ -12,12 +12,33 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     jshint: {
-      files: ['Gruntfile.js', 'src/**/*.js']
+      files: ['Gruntfile.js', 'src/**/*.js', '!src/main/client/bower_components/**'],
+      options: {
+        jshintrc: true
+      }
+      //options: {
+      //  esnext: true,
+      //  strict: false,
+      //  undef: true,
+      //  unused: true,
+      //  '-W033': true,
+      //  '-W119': true,
+      //  '-W116': true,
+      //  curly: false,
+      //  eqeqeq: true,
+      //  eqnull: true,
+      //  browser: true,
+      //  node: true,
+      //  globals: {
+      //    jQuery: true
+      //  }
+      //}
     },
 
     mochaTest: {
       test: {
         options: {
+          harmony: true,
           reporter: 'list',
           grep: mochaTestGrep,
           timeout: '10s' /* yahoo api call takes about 6s */

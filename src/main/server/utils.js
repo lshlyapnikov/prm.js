@@ -1,15 +1,6 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint -W033 */
-/* jshint -W119 */
-/* jshint -W116 */
-/* global exports */
-
 var _ = require("underscore")
 var log4js = require('log4js')
 

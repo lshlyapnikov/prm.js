@@ -1,13 +1,6 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint node:true */
-/* jshint -W033 */
-
 var la = require("./linearAlgebra")
 var pStats = require("./portfolioStats")
 var numeric = require("numeric")

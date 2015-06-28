@@ -1,10 +1,4 @@
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint node:true */
-/* jshint -W033 */
-/* global require, describe, it */
+/* global describe, it */
 
 const pStats = require("../../main/server/portfolioStats")
 const pTheory = require("../../main/server/portfolioTheory")
@@ -111,7 +105,7 @@ describe("portfolioTheory", function() {
   })
   describe("Efficient Portfolio with Target Return", function() {
     it("should create expected matrix A", function() {
-      var expectedRr3x1 = la.columnMatrix([1, 2, 3])
+      const expectedRr3x1 = la.columnMatrix([1, 2, 3])
       var rrCovMatrix3x3 = [
         [10, 11, 12],
         [20, 21, 22],

@@ -1,14 +1,7 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-// http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
-/* jshint -W033 */
-/* jshint -W119 */
-/* global angular */
+/* global angular, alert */
 
 (function () {
   var app = angular.module("prm", ["ui.bootstrap"])
@@ -39,7 +32,5 @@
     this.submit = function() {
       alert("symbools: " + this.symbols + ", startDate: " + self.startDate + ", endDate: " + self.endDate)
     }
-
   })
-
 })()
