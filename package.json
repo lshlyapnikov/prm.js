@@ -12,9 +12,8 @@
   },
   "scripts": {
     "postinstall": "grunt",
-    "start": "node app.js",
-    "test": "grunt test",
-    "integration-test": "grunt test --mocha-test-grep=@IntegrationTest"
+    "start": "node --harmony ./src/main/server/app.js",
+    "test": "node --harmony ./node_modules/.bin/grunt test"
   },
   "repository": {
     "type": "git",
