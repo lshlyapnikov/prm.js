@@ -158,14 +158,15 @@ function getFieldIndexes(csvHeader, fields) {
 }
 
 function parseLineAndKeepFieldsWithIndexes(line, fieldIndexes, fieldConverters) {
-  var values = line.split(",")
-  var fieldConverterIndex = 0
-  return _(fieldIndexes).map(fieldIndex => {
+  const values = line.split(",")
+  const result = []
+  for (var i = 0; i < fieldIndexes.length; i++) {
+    var fieldIndex = fieldIndexes[i]
+    var fieldConverter = fieldConverters[i]
     var value = values[fieldIndex].trim()
-    var converter = fieldConverters[fieldConverterIndex]
-    fieldConverterIndex++
-    return converter(value)
-  })
+    result.push(fieldConverter(value))
+  }
+  return result
 }
 
 exports.parseCsvStr = function parseCsvStr(csvStr, fieldNames, fieldConverters) {
