@@ -41,9 +41,10 @@
     "npm": ">=2.11.0"
   },
   "dependencies": {
-    "csv": "x.x.x",
     "express": "4.13.x",
+    "grunt-cli": "^0.1.13",
     "log4js": "^0.6.26",
+    "mocha": "^2.2.5",
     "numeric": "1.2.x",
     "q": "x.x.x",
     "request": "^2.58.0",
@@ -52,8 +53,8 @@
     "underscore-contrib": "^0.3.0"
   },
   "devDependencies": {
-    "mocha": "1.x.x",
-    "grunt": "0.x.x",
+    "mocha": "^2.2.5",
+    "grunt": "^0.4.5",
     "grunt-cli": "0.x.x",
     "jshint": "2.x.x",
     "watch": "x.x.x",

@@ -1,8 +1,4 @@
 // http://jshint.com/docs/#config
-/* jshint strict: false */
-/* jshint undef: true */
-/* jshint unused: true */
-/* jshint browser: true */
 /* global module */
 
 module.exports = function(grunt) {
@@ -16,29 +12,11 @@ module.exports = function(grunt) {
       options: {
         jshintrc: true
       }
-      //options: {
-      //  esnext: true,
-      //  strict: false,
-      //  undef: true,
-      //  unused: true,
-      //  '-W033': true,
-      //  '-W119': true,
-      //  '-W116': true,
-      //  curly: false,
-      //  eqeqeq: true,
-      //  eqnull: true,
-      //  browser: true,
-      //  node: true,
-      //  globals: {
-      //    jQuery: true
-      //  }
-      //}
     },
 
     mochaTest: {
       test: {
         options: {
-          harmony: true,
           reporter: 'list',
           grep: mochaTestGrep,
           timeout: '10s' /* yahoo api call takes about 6s */
