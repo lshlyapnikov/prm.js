@@ -170,6 +170,11 @@ function parseLineAndKeepFieldsWithIndexes(line, fieldIndexes, fieldConverters) 
 }
 
 exports.parseCsvStr = function parseCsvStr(csvStr, fieldNames, fieldConverters) {
+  if (fieldNames.length !== fieldConverters.length) {
+    throw new Error("InvalidArgument: fieldNames.length != fieldConverters.length, " +
+      fieldNames.length + " != " + fieldConverters.length)
+  }
+
   var lines = csvStr.split("\n").filter(line => !_.isEmpty(line))
   if (_.isEmpty(lines)) {
     return []

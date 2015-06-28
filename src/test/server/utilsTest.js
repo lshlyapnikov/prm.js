@@ -1,8 +1,8 @@
 /* global describe, it */
 
-var utils = require("../../main/server/utils")
-var assert = require("assert")
-var numeric = require("numeric")
+const utils = require("../../main/server/utils")
+const assert = require("assert")
+const numeric = require("numeric")
 
 describe("utils", function() {
   describe("#convertArrayElements()", function() {
@@ -87,7 +87,7 @@ describe("utils", function() {
     })
   })
   describe("#parseCsvStr", () => {
-    var csvStr = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
+    const csvStr = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
       "2010-01-25,39.965,41.57,39.115,41.225,5301000,33.403\n" +
       "2010-01-18,41.75,42.93,40.13,40.465,4340200,32.787\n" +
       "2010-01-11,44.285,44.435,41.375,41.565,4399300,33.678\n" +
@@ -131,7 +131,7 @@ describe("utils", function() {
       assert.deepEqual([35.667], matrix5x7[3])
       assert.deepEqual([35.214], matrix5x7[4])
     })
-    it("should return empty matrix when CSV string contains only header ", () => {
+    it("should return empty matrix when CSV string contains only header", () => {
       var emptyMatrix = utils.parseCsvStr("Date,Open,High,Low,Close,Volume,Adj Close\n", ["Adj Close"],
         [utils.strToNumber])
       assert.equal(0, emptyMatrix.length)
@@ -139,6 +139,15 @@ describe("utils", function() {
     it("should return empty matrix when CSV string is empty", () => {
       var emptyMatrix = utils.parseCsvStr("", ["Adj Close"], [utils.strToNumber])
       assert.equal(0, emptyMatrix.length)
+    })
+    it("should throw an exception when fieldIndexes.length != fieldConverters.length", () => {
+      assert.throws(() => {
+        utils.parseCsvStr(csvStr, ["Adj Close"], [utils.noop, utils.noop])
+      }, "InvalidArgument: fieldNames.length != fieldConverters.length, 1 != 2")
+
+      assert.throws(() => {
+        utils.parseCsvStr(csvStr, ["Adj Close"], [])
+      }, "InvalidArgument: fieldNames.length != fieldConverters.length, 1 != 0")
     })
   })
 })
