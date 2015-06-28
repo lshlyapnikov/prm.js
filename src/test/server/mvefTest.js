@@ -3,17 +3,19 @@
 /* jshint undef: true */
 /* jshint unused: true */
 /* jshint browser: true */
-/* global describe, it, require, console */
+/* global describe, it, require */
 
-const mvef = require("../../main/server/mvef");
-const testData = require("./testData");
-const linearAlgebra = require("../../main/server/linearAlgebra");
-const portfolioStats = require("../../main/server/portfolioStats");
-const matrixAssert = require("./matrixAssert");
-const utils = require("../../main/server/utils");
-const assert = require("assert");
-const Q = require("q");
-const numeric = require("numeric");
+const mvef = require("../../main/server/mvef")
+const testData = require("./testData")
+const linearAlgebra = require("../../main/server/linearAlgebra")
+const portfolioStats = require("../../main/server/portfolioStats")
+const matrixAssert = require("./matrixAssert")
+const utils = require("../../main/server/utils")
+const assert = require("assert")
+const Q = require("q")
+const numeric = require("numeric")
+
+const log = utils.logger("mvefTest")
 
 describe("mvef", () => {
   describe("#mvef()", () => {
@@ -79,9 +81,9 @@ describe("mvef", () => {
           const actualReturnRate = portfolio.expectedReturnRate[minStdIndx] * 100;
           const actualWeights = portfolio.weights[minStdIndx];
 
-          console.log("min Std, %: ", actualMinRisk);
-          console.log("return rate, %: ", actualReturnRate);
-          console.log("weights: ", numeric.prettyPrint(actualWeights));
+          log.debug("min Std, %: ", actualMinRisk);
+          log.debug("return rate, %: ", actualReturnRate);
+          log.debug("weights: ", numeric.prettyPrint(actualWeights));
 
           assert.equal(actualMinRisk.toFixed(2), expectedMinRisk);
           assert.equal(actualReturnRate.toFixed(2), expectedReturnRate);

@@ -4,7 +4,7 @@
 /* jshint unused: true */
 /* jshint node:true */
 /* jshint -W033 */
-/* global require, describe, it, console */
+/* global require, describe, it */
 
 const pStats = require("../../main/server/portfolioStats")
 const pTheory = require("../../main/server/portfolioTheory")
@@ -13,6 +13,8 @@ const utils = require("../../main/server/utils")
 const testData = require("./testData")
 const assert = require("assert")
 const numeric = require("numeric")
+
+const log = utils.logger("portfolioTheoryTest")
 
 describe("portfolioTheory", function() {
   // numbers taken from econ424/08.2 portfolioTheoryMatrix.pdf, p. 4, example 2
@@ -37,14 +39,14 @@ describe("portfolioTheory", function() {
     it("should calculate global min variance portfolio from return rate covariance matrix", () => {
       const actualWeights =
         pTheory.GlobalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovariance3x3)
-      console.log("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
+      log.debug("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
       assert.deepEqual(numeric.dim(actualWeights), [3])
       utils.setArrayElementsScale(actualWeights, 4)
       assert.deepEqual(actualWeights, globalMinVariancePortfolio.weights)
 
       var actualWeights1x3 = [actualWeights]
       var actualStdDev = pStats.portfolioStdDev(actualWeights1x3, rrCovariance3x3)
-      console.log("actualStdDev: " + actualStdDev)
+      log.debug("actualStdDev: " + actualStdDev)
       assert.equal(actualStdDev.toFixed(8), globalMinVariancePortfolio.stdDev)
 
       var portfolioRr = la.multiplyMatrices(actualWeights1x3, expectedRr3x1)
@@ -72,7 +74,7 @@ describe("portfolioTheory", function() {
 
         var matrixA = pTheory.GlobalMinimumVarianceEfficientPortfolio.createMatrixA(rrCov)
 
-        console.log("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
+        log.debug("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
 
         assert.deepEqual(la.dim(matrixA), [a, a])
         var i, j
@@ -152,7 +154,7 @@ describe("portfolioTheory", function() {
     it("should calculate frontier for the lecture example", function() {
       var actualFrontier = pTheory.EfficientPortfolioFrontier._calculate(expectedRr3x1, rrCovariance3x3)
       assert.equal(21, actualFrontier.length)
-      console.log(numeric.prettyPrint(actualFrontier))
+      log.debug(numeric.prettyPrint(actualFrontier))
       assert.deepEqual(
         utils.newArrayWithScale(actualFrontier[0].weights, 4),
         globalMinVariancePortfolio.weights)
@@ -161,7 +163,7 @@ describe("portfolioTheory", function() {
       var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
       var returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
       var frontier = pTheory.EfficientPortfolioFrontier.calculate(returnRatesKxN)
-      console.log(numeric.prettyPrint(frontier))
+      log.debug(numeric.prettyPrint(frontier))
       assert.deepEqual(
         utils.newArrayWithScale(frontier[0].weights, 4),
         [0.1127, 0.8873])

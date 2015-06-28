@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   var symbols = req.query.symbols.split(",").map(s => s.trim())
   var startDate = new Date(req.query.startDate)
   var endDate = new Date(req.query.endDate)
+
   res.json([symbols, startDate, endDate])
 })
 

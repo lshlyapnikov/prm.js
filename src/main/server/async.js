@@ -8,10 +8,10 @@
 /* jshint browser: true */
 /* global require, exports */
 
-var utils = require("./utils");
+var _ = require("underscore")
 
 exports.assert = function(shouldBeTrue, doneFunc) {
-  if (!utils.defined(shouldBeTrue)) {
+  if (_.isUndefined(shouldBeTrue)) {
     doneFunc(Error("Async Test Failure, undefined shouldBeTrue assertion"));
     return;
   }
