@@ -2,10 +2,9 @@
 /// LGPL Licencsed
 
 const request = require("request")
-const Q = require("q")
+const Rx = require('rx');
 const _ = require("underscore-contrib")
 const utils = require("../server/utils.js")
-
 const log = utils.logger("yahooFinanceApi")
 
 /**
@@ -40,45 +39,40 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
  * @param {Date} toDate     Specifies the end of the interval, inclusive
  * @param {char} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
  *
- * @return {promise} a Promise that contains CSV string.
+ * @return {observable} a Rx.Observable that publishes CSV string.
  */
 function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
-  var deferred = Q.defer()
-
   if (_.isUndefined(symbol)) {
-    deferred.reject(new Error("InvalidArgument: symbols array is either undefined or empty"))
-    return deferred.promise
+    return Rx.Observable.throw(new Error("InvalidArgument: symbols array is either undefined or empty"))
   }
 
   if (_.isUndefined(fromDate)) {
-    deferred.reject(new Error("InvalidArgument: fromDate argument is undefined"))
-    return deferred.promise
+    return Rx.Observable.throw(new Error("InvalidArgument: fromDate argument is undefined"))
   }
 
   if (_.isUndefined(toDate)) {
-    deferred.reject(new Error("InvalidArgument: toDate argument is undefined"))
-    return deferred.promise
+    return Rx.Observable.throw(new Error("InvalidArgument: toDate argument is undefined"))
   }
 
   if (_.isUndefined(interval)) {
-    deferred.reject(new Error("InvalidArgument: interval argument is undefined"))
-    return deferred.promise
+    return Rx.Observable.throw(new Error("InvalidArgument: interval argument is undefined"))
   }
 
-  var url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval)
-  request.get(url, (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-      deferred.resolve(body)
-    } else {
-      var errStr = "Cannot retrieve historical prices for symbol: " + symbol +
-        ", fromDate: " + fromDate + ", toDate: " + toDate + ", interval: " + interval +
-        ", server error: " + error + ", response.statusCode: " + response.statusCode
-      log.error(errStr)
-      deferred.reject(new Error(errStr))
-    }
+  return Rx.Observable.create((observer) => {
+    const url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval)
+    request.get(url, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        observer.onNext(body)
+        observer.onCompleted()
+      } else {
+        var errStr = "Cannot retrieve historical prices for symbol: " + symbol +
+          ", fromDate: " + fromDate + ", toDate: " + toDate + ", interval: " + interval +
+          ", server error: " + error + ", response.statusCode: " + response.statusCode
+        log.error(errStr)
+        observer.onError(new Error(errStr))
+      }
+    })
   })
-
-  return deferred.promise
 }
 
 /**
@@ -94,38 +88,24 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
  * @return {Q.promise}   Array of values
  */
 function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldConverters) {
-  var deferred = Q.defer()
-
-  if (undefined === fieldNames || 0 === fieldNames.length) {
-    deferred.reject(new Error("fieldNames array is either undefined or empty"))
-    return deferred.promise
+  if (_.isUndefined(fieldNames) || 0 === fieldNames.length) {
+    return Rx.Observable.throw(new Error("fieldNames array is either undefined or empty"))
   }
 
-  if (undefined === fieldConverters || 0 === fieldConverters.length) {
-    deferred.reject(new Error("fieldConverters array is either undefined or empty"))
-    return deferred.promise
+  if (_.isUndefined(fieldConverters) || 0 === fieldConverters.length) {
+    return Rx.Observable.throw(new Error("fieldConverters array is either undefined or empty"))
   }
 
   if (fieldNames.length !== fieldConverters.length) {
-    deferred.reject(new Error("fieldNames.length must be equal to fieldConverters.length"))
-    return deferred.promise
+    return Rx.Observable.throw(new Error("fieldNames.length must be equal to fieldConverters.length"))
   }
 
-  loadStockHistoryAsString(symbol, fromDate, toDate, interval)
-    .then((csvStr) => {
-      if (log.isDebugEnabled) log.debug("csvStr: " + csvStr)
-      const result = utils.parseCsvStr(csvStr, fieldNames, fieldConverters)
-      result.reverse()
-      deferred.resolve(result)
-    }).then((arr) => {
-      var result = (undefined === arr) ? [] : arr.reverse()
-      return deferred.resolve(result)
-    }, (error) => {
-      deferred.reject(error)
-    })
-    .done()
-
-  return deferred.promise
+  return loadStockHistoryAsString(symbol, fromDate, toDate, interval).map((csvStr) => {
+    if (log.isDebugEnabled) log.debug("csvStr: " + csvStr)
+    return utils.parseCsvStr(csvStr, fieldNames, fieldConverters)
+  }).map((arr) => {
+    return _.isUndefined(arr) ? [] : arr.reverse()
+  })
 }
 
 exports.loadStockHistoryAsString = loadStockHistoryAsString
