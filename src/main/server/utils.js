@@ -4,26 +4,6 @@
 var _ = require("underscore")
 var log4js = require('log4js')
 
-function convertArrayElements(arr, convertOneElement) {
-  if (!Array.isArray(arr)) {
-    throw new Error("Array arr is either undefined or empty")
-  }
-
-  if (typeof convertOneElement !== "function") {
-    throw new Error("convertOneElement argument should be a function with one argument")
-  }
-
-  var length = arr.length
-  var result = new Array(length)
-
-  var i
-  for (i = 0; i < length; i++) {
-    result[i] = convertOneElement(arr[i])
-  }
-
-  return result
-}
-
 function updateArrayElements(arr, convertOneElement) {
   if (!Array.isArray(arr)) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty")
@@ -193,7 +173,6 @@ exports.logger = function (category) {
   return logger
 }
 
-exports.convertArrayElements = convertArrayElements
 exports.updateArrayElements = updateArrayElements
 exports.updateMatrixElements = updateMatrixElements
 exports.generateRandomWeightsMatrix = generateRandomWeightsMatrix
