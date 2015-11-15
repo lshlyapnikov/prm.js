@@ -10,15 +10,12 @@ exports.GlobalMinimumVarianceEfficientPortfolio = {
   /**
    * Calculates Global Minimum Variance Portfolio.
    *
-   * @param {Array.<Array.<number>>} returnRatesKxN   K x N return rates matrix, where
-   *                                 K is the number of historical intervals,
-   *                                 N is the number of stocks in portfolio
-   * @param rrCovarianceNxN
+   * @param {Array.<Array.<number>>} expectedRrNx1    N x 1 expected/mean return rates matrix, where
+   * @param {Array.<Array.<number>>} rrCovarianceNxN
    */
-  calculate: function (returnRatesKxN, rrCovarianceNxN) {
-    const meanRrNx1 = pStats.mean(returnRatesKxN)
+  calculate: function (expectedRrNx1, rrCovarianceNxN) {
     const weightsN = this.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN)
-    return pStats.createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN)
+    return pStats.createPortfolioStats(weightsN, expectedRrNx1, rrCovarianceNxN)
   },
 
   /**

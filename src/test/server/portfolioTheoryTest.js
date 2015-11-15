@@ -54,9 +54,10 @@ describe("pTheory", function() {
 
       const priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
       const returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
+      const expectedRrNx1 = pStats.mean(returnRatesKxN)
       const rrCovarianceNxN = pStats.covariance(returnRatesKxN)
 
-      var actualPortfolio = pTheory.GlobalMinimumVarianceEfficientPortfolio.calculate(returnRatesKxN, rrCovarianceNxN)
+      var actualPortfolio = pTheory.GlobalMinimumVarianceEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN)
 
       assert.deepEqual(utils.newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights)
       assert.equal(actualPortfolio.expectedReturnRate.toFixed(4), expectedPortfolio.expectedReturnRate)
