@@ -6,30 +6,30 @@
 (function () {
   var app = angular.module("prm", ["ui.bootstrap"])
 
-  app.controller("PrmController", function() {
+  app.controller("PrmController", () => {
     var self = this
 
     this.symbols = null
 
     this.startDate = new Date()
-    this.startDateOpened = null
+    this.startDateOpened = false
 
     this.endDate = new Date()
-    this.endDateOpened = null
+    this.endDateOpened = false
 
-    this.openStartDate = function($event) {
+    this.openStartDate = ($event) => {
       $event.preventDefault()
       $event.stopPropagation()
       self.startDateOpened = true
     }
 
-    this.openEndDate = function($event) {
+    this.openEndDate = ($event) => {
       $event.preventDefault()
       $event.stopPropagation()
       self.endDateOpened = true
     }
 
-    this.submit = function() {
+    this.submit = () => {
       alert("symbools: " + this.symbols + ", startDate: " + self.startDate + ", endDate: " + self.endDate)
     }
   })

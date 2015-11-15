@@ -15,7 +15,7 @@ function mockHistoricalPricesProvider(symbol) {
   return prices[symbol];
 }
 
-describe("portfolioStats", () => {
+describe("pStats", () => {
   describe("#meanValue()", () => {
     it("[1] should calculate mean", () => {
       var expectedMean = 2870;

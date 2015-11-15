@@ -10,7 +10,7 @@ const numeric = require("numeric")
 
 const log = utils.logger("portfolioTheoryTest")
 
-describe("portfolioTheory", function() {
+describe("pTheory", function() {
   // numbers taken from econ424/08.2 portfolioTheoryMatrix.pdf, p. 4, example 2
   // MSFT, NORD, SBUX
 
@@ -52,10 +52,11 @@ describe("portfolioTheory", function() {
       expectedPortfolio.expectedReturnRate = 0.0064
       expectedPortfolio.stdDev = 0.0737
 
-      var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
+      const priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
+      const returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
+      const rrCovarianceNxN = pStats.covariance(returnRatesKxN)
 
-      var actualPortfolio = pTheory.GlobalMinimumVarianceEfficientPortfolio.calculateFromReturnRates(
-        pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN))
+      var actualPortfolio = pTheory.GlobalMinimumVarianceEfficientPortfolio.calculate(returnRatesKxN, rrCovarianceNxN)
 
       assert.deepEqual(utils.newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights)
       assert.equal(actualPortfolio.expectedReturnRate.toFixed(4), expectedPortfolio.expectedReturnRate)
@@ -146,7 +147,7 @@ describe("portfolioTheory", function() {
   })
   describe("Efficient Portfolio Frontier", function() {
     it("should calculate frontier for the lecture example", function() {
-      var actualFrontier = pTheory.EfficientPortfolioFrontier._calculate(expectedRr3x1, rrCovariance3x3)
+      var actualFrontier = pTheory.EfficientPortfolioFrontier.calculate(expectedRr3x1, rrCovariance3x3)
       assert.equal(21, actualFrontier.length)
       log.debug(numeric.prettyPrint(actualFrontier))
       assert.deepEqual(
@@ -154,9 +155,11 @@ describe("portfolioTheory", function() {
         globalMinVariancePortfolio.weights)
     })
     it("should calculate frontier for NYX and INTC", function() {
-      var priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
-      var returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
-      var frontier = pTheory.EfficientPortfolioFrontier.calculate(returnRatesKxN)
+      const priceMatrixMxN = la.transpose([testData.NYX, testData.INTC])
+      const returnRatesKxN = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN)
+      const expectedRrNx1 = pStats.mean(returnRatesKxN)
+      const rrCovarianceNxN = pStats.covariance(returnRatesKxN)
+      const frontier = pTheory.EfficientPortfolioFrontier.calculate(expectedRrNx1, rrCovarianceNxN)
       log.debug(numeric.prettyPrint(frontier))
       assert.deepEqual(
         utils.newArrayWithScale(frontier[0].weights, 4),

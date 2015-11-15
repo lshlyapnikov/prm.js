@@ -3,3 +3,8 @@
 .required {
   color: red;
 }
+
+h1 {
+  margin: .5em 0;
+  font-size: 1em;
+}

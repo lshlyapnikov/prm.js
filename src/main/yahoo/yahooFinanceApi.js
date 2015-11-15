@@ -39,7 +39,7 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
  * @param {Date} toDate     Specifies the end of the interval, inclusive
  * @param {char} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly
  *
- * @return {observable} a Rx.Observable that publishes CSV string.
+ * @return {Rx.Observable} a Rx.Observable that publishes CSV string.
  */
 function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
   if (_.isUndefined(symbol)) {
@@ -85,7 +85,7 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
  * @param {Array} fieldNames   fields that should be extracted from the CSV
  * @param {Array} fieldConverters   field converters
  *
- * @return {Q.promise}   Array of values
+ * @return {Rx.Observable}   Array of values
  */
 function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldConverters) {
   if (_.isUndefined(fieldNames) || 0 === fieldNames.length) {
@@ -100,12 +100,9 @@ function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldC
     return Rx.Observable.throw(new Error("fieldNames.length must be equal to fieldConverters.length"))
   }
 
-  return loadStockHistoryAsString(symbol, fromDate, toDate, interval).map((csvStr) => {
-    if (log.isDebugEnabled) log.debug("csvStr: " + csvStr)
-    return utils.parseCsvStr(csvStr, fieldNames, fieldConverters)
-  }).map((arr) => {
-    return _.isUndefined(arr) ? [] : arr.reverse()
-  })
+  return loadStockHistoryAsString(symbol, fromDate, toDate, interval)
+    .map((csvStr) => utils.parseCsvStr(csvStr, fieldNames, fieldConverters))
+    .map((arr) => _.isUndefined(arr) ? [] : arr.reverse())
 }
 
 exports.loadStockHistoryAsString = loadStockHistoryAsString
