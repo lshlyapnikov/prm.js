@@ -51,7 +51,7 @@
   <form>
     <div class="row">
 
-      <div class="col-md-6">
+      <div class="col-md-4">
         <label>Stock Symbols (comma-separated):</label>
 
         <p class="form-group">
@@ -85,6 +85,14 @@
                   <i class="glyphicon glyphicon-calendar"></i>
                 </button>
               </span>
+        </p>
+      </div>
+
+      <div class="col-md-2">
+        <label>Risk Free Rate, %:</label>
+
+        <p class="form-group">
+          <input type="number" class="form-control" ng-model="prmCtrl.riskFreeRateOfReturnPercent" ng-required="true"/>
         </p>
       </div>
 

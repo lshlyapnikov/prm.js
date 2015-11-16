@@ -17,6 +17,8 @@
     this.endDate = new Date()
     this.endDateOpened = false
 
+    this.riskFreeRateOfReturnPercent = null
+
     this.openStartDate = function($event) {
       $event.preventDefault()
       $event.stopPropagation()
@@ -30,7 +32,8 @@
     }
 
     this.submit = function() {
-      alert("symbools: " + this.symbols + ", startDate: " + self.startDate + ", endDate: " + self.endDate)
+      alert("symbools: " + this.symbols + ", startDate: " + self.startDate + ", endDate: " + self.endDate +
+        "riskFreeInterestRatePercent: " + self.riskFreeRateOfReturnPercent)
     }
   })
 })()
