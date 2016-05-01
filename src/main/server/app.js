@@ -6,12 +6,12 @@ const pStats = require("./portfolioStats")
 const pTheory = require("./portfolioTheory")
 //var _ = require("underscore")
 
-const app = express()
-const controller = prmController.PrmController(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
 
 const port = Number(process.argv[2].trim())
 const staticFolder = process.argv[3].trim()
 
+const app = express()
 app.use(express.static(staticFolder))
 
 app.get('/analyze', (req, res) => {
@@ -21,6 +21,7 @@ app.get('/analyze', (req, res) => {
   const endDate = new Date(req.query.endDate)
   const riskFreeRr = Number(req.query.riskFreeRr)
 
+  // TODO: handle exceptions
   const result = controller.analyzeUsingPortfolioHistoricalPrices(symbols, startDate, endDate, riskFreeRr)
   res.json({
     input: {symbols: symbols, startDate: startDate, endDate: endDate, riskFreeRr: riskFreeRr},
@@ -35,6 +36,7 @@ app.get('/analyze2', (req, res) => {
   const rrCovarianceNxN = input.rrCovarianceNxN
   const riskFreeRr = input.riskFreeRr
 
+  // TODO: handle exceptions
   const result = controller.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
   res.json({
     input: input,
@@ -42,7 +44,7 @@ app.get('/analyze2', (req, res) => {
   })
 })
 
-var server = app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("PRM.js is listening at %s", JSON.stringify(server.address()))
   console.log("Static folder: %s", staticFolder)
 })

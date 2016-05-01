@@ -4,7 +4,7 @@
  * @param {Object}    pTheory                Portfolio Theory Object, see ./portfolioTheory.js
  * @constructor
  */
-exports.PrmController = (loadHistoricalPrices, pStats, pTheory) => ({
+exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
   /**
    * Returns portfolio analysis.
    *
