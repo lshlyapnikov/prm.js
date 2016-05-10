@@ -4,6 +4,9 @@ const prmController = require("../../main/server/prmController")
 const pStats = require("../../main/server/portfolioStats")
 const pTheory = require("../../main/server/portfolioTheory")
 const yahooFinanceApi = require("../../main/yahoo/yahooFinanceApi")
+const la = require("../../main/server/linearAlgebra")
+const assert = require("assert")
+var _ = require("underscore")
 //const Immutable = require('immutable')
 //const la = require("../../main/server/linearAlgebra")
 //const utils = require("../../main/server/utils")
@@ -22,6 +25,7 @@ describe("PrmController", () => {
       new Date(1975, 2, 5),
       1.0).subscribe(mXn => {
         console.log(JSON.stringify(mXn))
+        la.validateMatrix(mXn)
         done()
       },
         error => done(error)

@@ -166,6 +166,9 @@ describe("linearAlgebra", () => {
     it("should multiply two vectors", () => {
       assert.equal(la.multiplyVectors([1, 2], [2, 1]), 4)
     })
+    it("should multiply two vectors and return zero vector", () => {
+      assert.equal(la.multiplyVectors([1, 2], [0, 0]), 0)
+    })
     it("should throw exception 1st argument is not vector", () => {
       assert.throws(() => {
           la.multiplyVectors(la.columnMatrix([1, 2]), [2, 1])
