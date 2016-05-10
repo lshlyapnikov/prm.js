@@ -41,25 +41,25 @@
   },
   "dependencies": {
     "express": "4.13.x",
-    "grunt-cli": "^0.1.13",
+    "grunt-cli": "x.x.x",
     "log4js": "^0.6.26",
-    "mocha": "^2.2.5",
+    "mocha": "x.x.x",
     "numeric": "1.2.x",
     "q": "x.x.x",
     "request": "^2.58.0",
-    "rx": "2.5.x",
+    "rx": "4.1.x",
     "underscore": "1.8.x",
     "underscore-contrib": "^0.3.0"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-cli": "0.x.x",
+    "grunt": "x.x.x",
+    "grunt-cli": "x.x.x",
     "grunt-contrib-jshint": "x.x.x",
     "grunt-contrib-watch": "x.x.x",
     "grunt-mocha-test": "x.x.x",
-    "immutable": "^3.7.5",
-    "jshint": "2.x.x",
-    "mocha": "^2.2.5",
+    "immutable": "x.x.x",
+    "jshint": "x.x.x",
+    "mocha": "x.x.x",
     "watch": "x.x.x"
   }
 }

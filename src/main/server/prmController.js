@@ -1,3 +1,6 @@
+const Rx = require("rx")
+const la = require("./linearAlgebra")
+
 /**
  * @param {Function}  loadHistoricalPrices   Returns Stock Historical Prices, see ./../yahoo/yahooFinanceApi.js
  * @param {Object}    pStats                 Portfolio State Object, see ./portfolioStats.js
@@ -15,14 +18,27 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
   analyzeUsingPortfolioHistoricalPrices: function (symbols, startDate, endDate, riskFreeRr) {
-    const pricesMxN = symbols.flatMap(symbol =>
-        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], (s) => Number(s))
-    ).toArray()
-
-    const rrKxN = pStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
-    const expectedRrNx1 = pStats.mean(rrKxN)
-    const rrCovarianceNxN = pStats.covariance(rrKxN, false)
-    this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
+    // Rx.Observable.from(["a", "b"]).flatMap(x => f(x).toArray()).toArray().subscribe(a => console.log(a))
+    // [ [ 10, 20, 30, 40 ], [ 10, 20, 30, 40 ] ]
+    return Rx.Observable.from(symbols).flatMap(symbol =>
+        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)])
+    ).toArray().map(nXmX1 => {
+        const n = nXmX1.length
+        const m = nXmX1[0].length
+        const pricesMxN = la.matrix(m, n, 0)
+        var c = 0
+        var r = 0
+        for (c = 0; c < n; c++) {
+          for (r = 0; r < m; r++) {
+            pricesMxN[r][c] = nXmX1[c][r][0]
+          }
+        }
+        const rrKxN = pStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
+        const expectedRrNx1 = pStats.mean(rrKxN)
+        const rrCovarianceNxN = pStats.covariance(rrKxN, false)
+        this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
+      }
+    )
   },
 
   /**
@@ -52,5 +68,3 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
     }
   }
 })
-
-

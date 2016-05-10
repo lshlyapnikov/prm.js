@@ -104,7 +104,7 @@ function multiplyMatrices(mXn, nXm) {
     throw new Error("InvalidArgument: Invalid matrix dimensions. Cannot multiply " + dim0 + " matrix by " + dim1)
   }
 
-  return numeric.sdotMM(mXn, nXm)
+  return numeric.dot(mXn, nXm)
 }
 
 function multiplyVectors(v0, v1) {

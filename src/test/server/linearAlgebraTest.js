@@ -3,6 +3,7 @@
 const la = require("../../main/server/linearAlgebra")
 const matrixAssert = require("./matrixAssert")
 const assert = require("assert")
+const utils = require("../../main/server/utils")
 
 describe("linearAlgebra", () => {
   describe("#dim()", () => {
@@ -125,6 +126,23 @@ describe("linearAlgebra", () => {
       assert.equal(
         la.multiplyMatrices(la.rowMatrix([1, 2]), la.columnMatrix([2, 1])),
         4)
+    })
+    it("should multiply 1x2 and 2x1 matrices, failing scenario", () => {
+      const a = [[1.296, -0.2959]]
+      const b = [[1.296], [-0.2959]]
+      const actual = la.multiplyMatrices(a, b)
+      const expected = [[1.767173]]
+      assert.deepEqual(utils.setMatrixElementsScale(actual, 5), utils.setMatrixElementsScale(expected, 5))
+    })
+    it("should multiply 1x2 and 2x2 matrices and return zero 1x2 matrix", () => {
+      const a = [[-0.2958994892957374, 1.2958994892957374]]
+      const b = [
+        [0.00042280114208275815, 0.0000965403899371335],
+        [0.0000965403899371335, 0.000022043570751257575]
+      ]
+      const actual = la.multiplyMatrices(a, b)
+      const expected = [[0, 0]]
+      assert.deepEqual(actual, expected)
     })
     it("should throw exception when argument 2x1 and 2x1", () => {
       assert.throws(() => {
