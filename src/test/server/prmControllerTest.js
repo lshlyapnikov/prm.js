@@ -37,8 +37,8 @@ describe("PrmController", () => {
     const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
     controller.analyzeUsingPortfolioHistoricalPrices(
       ["IBM", "AA"],
-      new Date(1975, 2, 3),
-      new Date(1975, 2, 21),
+      new Date("1975/03/01"),
+      new Date("1975/03/31"),
       1.0).subscribe(analysisResult => {
         verifyPorfolioAnalysisResult(analysisResult)
         done()
