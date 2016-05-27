@@ -36,7 +36,7 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
         const rrKxN = pStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
         const expectedRrNx1 = pStats.mean(rrKxN)
         const rrCovarianceNxN = pStats.covariance(rrKxN, false)
-        this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
+        return this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
       }
     )
   },
