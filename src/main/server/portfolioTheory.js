@@ -133,7 +133,7 @@ exports.EfficientPortfolioFrontier = {
       expectedRrNx1,
       rrCovarianceNxN)
 
-    var maxNum = 21 // TODO: why 21?
+    var maxNum = 21 // TODO: why 21? That is the number from the lecture
     var result = new Array(maxNum)
 
     for (var i = 0, alpha = 1; i < maxNum; i++, alpha -= 0.1) {

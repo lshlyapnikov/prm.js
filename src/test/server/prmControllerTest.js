@@ -13,12 +13,11 @@ const la = require("../../main/server/linearAlgebra")
 //const testData = require("./testData")
 const assert = require("assert")
 //const numeric = require("numeric")
-//
-//const log = utils.logger("portfolioTheoryTest")
 
 function assertPortfolioStatsObjects(o) {
   assert.ok(_.isObject(o))
   assert.ok(_.isArray(o.weights))
+  assert.ok(_.isNumber(o.stdDev))
   assert.ok(_.isNumber(o.expectedReturnRate))
 }
 
@@ -28,7 +27,7 @@ describe("PrmController", () => {
     controller.analyzeUsingPortfolioHistoricalPrices(
       ["IBM", "AA"],
       new Date(1975, 2, 3),
-      new Date(1975, 2, 5),
+      new Date(1975, 2, 21),
       1.0).subscribe(portfolio => {
         console.log(JSON.stringify(portfolio))
         assert.ok(_.isObject(portfolio))
@@ -39,10 +38,11 @@ describe("PrmController", () => {
         assert.ok(_.isNumber(portfolio.input.riskFreeRr))
         assert.ok(_.isObject(portfolio.output))
         assertPortfolioStatsObjects(portfolio.output.globalMinVarianceEfficientPortfolio)
-        // TODO tangencyPortfolio contains two NaN values
         assert.ok(_.isArray(portfolio.output.tangencyPortfolio))
         _(portfolio.output.tangencyPortfolio).each(n => assert.ok(!_.isNaN(n)))
         assert.ok(_.isArray(portfolio.output.efficientPortfolioFrontier))
+        assert.equal(portfolio.output.efficientPortfolioFrontier.length, 21)
+        _(portfolio.output.efficientPortfolioFrontier).each(p => assertPortfolioStatsObjects(p))
 
         done()
       },
