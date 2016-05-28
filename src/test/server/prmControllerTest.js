@@ -34,7 +34,7 @@ function verifyPortfolioAnalysisResult(r) {
 }
 
 describe("PrmController", () => {
-  it.skip("should calculate portfolio statistics", (done) => {
+  it("should calculate portfolio statistics", (done) => {
     const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
     controller.analyzeUsingPortfolioHistoricalPrices(
       ["IBM", "AA"],
@@ -48,7 +48,8 @@ describe("PrmController", () => {
     )
   })
 
-  it("should calculate portfolio statistics of a bit more realistic scenario", (done) => {
+  // TODO: DRY - search for AAA
+  it("should calculate portfolio statistics of a bit more realistic scenario, 1 year", (done) => {
     function test(attempt) {
       console.log("scheduling attempt: " + attempt)
       const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
@@ -61,6 +62,34 @@ describe("PrmController", () => {
     }
 
     const attempts = 5
+    Rx.Observable.range(0, attempts).flatMap((x) => test(x)).toArray().subscribe(results => {
+        assert.equal(results.length, attempts)
+        const tangencyArr =_(results).map(r => r.output.tangencyPortfolio)
+        console.log(JSON.stringify(tangencyArr[0]))
+        for (var i = 1; i < attempts; i++) {
+          console.log(JSON.stringify(tangencyArr[i]))
+          assert.deepEqual(tangencyArr[i-1], tangencyArr[i])
+        }
+        done()
+      },
+        error => done(error)
+    )
+  })
+
+  // TODO: DRY - search for AAA
+  it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
+    function test(attempt) {
+      console.log("scheduling attempt: " + attempt)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
+      return controller.analyzeUsingPortfolioHistoricalPrices(
+        symbols,
+        new Date("2011/05/27"),
+        new Date("2016/05/27"),
+        1.0)
+    }
+
+    const attempts = 1
     Rx.Observable.range(0, attempts).flatMap((x) => test(x)).toArray().subscribe(results => {
         assert.equal(results.length, attempts)
         const tangencyArr =_(results).map(r => r.output.tangencyPortfolio)
