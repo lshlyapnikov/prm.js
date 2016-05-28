@@ -7,6 +7,7 @@ const yahooFinanceApi = require("../../main/yahoo/yahooFinanceApi")
 var _ = require("underscore")
 const la = require("../../main/server/linearAlgebra")
 const assert = require("assert")
+const Rx = require("rx")
 
 function verifyPortfolioStatsObjects(o) {
   assert.ok(_.isObject(o))
@@ -15,8 +16,8 @@ function verifyPortfolioStatsObjects(o) {
   assert.ok(_.isNumber(o.expectedReturnRate))
 }
 
-function verifyPorfolioAnalysisResult(r) {
-  console.log(JSON.stringify(r))
+function verifyPortfolioAnalysisResult(r) {
+  console.log(JSON.stringify(r, null, 2))
   assert.ok(_.isObject(r))
   assert.ok(_.isObject(r.input))
   la.validateMatrix(r.input.rrKxN)
@@ -33,14 +34,41 @@ function verifyPorfolioAnalysisResult(r) {
 }
 
 describe("PrmController", () => {
-  it("should calculate portfolio statistics", (done) => {
+  it.skip("should calculate portfolio statistics", (done) => {
     const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
     controller.analyzeUsingPortfolioHistoricalPrices(
       ["IBM", "AA"],
       new Date("1975/03/01"),
       new Date("1975/03/31"),
       1.0).subscribe(analysisResult => {
-        verifyPorfolioAnalysisResult(analysisResult)
+        verifyPortfolioAnalysisResult(analysisResult)
+        done()
+      },
+        error => done(error)
+    )
+  })
+
+  it("should calculate portfolio statistics of a bit more realistic scenario", (done) => {
+    function test(attempt) {
+      console.log("scheduling attempt: " + attempt)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
+      return controller.analyzeUsingPortfolioHistoricalPrices(
+        symbols,
+        new Date("2015/05/27"),
+        new Date("2016/05/27"),
+        1.0)
+    }
+
+    const attempts = 5
+    Rx.Observable.range(0, attempts).flatMap((x) => test(x)).toArray().subscribe(results => {
+        assert.equal(results.length, attempts)
+        const tangencyArr =_(results).map(r => r.output.tangencyPortfolio)
+        console.log(JSON.stringify(tangencyArr[0]))
+        for (var i = 1; i < attempts; i++) {
+          console.log(JSON.stringify(tangencyArr[i]))
+          assert.deepEqual(tangencyArr[i-1], tangencyArr[i])
+        }
         done()
       },
         error => done(error)

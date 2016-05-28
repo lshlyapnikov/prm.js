@@ -1,5 +1,28 @@
 const Rx = require("rx")
+const _ = require("underscore")
 const la = require("./linearAlgebra")
+
+function wrapper(s, r) {
+  return {symbol: s, result: r}
+}
+
+function convertArrayOfWrappedResultsToPriceMatrix(symbols, arr) {
+  var symbolToPricesMap = []
+  _(arr).each(a => symbolToPricesMap[a.symbol] = a.result)
+  var nXmX1 = []
+  _(symbols).each(s => nXmX1.push(symbolToPricesMap[s]))
+  const n = nXmX1.length
+  const m = nXmX1[0].length
+  const pricesMxN = la.matrix(m, n, 0)
+  var c = 0
+  var r = 0
+  for (c = 0; c < n; c++) {
+    for (r = 0; r < m; r++) {
+      pricesMxN[r][c] = nXmX1[c][r][0]
+    }
+  }
+  return pricesMxN
+}
 
 /**
  * @param {Function}  loadHistoricalPrices   Returns Stock Historical Prices, see ./../yahoo/yahooFinanceApi.js
@@ -21,18 +44,9 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
     // Rx.Observable.from(["a", "b"]).flatMap(x => f(x).toArray()).toArray().subscribe(a => console.log(a))
     // [ [ 10, 20, 30, 40 ], [ 10, 20, 30, 40 ] ]
     return Rx.Observable.from(symbols).flatMap(symbol =>
-        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)])
-    ).toArray().map(nXmX1 => {
-        const n = nXmX1.length
-        const m = nXmX1[0].length
-        const pricesMxN = la.matrix(m, n, 0)
-        var c = 0
-        var r = 0
-        for (c = 0; c < n; c++) {
-          for (r = 0; r < m; r++) {
-            pricesMxN[r][c] = nXmX1[c][r][0]
-          }
-        }
+        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)]).map(r => wrapper(symbol, r))
+    ).toArray().map(arr => {
+        const pricesMxN = convertArrayOfWrappedResultsToPriceMatrix(symbols, arr)
         const rrKxN = pStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
         const expectedRrNx1 = pStats.mean(rrKxN)
         const rrCovarianceNxN = pStats.covariance(rrKxN, false)
