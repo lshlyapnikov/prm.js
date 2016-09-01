@@ -78,7 +78,7 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
     function test() {
       const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         new Date("2011/05/27"),
