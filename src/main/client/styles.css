@@ -17,6 +17,13 @@
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
+
+.text-fields{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
 .demo-avatar {
   width: 48px;
   height: 48px;

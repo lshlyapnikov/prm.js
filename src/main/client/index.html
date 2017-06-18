@@ -117,6 +117,31 @@
         </nav>
       </div>
       <main class="mdl-layout__content mdl-color--grey-100">
+        <div class="mdl-card mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+          <div id="text-fields">
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" id="sample1">
+                <label class="mdl-textfield__label" for="sample1">Stock Symbols (comma-separated):</label>
+              </div>
+            </form>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
+                <label class="mdl-textfield__label" for="sample2">Start Date:</label>
+                <span class="mdl-textfield__error">Input is not a date!</span>
+              </div>
+            </form>
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
+                <label class="mdl-textfield__label" for="sample2">Risk Free Rate, %:</label>
+                <span class="mdl-textfield__error">Input is not a decimal!</span>
+              </div>
+            </form>
+          </div>
+
+        </div>
         <div class="mdl-grid demo-content">
           <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
             <svg fill="currentColor" width="200px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell--4-col mdl-cell--3-col-desktop">
