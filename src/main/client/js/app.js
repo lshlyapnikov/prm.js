@@ -6,34 +6,43 @@
 (function () {
   var app = angular.module("prm", ["ui.bootstrap"])
 
-  app.controller("PrmController", function() {
-    var self = this
+  app.controller("PrmController", ($scope) => {
+    $scope.symbols = null
 
-    this.symbols = null
+    $scope.startDate = new Date()
+    $scope.startDateOpened = false
 
-    this.startDate = new Date()
-    this.startDateOpened = false
+    $scope.endDate = new Date()
+    $scope.endDateOpened = false
 
-    this.endDate = new Date()
-    this.endDateOpened = false
+    $scope.riskFreeRateOfReturnPercent = null
 
-    this.riskFreeRateOfReturnPercent = null
-
-    this.openStartDate = function($event) {
-      $event.preventDefault()
-      $event.stopPropagation()
-      self.startDateOpened = true
+    $scope.openStartDate = () => {
+      $scope.startDateOpened = true
     }
 
-    this.openEndDate = function($event) {
-      $event.preventDefault()
-      $event.stopPropagation()
-      self.endDateOpened = true
+    $scope.openEndDate = () => {
+      $scope.endDateOpened = true
     }
 
-    this.submit = function() {
-      alert("symbools: " + this.symbols + ", startDate: " + self.startDate + ", endDate: " + self.endDate +
-        "riskFreeInterestRatePercent: " + self.riskFreeRateOfReturnPercent)
+    $scope.submit = () => {
+      alert("symbols: " + $scope.symbols + ", startDate: " + $scope.startDate + ", endDate: " + $scope.endDate +
+        "riskFreeInterestRatePercent: " + $scope.riskFreeRateOfReturnPercent)
+      //
+      //$http({
+      //  method: "GET",
+      //  url: "/analyze",
+      //  params: {
+      //    symbols: self.symbols,
+      //    startDate: self.startDate,
+      //    endDate: self.endDate,
+      //    riskFreeInterestRatePercent: self.riskFreeInterestRatePercent
+      //  }
+      //}).then((response) => {
+      //  $scope.result = response.data
+      //}, (error) => {
+      //  $scope.result = error.statusText
+      //})
     }
   })
 })()

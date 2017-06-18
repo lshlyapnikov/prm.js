@@ -64,8 +64,8 @@
         <label>Start Date:</label>
 
         <p class="input-group">
-          <input type="text" class="form-control" datepicker-popup="MM/dd/yyyy" ng-model="prmCtrl.startDate"
-                 is-open="prmCtrl.startDateOpened" ng-required="true" close-text="Close" show-weeks="false"/>
+          <input type="text" class="form-control" datepicker-popup="MM/dd/yyyy" ng-model="startDate"
+                 is-open="startDateOpened" ng-required="true" close-text="Close" show-weeks="false"/>
               <span class="input-group-btn">
                 <button type="button" class="btn btn-default" ng-click="prmCtrl.openStartDate($event)">
                   <i class="glyphicon glyphicon-calendar"></i>
@@ -73,21 +73,21 @@
               </span>
         </p>
       </div>
-
+<!--
       <div class="col-md-2">
         <label>End Date:</label>
 
         <p class="input-group">
           <input type="text" class="form-control" datepicker-popup="MM/dd/yyyy" ng-model="prmCtrl.endDate"
                  is-open="prmCtrl.endDateOpened" ng-required="true" close-text="Close" show-weeks="false"/>
-              <span class="input-group-btn">
+               <span class="input-group-btn">
                 <button type="button" class="btn btn-default" ng-click="prmCtrl.openEndDate($event)">
                   <i class="glyphicon glyphicon-calendar"></i>
                 </button>
               </span>
         </p>
       </div>
-
+-->
       <div class="col-md-2">
         <label>Risk Free Rate, %:</label>
 
