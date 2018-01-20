@@ -45,12 +45,18 @@
     "mocha-test": "^2.0.4",
     "numeric": "^1.2.6",
     "q": "^1.5.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-router": "^4.2.0",
+    "react-scripts": "1.0.10",
+    "react-toolbox": "^2.0.0-beta.12",
     "request": "^2.81.0",
     "rx": "^4.1.0",
     "underscore": "^1.8.3",
     "underscore-contrib": "^0.3.0"
   },
   "devDependencies": {
+    "flow-bin": "^0.59.0",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-jshint": "^1.1.0",
@@ -58,6 +64,7 @@
     "grunt-mocha-test": "^0.13.2",
     "immutable": "^3.8.1",
     "jshint": "^2.9.4",
+    "jsxhint": "^0.15.1",
     "mocha": "^3.4.2",
     "watch": "^1.0.2"
   }
