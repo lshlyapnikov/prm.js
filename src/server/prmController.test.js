@@ -51,7 +51,6 @@ describe("PrmController", () => {
   // TODO: DRY - search for AAA
   it("should calculate 5 times the same tangency portfolio", (done) => {
     function test(attempt) {
-      console.log("scheduling attempt: " + attempt)
       const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
