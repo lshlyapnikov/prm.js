@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "immutable": "^3.8.2",
+    "jsxhint": "^0.15.1",
     "log4js": "^2.5.3",
     "numeric": "^1.2.6",
     "react": "^16.2.0",
@@ -36,5 +37,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "flow": "^0.2.3"
   }
 }

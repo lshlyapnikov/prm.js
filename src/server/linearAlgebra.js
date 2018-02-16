@@ -5,8 +5,8 @@
 // numeric.dot() does too many assumptions/deductions -- don't really like it. Want my functions to throw
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.
 
-const numeric = require("numeric")
-const _ = require("underscore")
+import numeric from "numeric"
+import _ from "underscore"
 
 function dim(matrixMxN) {
   if(_.isUndefined(matrixMxN)) {

@@ -1,9 +1,9 @@
 /* global describe, it */
 
-const la = require("./linearAlgebra")
-const matrixAssert = require("./matrixAssert")
-const assert = require("assert")
-const utils = require("./utils")
+import la from "./linearAlgebra"
+import matrixAssert from "./matrixAssert"
+import assert from "assert"
+import utils from "./utils"
 
 describe("linearAlgebra", () => {
   describe("#dim()", () => {
@@ -146,14 +146,14 @@ describe("linearAlgebra", () => {
     })
     it("should throw exception when argument 2x1 and 2x1", () => {
       assert.throws(() => {
-          la.multiplyMatrices([1, 2], [2, 1])
-        },
+        la.multiplyMatrices([1, 2], [2, 1])
+      },
         Error)
     })
     it("should throw exception when argument 1x2 and 2x1", () => {
       assert.throws(() => {
-          la.multiplyMatrices(la.transpose([1, 2]), [2, 1])
-        },
+        la.multiplyMatrices(la.transpose([1, 2]), [2, 1])
+      },
         Error)
     })
     it("should throw exception when argument 2x1 and 1x2", () => {
@@ -171,27 +171,27 @@ describe("linearAlgebra", () => {
     })
     it("should throw exception 1st argument is not vector", () => {
       assert.throws(() => {
-          la.multiplyVectors(la.columnMatrix([1, 2]), [2, 1])
-        },
+        la.multiplyVectors(la.columnMatrix([1, 2]), [2, 1])
+      },
         /InvalidArgument: 1st argument has to be a vector/)
 
     })
     it("should throw exception 2nd argument is not vector", () => {
       assert.throws(() => {
-          la.multiplyVectors([1, 2], la.rowMatrix([2, 1]))
-        },
+        la.multiplyVectors([1, 2], la.rowMatrix([2, 1]))
+      },
         /InvalidArgument: 2nd argument has to be a vector/)
 
     })
     it("should throw exception when arguments have different dimensions", () => {
       assert.throws(() => {
-          la.multiplyVectors([1, 2, 3], [2, 1])
-        },
+        la.multiplyVectors([1, 2, 3], [2, 1])
+      },
         /InvalidArgument: vectors have different dimensions/)
 
       assert.throws(() => {
-          la.multiplyVectors([1, 2, 3], [4, 3, 2, 1])
-        },
+        la.multiplyVectors([1, 2, 3], [4, 3, 2, 1])
+      },
         /InvalidArgument: vectors have different dimensions/)
     })
   })
