@@ -169,7 +169,7 @@ exports.parseCsvStr = function parseCsvStr(csvStr, fieldNames, fieldConverters) 
 
 exports.logger = function (category) {
   var logger = log4js.getLogger(category)
-  logger.setLevel(log4js.levels.INFO)
+  // logger.setLevel(log4js.levels.INFO)
   return logger
 }
 

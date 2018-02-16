@@ -1,9 +1,9 @@
 /* global describe, it */
 
-const la = require("../../main/server/linearAlgebra")
+const la = require("./linearAlgebra")
 const matrixAssert = require("./matrixAssert")
 const assert = require("assert")
-const utils = require("../../main/server/utils")
+const utils = require("./utils")
 
 describe("linearAlgebra", () => {
   describe("#dim()", () => {

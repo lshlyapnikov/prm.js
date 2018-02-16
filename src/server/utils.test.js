@@ -1,6 +1,6 @@
 /* global describe, it */
 
-const utils = require("../../main/server/utils")
+const utils = require("./utils")
 const assert = require("assert")
 const numeric = require("numeric")
 

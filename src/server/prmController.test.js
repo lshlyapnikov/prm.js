@@ -1,11 +1,11 @@
 /* global describe, it */
 
-const prmController = require("../../main/server/prmController")
-const pStats = require("../../main/server/portfolioStats")
-const pTheory = require("../../main/server/portfolioTheory")
-const yahooFinanceApi = require("../../main/yahoo/yahooFinanceApi")
+const prmController = require("./prmController")
+const pStats = require("./portfolioStats")
+const pTheory = require("./portfolioTheory")
+const yahooFinanceApi = require("../yahoo/yahooFinanceApi")
 var _ = require("underscore")
-const la = require("../../main/server/linearAlgebra")
+const la = require("./linearAlgebra")
 const assert = require("assert")
 const Rx = require("rx")
 

@@ -1,11 +1,11 @@
 /* global describe, it */
 
-const mvef = require("../../main/server/mvef")
+const mvef = require("./mvef")
 const testData = require("./testData")
-const linearAlgebra = require("../../main/server/linearAlgebra")
-const portfolioStats = require("../../main/server/portfolioStats")
+const linearAlgebra = require("./linearAlgebra")
+const portfolioStats = require("./portfolioStats")
 const matrixAssert = require("./matrixAssert")
-const utils = require("../../main/server/utils")
+const utils = require("./utils")
 const assert = require("assert")
 const Q = require("q")
 const numeric = require("numeric")

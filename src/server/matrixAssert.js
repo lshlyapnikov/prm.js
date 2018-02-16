@@ -1,5 +1,5 @@
-var linearAlgebra = require("../../main/server/linearAlgebra");
-var utils = require("../../main/server/utils");
+var linearAlgebra = require("./linearAlgebra");
+var utils = require("./utils");
 var assert = require("assert");
 var _ = require("underscore")
 

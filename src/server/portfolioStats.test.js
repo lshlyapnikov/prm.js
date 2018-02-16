@@ -1,8 +1,8 @@
 /* global describe, it */
 
-const pStats = require("../../main/server/portfolioStats");
-const utils = require("../../main/server/utils");
-const la = require("../../main/server/linearAlgebra");
+const pStats = require("./portfolioStats");
+const utils = require("./utils");
+const la = require("./linearAlgebra");
 const matrixAssert = require("./matrixAssert");
 const testData = require("./testData");
 const assert = require("assert");

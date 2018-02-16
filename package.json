@@ -1,26 +1,11 @@
 {
-  "private": true,
   "name": "prm.js",
-  "version": "0.0.1",
   "description": "Portfolio Risk Management",
-  "author": "Leonid Shlyapnikov",
   "license": "BSD",
-  "gitHead": "3d4a98309355b4cf89092f976b22dbaa8b0b20c8",
-  "readmeFilename": "README.md",
+  "version": "0.1.0",
+  "private": true,
   "directories": {
     "doc": "docs"
-  },
-  "scripts": {
-    "postinstall": "grunt",
-    "start": "node --harmony ./src/main/server/app.js",
-    "test": "node --harmony ./node_modules/.bin/grunt test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lshlyapnikov/prm.js.git"
-  },
-  "bugs": {
-    "url": "https://github.com/lshlyapnikov/prm.js/issues"
   },
   "keywords": [
     "node.js",
@@ -35,31 +20,21 @@
     "global",
     "minimum"
   ],
-  "engines": {
-    "node": ">=0.12.0",
-    "npm": ">=2.11.0"
-  },
   "dependencies": {
-    "express": "4.13.x",
-    "grunt-cli": "x.x.x",
-    "log4js": "^0.6.26",
-    "mocha": "x.x.x",
-    "numeric": "1.2.x",
-    "q": "x.x.x",
-    "request": "^2.58.0",
-    "rx": "4.1.x",
-    "underscore": "1.8.x",
+    "immutable": "^3.8.2",
+    "log4js": "^2.5.3",
+    "numeric": "^1.2.6",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.1.1",
+    "rx": "^4.1.0",
+    "underscore": "^1.8.3",
     "underscore-contrib": "^0.3.0"
   },
-  "devDependencies": {
-    "grunt": "x.x.x",
-    "grunt-cli": "x.x.x",
-    "grunt-contrib-jshint": "x.x.x",
-    "grunt-contrib-watch": "x.x.x",
-    "grunt-mocha-test": "x.x.x",
-    "immutable": "x.x.x",
-    "jshint": "x.x.x",
-    "mocha": "x.x.x",
-    "watch": "x.x.x"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   }
 }

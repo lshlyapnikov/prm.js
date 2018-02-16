@@ -5,9 +5,9 @@
 /* jshint browser: true */
 /* global require, describe, it */
 
-var yahooFinanceApi = require("../../main/yahoo/yahooFinanceApi")
-var utils = require("../../main/server/utils")
-var la = require("../../main/server/linearAlgebra")
+var yahooFinanceApi = require("./yahooFinanceApi")
+var utils = require("../server/utils")
+var la = require("../server/linearAlgebra")
 var assert = require("assert")
 var _ = require('underscore-contrib')
 
@@ -34,7 +34,7 @@ function getDates(lines) {
   return lines.map(line => line.split(",")[0])
 }
 
-describe("yahooFinanceApi @IntegrationTest", function () {
+describe.skip("yahooFinanceApi @IntegrationTest", function () {
   describe("#loadStockHistoryAsString()", function () {
     it("should load expected CSV string  [3 days]", function (done) {
       const o = yahooFinanceApi.loadStockHistoryAsString("IBM", new Date(1975, 2, 3), new Date(1975, 2, 5), 'd')

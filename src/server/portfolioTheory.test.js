@@ -1,9 +1,9 @@
 /* global describe, it */
 
-const pStats = require("../../main/server/portfolioStats")
-const pTheory = require("../../main/server/portfolioTheory")
-const la = require("../../main/server/linearAlgebra")
-const utils = require("../../main/server/utils")
+const pStats = require("./portfolioStats")
+const pTheory = require("./portfolioTheory")
+const la = require("./linearAlgebra")
+const utils = require("./utils")
 const testData = require("./testData")
 const assert = require("assert")
 const numeric = require("numeric")
