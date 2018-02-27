@@ -24,11 +24,14 @@
     "immutable": "^3.8.2",
     "jsxhint": "^0.15.1",
     "log4js": "^2.5.3",
+    "material-ui": "^0.20.0",
     "numeric": "^1.2.6",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-router": "^4.2.0",
     "react-scripts": "1.1.1",
     "rx": "^4.1.0",
+    "typeface-roboto": "^0.0.54",
     "underscore": "^1.8.3",
     "underscore-contrib": "^0.3.0"
   },
@@ -36,9 +39,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
+    "flow": "flow",
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "flow": "^0.2.3"
+    "babel-preset-flow": "^6.23.0",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.66.0"
   }
 }
