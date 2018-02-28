@@ -7,7 +7,6 @@ import FloatingActionButton from 'material-ui/FloatingActionButton'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import ContentRemove from 'material-ui/svg-icons/content/remove'
 
-
 type Props = {
   stock: string
 }
@@ -29,7 +28,7 @@ class StockForm extends Component<Props, State> {
           <ContentRemove />
         </FloatingActionButton>
         &nbsp;
-        <FloatingActionButton mini={true} primary={true}>
+        <FloatingActionButton mini={true}>
           <ContentAdd />
         </FloatingActionButton>
         &nbsp;

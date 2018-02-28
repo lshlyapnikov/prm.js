@@ -22,7 +22,6 @@
   ],
   "dependencies": {
     "immutable": "^3.8.2",
-    "jsxhint": "^0.15.1",
     "log4js": "^2.5.3",
     "material-ui": "^0.20.0",
     "numeric": "^1.2.6",
@@ -39,10 +38,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "flow": "flow",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "flow": "flow"
   },
   "devDependencies": {
-    "flow-bin": "^0.66.0"
+    "flow-bin": "^0.66.0",
+    "jsxhint": "^0.15.1"
   }
 }
