@@ -43,7 +43,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "babel-preset-flow": "^6.23.0",
     "flow-bin": "^0.66.0"
   }
 }
