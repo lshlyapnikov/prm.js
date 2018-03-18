@@ -12,16 +12,23 @@ type AppProps = {
 }
 
 type AppState = {
+  title: string
 }
 
 class App extends Component<AppProps, AppState> {
+  state = {
+    title: "Home"
+  }
+  setTitle = (str: string) => {
+    this.setState({ title: str })
+  }
   render() {
     return (
       <Router>
         <div className="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
           <header className="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
             <div className="mdl-layout__header-row">
-              <span className="mdl-layout-title">Portfolio Risk Management</span>
+              <span className="mdl-layout-title">Portfolio Risk Management&nbsp;/&nbsp;{this.state.title}</span>
               <div className="mdl-layout-spacer"></div>
             </div>
           </header>
@@ -54,11 +61,11 @@ class App extends Component<AppProps, AppState> {
             <div className="mdl-grid demo-content">
               <div className="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
                 <Switch>
-                  <Route exact path="/" component={AppContent} />
-                  <Route path="/help" component={Help} />
-                  <Route path="/contact" component={Contact} />
-                  <Route path="/legal-info" component={LegalInfo} />
-                  <Route path="/news" component={News} />
+                  <Route exact path="/" render={props => <AppContent setTitle={this.setTitle} />} />
+                  <Route path="/help" render={props => <Help setTitle={this.setTitle} />} />
+                  <Route path="/contact" render={props => <Contact setTitle={this.setTitle} />} />
+                  <Route path="/legal-info" render={props => <LegalInfo setTitle={this.setTitle} />} />
+                  <Route path="/news" render={props => <News setTitle={this.setTitle} />} />
                 </Switch>
               </div>
             </div>
@@ -69,7 +76,16 @@ class App extends Component<AppProps, AppState> {
   }
 }
 
-class AppContent extends Component<{}> {
+type AppContentProps = {
+  setTitle: (string) => void
+}
+
+class AppContent extends Component<AppContentProps> {
+  constructor(props: AppContentProps) {
+    super(props)
+    props.setTitle("Home")
+  }
+
   render() {
     return (
       <div className="mdl-grid">

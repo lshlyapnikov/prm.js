@@ -1,7 +1,16 @@
 // @flow
 import React, { Component } from 'react'
 
-class News extends Component<{}> {
+type NewsProps = {
+  setTitle: (string) => void
+}
+
+class News extends Component<NewsProps> {
+  constructor(props: NewsProps) {
+    super(props)
+    props.setTitle("News")
+  }
+
   render() {
     return (
       <div className="mdl-grid">

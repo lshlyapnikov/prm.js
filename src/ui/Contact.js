@@ -1,7 +1,16 @@
 // @flow
 import React, { Component } from 'react'
 
-class Contact extends Component<{}> {
+type ContactProps = {
+  setTitle: (string) => void
+}
+
+class Contact extends Component<ContactProps> {
+  constructor(props: ContactProps) {
+    super(props)
+    props.setTitle("Contact")
+  }
+  
   render() {
     return (
       <div className="mdl-grid">

@@ -1,7 +1,16 @@
 // @flow
 import React, { Component } from 'react'
 
-class LegalInfo extends Component<{}> {
+type LegalInfoProps = {
+  setTitle: (string) => void
+}
+
+class LegalInfo extends Component<LegalInfoProps> {
+  constructor(props: LegalInfoProps) {
+    super(props)
+    props.setTitle("Legal Information")
+  }
+
   render() {
     return (
       <div className="mdl-grid">
