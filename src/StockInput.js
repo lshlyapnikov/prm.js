@@ -34,7 +34,7 @@ class StockInput extends Component<Props, State> {
         </FloatingActionButton>
         &nbsp;
       </div>
-    );
+    )
   }
 }
 
