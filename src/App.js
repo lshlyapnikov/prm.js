@@ -6,6 +6,8 @@ import Help from './ui/Help'
 import LegalInfo from './ui/LegalInfo'
 import Contact from './ui/Contact'
 import News from './ui/News'
+import { CommonProps } from './ui/CommonProps'
+
 // import StockForm from './StocksForm'
 
 type AppProps = {
@@ -15,7 +17,7 @@ type AppState = {
   title: string
 }
 
-class App extends Component<AppProps, AppState> {
+class App extends Component<AppProps, AppState> implements CommonProps {
   state = {
     title: "Home"
   }
@@ -61,11 +63,11 @@ class App extends Component<AppProps, AppState> {
             <div className="mdl-grid demo-content">
               <div className="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
                 <Switch>
-                  <Route exact path="/" render={props => <AppContent setTitle={this.setTitle} />} />
-                  <Route path="/help" render={props => <Help setTitle={this.setTitle} />} />
-                  <Route path="/contact" render={props => <Contact setTitle={this.setTitle} />} />
-                  <Route path="/legal-info" render={props => <LegalInfo setTitle={this.setTitle} />} />
-                  <Route path="/news" render={props => <News setTitle={this.setTitle} />} />
+                  <Route exact path="/" render={() => <AppContent {...this} />} />
+                  <Route path="/help" render={() => <Help {...this} />} />
+                  <Route path="/contact" render={() => <Contact {...this} />} />
+                  <Route path="/legal-info" render={props => <LegalInfo {...this} />} />
+                  <Route path="/news" render={() => <News {...this} />} />
                 </Switch>
               </div>
             </div>
@@ -76,12 +78,8 @@ class App extends Component<AppProps, AppState> {
   }
 }
 
-type AppContentProps = {
-  setTitle: (string) => void
-}
-
-class AppContent extends Component<AppContentProps> {
-  constructor(props: AppContentProps) {
+class AppContent extends Component<CommonProps> {
+  constructor(props: CommonProps) {
     super(props)
     props.setTitle("Home")
   }
@@ -97,4 +95,4 @@ class AppContent extends Component<AppContentProps> {
   }
 }
 
-export default App;
+export default App

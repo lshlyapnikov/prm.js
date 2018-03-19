@@ -1,16 +1,13 @@
 // @flow
 import React, { Component } from 'react'
+import { CommonProps } from './CommonProps'
 
-type ContactProps = {
-  setTitle: (string) => void
-}
-
-class Contact extends Component<ContactProps> {
-  constructor(props: ContactProps) {
+class Contact extends Component<CommonProps> {
+  constructor(props: CommonProps) {
     super(props)
     props.setTitle("Contact")
   }
-  
+
   render() {
     return (
       <div className="mdl-grid">

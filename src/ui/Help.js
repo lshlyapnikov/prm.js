@@ -1,12 +1,9 @@
 // @flow
 import React, { Component } from 'react'
+import { CommonProps } from './CommonProps'
 
-type HelpProps = {
-  setTitle: (string) => void
-}
-
-class Help extends Component<HelpProps> {
-  constructor(props: HelpProps) {
+class Help extends Component<CommonProps> {
+  constructor(props: CommonProps) {
     super(props)
     props.setTitle("Help")
   }
