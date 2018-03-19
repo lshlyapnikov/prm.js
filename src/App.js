@@ -21,9 +21,11 @@ class App extends Component<AppProps, AppState> implements CommonProps {
   state = {
     title: "Home"
   }
+
   setTitle = (str: string) => {
     this.setState({ title: str })
   }
+
   render() {
     return (
       <Router>

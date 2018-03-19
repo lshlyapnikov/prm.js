@@ -1,5 +1,5 @@
 // @flow
 
 export interface CommonProps {
-  setTitle: (string) => void
+  setTitle(string): void
 }
