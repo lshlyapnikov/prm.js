@@ -1,32 +1,43 @@
 // @flow
-import React, { Component } from 'react'
+import React from 'react'
 
 import TextField from './TextField'
+import FileUpload from './FileUpload'
 
-// import TextField from 'material-ui/TextField'
-// import RaisedButton from 'material-ui/RaisedButton'
-// import FloatingActionButton from 'material-ui/FloatingActionButton'
-// import ContentAdd from 'material-ui/svg-icons/content/add'
-// import ContentRemove from 'material-ui/svg-icons/content/remove'
-
-type Props = {
+type StockFormProps = {
   stock: string
 }
 
-type State = {
+type StockFormState = {
   rows: Array<string>
 }
 
-class StockForm extends Component<Props, State> {
+class StockForm extends React.Component<StockFormProps, StockFormState> {
   state = {
     rows: []
   }
+
+  // TODO find a way to stream the file content from this function
+  handleFileUpload(file: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      var text: string | ArrayBuffer = reader.result;
+      var node: HTMLElement | null = document.getElementById('output');
+      if (node != null) {
+        node.innerText = String(text)
+      }
+    };
+    reader.readAsText(file)
+  }
+
   render() {
     return (
       <div className="mdl-grid">
         <form action="#">
+          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %" pattern="[0-6](\.[0-9]{1,2})?" error="Not a valid risk free interest rate! Examples: 1.50, 2.58" />
           <TextField id="stock-1" label="Stock..." />
-          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %" pattern="[0-9]*(\.[0-9]+)?" error="Input is not a number!" />
+          <FileUpload id="file-1" label="File..." handleFileUpload={this.handleFileUpload} />
+          <div id='output'></div>
         </form>
       </div>
     )
