@@ -1,6 +1,8 @@
 [ignore]
 <PROJECT_ROOT>/node_modules/jsxhint/test/fixtures/test_flow_import.js
 <PROJECT_ROOT>/node_modules/immutable/dist/immutable.js.flow
+<PROJECT_ROOT>/node_modules/browser-resolve.*
+<PROJECT_ROOT>/node_modules/test-exclude.*
 <PROJECT_ROOT>/docs
 
 [include]

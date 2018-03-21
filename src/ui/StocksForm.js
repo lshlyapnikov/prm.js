@@ -1,11 +1,13 @@
 // @flow
 import React, { Component } from 'react'
 
-import TextField from 'material-ui/TextField'
-import RaisedButton from 'material-ui/RaisedButton'
-import FloatingActionButton from 'material-ui/FloatingActionButton'
-import ContentAdd from 'material-ui/svg-icons/content/add'
-import ContentRemove from 'material-ui/svg-icons/content/remove'
+import TextField from './TextField'
+
+// import TextField from 'material-ui/TextField'
+// import RaisedButton from 'material-ui/RaisedButton'
+// import FloatingActionButton from 'material-ui/FloatingActionButton'
+// import ContentAdd from 'material-ui/svg-icons/content/add'
+// import ContentRemove from 'material-ui/svg-icons/content/remove'
 
 type Props = {
   stock: string
@@ -21,23 +23,13 @@ class StockForm extends Component<Props, State> {
   }
   render() {
     return (
-      <div>
-        <TextField id="stock" hintText="Stock symbol" defaultValue={this.props.stock} />
-        &nbsp;
-        <FloatingActionButton mini={true} secondary={true}>
-          <ContentRemove />
-        </FloatingActionButton>
-        &nbsp;
-        <FloatingActionButton mini={true}>
-          <ContentAdd />
-        </FloatingActionButton>
-        &nbsp;
-        <br />
-        <RaisedButton secondary={true}>Cancel</RaisedButton>
-        &nbsp;
-        <RaisedButton primary={true}>OK</RaisedButton>
+      <div className="mdl-grid">
+        <form action="#">
+          <TextField id="stock-1" label="Stock..." />
+          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %" pattern="[0-9]*(\.[0-9]+)?" error="Input is not a number!" />
+        </form>
       </div>
-    );
+    )
   }
 }
 

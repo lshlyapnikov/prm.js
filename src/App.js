@@ -8,7 +8,7 @@ import Contact from './ui/Contact'
 import News from './ui/News'
 import { CommonProps } from './ui/CommonProps'
 
-// import StockForm from './StocksForm'
+import StockForm from './ui/StocksForm'
 
 type AppProps = {
 }
@@ -30,13 +30,13 @@ class App extends Component<AppProps, AppState> implements CommonProps {
     return (
       <Router>
         <div className="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-          <header className="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
+          <header className="demo-header mdl-layout__header mdl-color--blue-grey-800 mdl-color-text--blue-grey-400">
             <div className="mdl-layout__header-row">
               <span className="mdl-layout-title">Portfolio Risk Management&nbsp;/&nbsp;{this.state.title}</span>
               <div className="mdl-layout-spacer"></div>
             </div>
           </header>
-          <div className="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
+          <div className="demo-drawer mdl-layout__drawer mdl-color--blue-grey-800 mdl-color-text--blue-grey-400">
             <header className="demo-drawer-header">
               <img src="images/user.jpg" className="demo-avatar" alt="user icon" />
               <div className="demo-avatar-dropdown">
@@ -90,7 +90,7 @@ class AppContent extends Component<CommonProps> {
     return (
       <div className="mdl-grid">
         <div className="mdl-cell">
-          Stock Form
+          <StockForm stock="IBM" />
         </div>
       </div>
     )
