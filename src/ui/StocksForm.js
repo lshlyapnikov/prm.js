@@ -23,8 +23,8 @@ class StockForm extends React.Component<StockFormProps, StockFormState> {
     reader.onload = () => {
       var text: string | ArrayBuffer = reader.result;
       var node: HTMLElement | null = document.getElementById('output');
-      if (node != null) {
-        node.innerText = String(text)
+      if (node != null && typeof text === 'string') {
+        node.innerText = text.substring(0, 32)
       }
     };
     reader.readAsText(file)
