@@ -9,12 +9,14 @@ type StockFormProps = {
 }
 
 type StockFormState = {
+  riskFreeReturnRate: string,
   rows: Array<string>
 }
 
 class StockForm extends React.Component<StockFormProps, StockFormState> {
   state = {
-    rows: []
+    riskFreeReturnRate: "",
+    rows: Array(1).fill("")
   }
 
   // TODO find a way to stream the file content from this function
@@ -34,8 +36,11 @@ class StockForm extends React.Component<StockFormProps, StockFormState> {
     return (
       <div className="mdl-grid">
         <form action="#">
-          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %" pattern="[0-6](\.[0-9]{1,2})?" error="Not a valid risk free interest rate! Examples: 1.50, 2.58" />
-          <TextField id="stock-1" label="Stock..." />
+          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %"
+            value={this.state.riskFreeReturnRate}
+            pattern="[0-6](\.[0-9]{1,2})?"
+            error="Not a valid risk free interest rate! Examples: 1.50, 2.58" />
+          <TextField id="stock-1" label="Stock..." value={this.state.rows[0]} />
           <FileUpload id="file-1" label="File..." handleFileUpload={this.handleFileUpload} />
           <div id='output'></div>
         </form>

@@ -1,13 +1,13 @@
 /* global describe, it */
+import _  from "underscore"
+import assert from "assert"
+import Rx from 'rxjs/Rx'
 
-const prmController = require("./prmController")
-const pStats = require("./portfolioStats")
-const pTheory = require("./portfolioTheory")
-const yahooFinanceApi = require("../yahoo/yahooFinanceApi")
-var _ = require("underscore")
-const la = require("./linearAlgebra")
-const assert = require("assert")
-const Rx = require("rx")
+import la from "./linearAlgebra"
+import prmController from "./prmController"
+import pStats from "./portfolioStats"
+import pTheory from "./portfolioTheory"
+import yahooFinanceApi from "../yahoo/yahooFinanceApi"
 
 function verifyPortfolioStatsObjects(o) {
   assert.ok(_.isObject(o))

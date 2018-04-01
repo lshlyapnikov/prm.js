@@ -1,6 +1,6 @@
-const Rx = require("rx")
-const _ = require("underscore")
-const la = require("./linearAlgebra")
+import Rx from 'rxjs/Rx'
+import _ from "underscore"
+import la from "./linearAlgebra"
 
 function wrapper(s, r) {
   return {symbol: s, result: r}

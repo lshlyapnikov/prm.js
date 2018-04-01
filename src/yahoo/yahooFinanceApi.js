@@ -1,10 +1,11 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
-const request = require("request")
-const Rx = require('rx');
-const _ = require("underscore-contrib")
-const utils = require("../server/utils.js")
+import request from 'request'
+import Rx from 'rxjs/Rx'
+import _ from 'underscore-contrib'
+import utils from '../server/utils.js'
+
 const log = utils.logger("yahooFinanceApi")
 
 /**
@@ -62,8 +63,8 @@ function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
     const url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval)
     request.get(url, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        observer.onNext(body)
-        observer.onCompleted()
+        observer.next(body)
+        observer.complete()
       } else {
         var errStr = "Cannot retrieve historical prices for symbol: " + symbol +
           ", fromDate: " + fromDate + ", toDate: " + toDate + ", interval: " + interval +
