@@ -1,8 +1,20 @@
 // @flow
 import React from 'react'
+import { Subject } from 'rxjs/Subject'
+import autoBind from 'react-autobind'
 
 import TextField from './TextField'
 import FileUpload from './FileUpload'
+
+class FileContent {
+  text: string
+  rowIndex: number
+
+  constructor(text: string, rowIndex: number) {
+    this.text = text
+    this.rowIndex = rowIndex
+  }
+}
 
 type StockFormProps = {
   stock: string
@@ -10,25 +22,38 @@ type StockFormProps = {
 
 type StockFormState = {
   riskFreeReturnRate: string,
-  rows: Array<string>
+  rows: Array<string>,
+  fileUploadSubject: Subject<FileContent>
+}
+
+function fileUploaded(text: string): void {
+  const node: HTMLElement | null = document.getElementById('output');
+  if (node != null && typeof text === 'string') {
+    node.innerText = text
+  }
 }
 
 class StockForm extends React.Component<StockFormProps, StockFormState> {
+  constructor(props: StockFormProps) {
+    super(props)
+    this.state.fileUploadSubject.subscribe((x: FileContent) => fileUploaded(x.text))
+    autoBind(this)
+  }
+
   state = {
-    riskFreeReturnRate: "",
-    rows: Array(1).fill("")
+    riskFreeReturnRate: "0.9",
+    rows: Array(1).fill(""),
+    fileUploadSubject: new Subject()
   }
 
   // TODO find a way to stream the file content from this function
   handleFileUpload(file: File): void {
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = () => {
-      var text: string | ArrayBuffer = reader.result;
-      var node: HTMLElement | null = document.getElementById('output');
-      if (node != null && typeof text === 'string') {
-        node.innerText = text.substring(0, 32)
+      if (typeof reader.result === 'string') {
+        this.state.fileUploadSubject.next(new FileContent(reader.result, 0))
       }
-    };
+    }
     reader.readAsText(file)
   }
 
