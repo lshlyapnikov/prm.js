@@ -1,13 +1,16 @@
 /* global describe, it */
-import _  from "underscore"
+import _ from "underscore"
 import assert from "assert"
-import Rx from 'rxjs/Rx'
+import { Observable } from "rxjs"
 
 import la from "./linearAlgebra"
 import prmController from "./prmController"
 import pStats from "./portfolioStats"
 import pTheory from "./portfolioTheory"
 import yahooFinanceApi from "../yahoo/yahooFinanceApi"
+import csv from "csv-parser"
+import fs from "fs"
+import request from "request"
 
 function verifyPortfolioStatsObjects(o) {
   assert.ok(_.isObject(o))
@@ -35,7 +38,8 @@ function verifyPortfolioAnalysisResult(r) {
 
 describe("PrmController", () => {
   it("should calculate portfolio statistics", (done) => {
-    const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+    const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
+      pTheory)
     controller.analyzeUsingPortfolioHistoricalPrices(
       ["IBM", "AA"],
       new Date("1975/03/01"),
@@ -44,14 +48,15 @@ describe("PrmController", () => {
         verifyPortfolioAnalysisResult(analysisResult)
         done()
       },
-        error => done(error)
+      error => done(error)
     )
   })
 
   // TODO: DRY - search for AAA
   it("should calculate 5 times the same tangency portfolio", (done) => {
     function test(attempt) {
-      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
+        pTheory)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
@@ -61,7 +66,7 @@ describe("PrmController", () => {
     }
 
     const attempts = 5
-    Rx.Observable.range(0, attempts).flatMap((x) => test(x)).toArray().subscribe(results => {
+    Observable.range(0, attempts).flatMap((x) => test(x)).toArray().subscribe(results => {
         assert.equal(results.length, attempts)
         const tangencyArr = _(results).map(r => r.output.tangencyPortfolio)
         for (var i = 1; i < attempts; i++) {
@@ -69,14 +74,15 @@ describe("PrmController", () => {
         }
         done()
       },
-        error => done(error)
+      error => done(error)
     )
   })
 
   // TODO: DRY - search for AAA
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
     function test() {
-      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
+        pTheory)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
@@ -91,7 +97,7 @@ describe("PrmController", () => {
         _(tangencyArr).each(w => console.log(w))
         done()
       },
-        error => done(error)
+      error => done(error)
     )
   })
 })

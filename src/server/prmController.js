@@ -1,4 +1,4 @@
-import Rx from 'rxjs/Rx'
+import { Observable } from "rxjs"
 import _ from "underscore"
 import la from "./linearAlgebra"
 
@@ -43,7 +43,7 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
   analyzeUsingPortfolioHistoricalPrices: function (symbols, startDate, endDate, riskFreeRr) {
     // Rx.Observable.from(["a", "b"]).flatMap(x => f(x).toArray()).toArray().subscribe(a => console.log(a))
     // [ [ 10, 20, 30, 40 ], [ 10, 20, 30, 40 ] ]
-    return Rx.Observable.from(symbols).flatMap(symbol =>
+    return Observable.from(symbols).flatMap(symbol =>
         loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)]).map(r => wrapper(symbol, r))
     ).toArray().map(arr => {
         const pricesMxN = convertArrayOfWrappedResultsToPriceMatrix(symbols, arr)
