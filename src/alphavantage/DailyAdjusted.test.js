@@ -13,11 +13,21 @@ import {
 } from "./DailyAdjusted"
 
 describe("DailyAdjusted", () => {
-  it("should parse and return adjusted closing prices", (done) => {
+  it("should parse and return adjusted closing prices read from a file", (done) => {
     const rawStream = fs.createReadStream(
         '/home/lshlyapnikov/Projects/prm.js/src/alphavantage/daily_adjusted_MSFT.test.csv')
       .pipe(csv())
     const observable = dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"),
+      new Date("2018-08-22"))
+    toArray()(observable).subscribe(
+      array => assert.deepStrictEqual(array, [107.06, 105.98]),
+      error => done(error),
+      () => done()
+    )
+  })
+
+  it("should parse and return adjusted closing prices requested from alphavantage", (done) => {
+    const observable = dailyAdjustedStockPrices("MSFT", new Date("2018-08-21"),
       new Date("2018-08-22"))
     toArray()(observable).subscribe(
       array => assert.deepStrictEqual(array, [107.06, 105.98]),
