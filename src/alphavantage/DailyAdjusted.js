@@ -2,21 +2,24 @@
 import csv from "csv-parser"
 import fs from "fs"
 import request from "request"
-import { Observable } from "rxjs"
+import {
+  Observable
+} from "rxjs"
 import stream from "stream"
 import utils from "../server/utils.js"
 
 const log = utils.logger("DailyAdjusted")
 
-export function dailyAdjustedStockPrices(symbol: string, fromDate: Date, toDate: Date): Rx.Observable {
+export function dailyAdjustedStockPrices(apiKey: string, symbol: string,
+  fromDate: Date, toDate: Date): Observable {
   const url: string =
-    `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=S2A8UKWLTKUMVG88&datatype=csv&outputsize=full`
+    `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
   const stream: stream.Readable = request(url).pipe(csv())
   return dailyAdjustedStockPricesFromStream(stream, fromDate, toDate)
 }
 
-export function dailyAdjustedStockPricesFromStream(stream: stream.Readable, fromDate: Date, toDate:
-  Date): Observable < Number > {
+export function dailyAdjustedStockPricesFromStream(stream: stream.Readable, fromDate: Date,
+  toDate: Date): Observable < Number > {
   return Observable.create((observer) => {
     stream
       .on('error', (error) => {

@@ -24,3 +24,4 @@ yarn-error.log*
 #*
 *.log
 .vscode/numbered-bookmarks.json
+.test-config.js
