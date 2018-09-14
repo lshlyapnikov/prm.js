@@ -11,6 +11,12 @@ Node v4.2.0 <TODO: ???>
 <browser> http://localhost:8080/
 ```
 
+# Running Tests
+- Request free Alphavantage API Key: https://www.alphavantage.co/support/#api-key
+- > cp ./.test-config.js.sample ./.test-config.js
+- Update `alphavantage.apiKey` in `./.test-config.js`
+- > yarn test
+
 # How to Run One Test
 https://facebook.github.io/jest/docs/en/cli.html#testnamepattern-regex
 ```
