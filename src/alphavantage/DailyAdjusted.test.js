@@ -58,7 +58,7 @@ describe("DailyAdjusted", () => {
     const observable = dailyAdjustedStockPrices(alphavantage.apiKey, "MSFT", new Date(
       "2018-08-21"), new Date("2018-08-22"))
     toArray()(observable).subscribe(
-      array => doneOnFailure(() => assert.deepStrictEqual(array, [107.06, 105.98]), done),
+      array => doneOnFailure(() => assert.deepStrictEqual(array, [106.5929, 105.5176]), done),
       error => done.fail(error),
       () => done()
     )

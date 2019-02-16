@@ -2,7 +2,8 @@
 /// LGPL Licencsed
 
 import request from 'request'
-import Rx from 'rxjs/Rx'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 import _ from 'underscore-contrib'
 import utils from '../server/utils.js'
 
@@ -44,22 +45,22 @@ function createYahooStockHistoryUrl(symbol, fromDate, toDate, interval) {
  */
 function loadStockHistoryAsString(symbol, fromDate, toDate, interval) {
   if (_.isUndefined(symbol)) {
-    return Rx.Observable.throw(new Error("InvalidArgument: symbols array is either undefined or empty"))
+    return Observable.throw(new Error("InvalidArgument: symbols array is either undefined or empty"))
   }
 
   if (_.isUndefined(fromDate)) {
-    return Rx.Observable.throw(new Error("InvalidArgument: fromDate argument is undefined"))
+    return Observable.throw(new Error("InvalidArgument: fromDate argument is undefined"))
   }
 
   if (_.isUndefined(toDate)) {
-    return Rx.Observable.throw(new Error("InvalidArgument: toDate argument is undefined"))
+    return Observable.throw(new Error("InvalidArgument: toDate argument is undefined"))
   }
 
   if (_.isUndefined(interval)) {
-    return Rx.Observable.throw(new Error("InvalidArgument: interval argument is undefined"))
+    return Observable.throw(new Error("InvalidArgument: interval argument is undefined"))
   }
 
-  return Rx.Observable.create((observer) => {
+  return Observable.create((observer) => {
     const url = createYahooStockHistoryUrl(symbol, fromDate, toDate, interval)
     request.get(url, (error, response, body) => {
       if (!error && response.statusCode === 200) {
@@ -101,9 +102,10 @@ function loadStockHistory(symbol, fromDate, toDate, interval, fieldNames, fieldC
     return Rx.Observable.throw(new Error("fieldNames.length must be equal to fieldConverters.length"))
   }
 
-  return loadStockHistoryAsString(symbol, fromDate, toDate, interval)
-    .map((csvStr) => utils.parseCsvStr(csvStr, fieldNames, fieldConverters))
-    .map((arr) => _.isUndefined(arr) ? [] : arr.reverse())
+  return loadStockHistoryAsString(symbol, fromDate, toDate, interval).pipe(
+    map((csvStr) => utils.parseCsvStr(csvStr, fieldNames, fieldConverters)),
+    map((arr) => _.isUndefined(arr) ? [] : arr.reverse()),
+  )
 }
 
 exports.loadStockHistoryAsString = loadStockHistoryAsString

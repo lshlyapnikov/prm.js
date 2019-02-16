@@ -1,9 +1,10 @@
-import { Observable } from "rxjs"
+import { from } from 'rxjs'
+import { map, mergeMap, toArray } from 'rxjs/operators'
 import _ from "underscore"
 import la from "./linearAlgebra"
 
 function wrapper(s, r) {
-  return {symbol: s, result: r}
+  return { symbol: s, result: r }
 }
 
 function convertArrayOfWrappedResultsToPriceMatrix(symbols, arr) {
@@ -40,19 +41,23 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
    * @param {Number} riskFreeRr Risk Free Return Rate
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
-  analyzeUsingPortfolioHistoricalPrices: function (symbols, startDate, endDate, riskFreeRr) {
+  analyzeUsingPortfolioHistoricalPrices: function(symbols, startDate, endDate, riskFreeRr) {
     // Rx.Observable.from(["a", "b"]).flatMap(x => f(x).toArray()).toArray().subscribe(a => console.log(a))
     // [ [ 10, 20, 30, 40 ], [ 10, 20, 30, 40 ] ]
-    return Observable.from(symbols).flatMap(symbol =>
-        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)]).map(r => wrapper(symbol, r))
-    ).toArray().map(arr => {
+    return from(symbols).pipe(
+      mergeMap(symbol =>
+        loadHistoricalPrices(symbol, startDate, endDate, "d", ["Adj Close"], [(s) => Number(s)])
+      ),
+      map(r => wrapper(symbol, r)),
+      toArray(),
+      map(arr => {
         const pricesMxN = convertArrayOfWrappedResultsToPriceMatrix(symbols, arr)
         const rrKxN = pStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
         const expectedRrNx1 = pStats.mean(rrKxN)
         const rrCovarianceNxN = pStats.covariance(rrKxN, false)
-        return this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
-      }
-    )
+        return this.analyzeUsingPortfolioStatistics(rrKxN, expectedRrNx1, rrCovarianceNxN,
+          riskFreeRr)
+      }))
   },
 
   /**
@@ -64,15 +69,21 @@ exports.create = (loadHistoricalPrices, pStats, pTheory) => ({
    * @param {Number}                 riskFreeRr        Risk Free Return Rate
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
-  analyzeUsingPortfolioStatistics: function (rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr) {
+  analyzeUsingPortfolioStatistics: function(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr) {
     const globalMinVarianceEfficientPortfolio =
-      pTheory.GlobalMinimumVarianceEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN)
-    const tangencyPortfolio = pTheory.TangencyPortfolio.calculate(expectedRrNx1, rrCovarianceNxN, riskFreeRr)
-    const efficientPortfolioFrontier = pTheory.EfficientPortfolioFrontier.calculate(expectedRrNx1, rrCovarianceNxN)
+      pTheory.GlobalMinimumVarianceEfficientPortfolio.calculate(expectedRrNx1,
+        rrCovarianceNxN)
+    const tangencyPortfolio = pTheory.TangencyPortfolio.calculate(expectedRrNx1,
+      rrCovarianceNxN, riskFreeRr)
+    const efficientPortfolioFrontier = pTheory.EfficientPortfolioFrontier.calculate(
+      expectedRrNx1, rrCovarianceNxN)
 
     return {
       input: {
-        rrKxN: rrKxN, expectedRrNx1: expectedRrNx1, rrCovarianceNxN: rrCovarianceNxN, riskFreeRr: riskFreeRr
+        rrKxN: rrKxN,
+        expectedRrNx1: expectedRrNx1,
+        rrCovarianceNxN: rrCovarianceNxN,
+        riskFreeRr: riskFreeRr
       },
       output: {
         globalMinVarianceEfficientPortfolio: globalMinVarianceEfficientPortfolio,
