@@ -5,6 +5,5 @@
   "search.exclude": {
     "node_modules/": true
   },
-  "editor.tabSize": 2,
-  "window.zoomLevel": 0.5
+  "editor.tabSize": 2
 }

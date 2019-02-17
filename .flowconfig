@@ -1,5 +1,4 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/jsxhint/test/fixtures/test_flow_import.js
 <PROJECT_ROOT>/node_modules/immutable/dist/immutable.js.flow
 <PROJECT_ROOT>/node_modules/browser-resolve.*
 <PROJECT_ROOT>/node_modules/test-exclude.*
@@ -8,9 +7,17 @@
 [include]
 
 [libs]
+flow-typed
 
 [lints]
+all=warn
+sketchy-null=error
+sketchy-number=error
+unclear-type=error
+unnecessary-optional-chain=error
+unnecessary-invariant=error
 
 [options]
+suppress_comment= \\(.\\|\n\\)*\\$FlowIgnore
 
 [strict]

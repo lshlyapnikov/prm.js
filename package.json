@@ -45,7 +45,8 @@
     "flow": "flow"
   },
   "devDependencies": {
-    "flow-bin": "^0.93.0"
+    "flow-bin": "^0.93.0",
+    "string-to-stream": "^1.1.1"
   },
   "browserslist": [
     ">0.2%",
