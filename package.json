@@ -33,7 +33,6 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
     "rxjs": "6",
-    "rxjs-compat": "6",
     "underscore": "^1.8.3",
     "underscore-contrib": "^0.3.0"
   },

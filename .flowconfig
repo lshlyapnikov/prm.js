@@ -1,7 +1,8 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/immutable/dist/immutable.js.flow
-<PROJECT_ROOT>/node_modules/browser-resolve.*
-<PROJECT_ROOT>/node_modules/test-exclude.*
+; <PROJECT_ROOT>/node_modules/immutable/dist/immutable.js.flow
+; <PROJECT_ROOT>/node_modules/browser-resolve.*
+; <PROJECT_ROOT>/node_modules/test-exclude.*
+<PROJECT_ROOT>/node_modules
 <PROJECT_ROOT>/docs
 
 [include]
@@ -11,6 +12,7 @@ flow-typed
 
 [lints]
 all=warn
+; dynamic-export=off
 sketchy-null=error
 sketchy-number=error
 unclear-type=error

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import { Subject } from 'rxjs/Subject'
+import { Subject } from 'rxjs'
 import autoBind from 'react-autobind'
 
 import TextField from './TextField'
