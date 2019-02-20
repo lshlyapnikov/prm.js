@@ -1,3 +1,4 @@
+// prm.js VSCode settings
 {
   "files.exclude": {
     "node_modules/": true,
