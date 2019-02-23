@@ -3,6 +3,7 @@
 ; <PROJECT_ROOT>/node_modules/browser-resolve.*
 ; <PROJECT_ROOT>/node_modules/test-exclude.*
 <PROJECT_ROOT>/node_modules
+<PROJECT_ROOT>/flow-typed
 <PROJECT_ROOT>/docs
 
 [include]
