@@ -1,6 +1,8 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
+// TODO make sure it typechecks with flow
+
 const utils = require("./utils")
 const linearAlgebra = require("./linearAlgebra")
 const portfolioStats = require("./portfolioStats")
