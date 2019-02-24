@@ -7,7 +7,12 @@ import csv from "csv-parser"
 import fs from "fs"
 import stringToStream from "string-to-stream"
 import request from "request"
-import { dailyAdjustedStockPrices, dailyAdjustedStockPricesFromStream } from "./DailyAdjusted"
+import {
+  dailyAdjustedStockPrices,
+  dailyAdjustedStockPricesFromStream,
+  AscendingDates,
+  DescendingDates
+} from "./DailyAdjusted"
 // $FlowIgnore
 import { alphavantage } from "../../.test-config.js"
 
@@ -19,12 +24,22 @@ function doneOnFailure(assertStatement, doneFn) {
   }
 }
 
-describe.skip("DailyAdjusted", () => {
-  it("should parse and return adjusted closing prices in reverse order", (done) => {
+describe("DailyAdjusted", () => {
+  it("should parse and return adjusted closing prices in with ascending date order", (done) => {
     const rawStream = fs.createReadStream('./src/alphavantage/daily_adjusted_MSFT.test.csv')
       .pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"),
-      new Date("2018-08-22")).pipe(
+    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), AscendingDates).pipe(
+        toArray()
+      ).subscribe(
+        array => doneOnFailure(() => assert.deepStrictEqual(array, [105.98, 107.06]), done),
+        error => done.fail(error),
+        () => done()
+      )
+  })
+
+  it("should parse and return adjusted closing prices with descending date order", (done) => {
+    const rawStream = fs.createReadStream('./src/alphavantage/daily_adjusted_MSFT.test.csv').pipe(csv())
+    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), DescendingDates).pipe(
         toArray()
       ).subscribe(
         array => doneOnFailure(() => assert.deepStrictEqual(array, [107.06, 105.98]), done),
@@ -36,8 +51,7 @@ describe.skip("DailyAdjusted", () => {
   it("should parse and return one adjusted closing price value", (done) => {
     const rawStream = fs.createReadStream('./src/alphavantage/daily_adjusted_MSFT.test.csv')
       .pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date(
-      "2018-08-21")).pipe(
+    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates).pipe(
         toArray()
       ).subscribe(
         array => doneOnFailure(() => assert.deepStrictEqual(array, [105.98]), done),
@@ -49,8 +63,7 @@ describe.skip("DailyAdjusted", () => {
   it("should return empty array when date it out of range", (done) => {
     const rawStream = fs.createReadStream('./src/alphavantage/daily_adjusted_MSFT.test.csv')
       .pipe(csv())
-    const observable = dailyAdjustedStockPricesFromStream(rawStream, new Date("1970-01-01"),
-      new Date("1970-01-01")).pipe(
+    const observable = dailyAdjustedStockPricesFromStream(rawStream, new Date("1970-01-01"), new Date("1970-01-01"), AscendingDates).pipe(
         toArray()).subscribe(
           array => doneOnFailure(() => assert.deepStrictEqual(array, []), done),
           error => done.fail(error),
@@ -60,10 +73,10 @@ describe.skip("DailyAdjusted", () => {
 
   it("should parse and return adjusted closing prices requested from alphavantage", (done) => {
     console.log(`apiKey: ${alphavantage.apiKey}`)
-    const observable = dailyAdjustedStockPrices(alphavantage.apiKey, "MSFT", new Date(
-      "2018-08-21"), new Date("2018-08-22")).pipe(
+    const observable = dailyAdjustedStockPrices(alphavantage.apiKey, "MSFT", new Date("2018-08-20"),
+      new Date("2018-08-22"), AscendingDates).pipe(
         toArray()).subscribe(
-          array => doneOnFailure(() => assert.deepStrictEqual(array, [106.5929, 105.5176]),
+          array => doneOnFailure(() => assert.deepStrictEqual(array, [105.9489, 105.0665, 106.1372]),
             done),
           error => done.fail(error),
           () => done()
@@ -78,8 +91,7 @@ describe("DailyAdjusted111", () => {
       "aaa2018-08-24,aaa107.6700,aaa108.5600,aaa107.5600,aaa108.4000,aaa108.4000,aaa17232126,aaa0.0000,aa1.0000\n"
     ).pipe(csv())
 
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date(
-      "2018-08-21")).pipe(
+    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates).pipe(
         toArray()
       ).subscribe(
         (array: Array<number>) => {
