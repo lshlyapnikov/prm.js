@@ -10,7 +10,9 @@
   },
   "editor.tabSize": 2,
   "javascript.validate.enable": false,
-  "flow.enabled": true,
-  "flow.pathToFlow": "${workspaceRoot}/node_modules/.bin/flow",
-  // "flow.useNPMPackagedFlow": true,
+  // "flow.enabled": true,
+  // "flow.pathToFlow": "${workspaceRoot}/node_modules/.bin/flow",
+  "flowide.enabled": true,
+  "flowide.pathToFlow": "${workspaceRoot}/node_modules/.bin/flow",
+  
 }

@@ -1,24 +1,18 @@
-[ignore]
-; <PROJECT_ROOT>/node_modules/immutable/dist/immutable.js.flow
-; <PROJECT_ROOT>/node_modules/browser-resolve.*
-; <PROJECT_ROOT>/node_modules/test-exclude.*
-<PROJECT_ROOT>/node_modules
-<PROJECT_ROOT>/flow-typed
-<PROJECT_ROOT>/docs
-
 [include]
 
+[ignore]
+<PROJECT_ROOT>/node_modules
+<PROJECT_ROOT>/docs
+
+[untyped]
+
 [libs]
-flow-typed
+<PROJECT_ROOT>/flow-typed
 
 [lints]
-all=warn
-; dynamic-export=off
-sketchy-null=error
-sketchy-number=error
-unclear-type=error
-unnecessary-optional-chain=error
-unnecessary-invariant=error
+all=error
+dynamic-export=off
+deprecated-utility=warn
 
 [options]
 suppress_comment= \\(.\\|\n\\)*\\$FlowIgnore

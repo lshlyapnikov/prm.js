@@ -11,6 +11,11 @@ Node v4.2.0 <TODO: ???>
 <browser> http://localhost:8080/
 ```
 
+# Build instructions
+> flow-typed update
+> yarn flow
+> yarn test
+
 # Running Tests
 - Request free Alphavantage API Key: https://www.alphavantage.co/support/#api-key
 - > cp ./.test-config.js.sample ./.test-config.js

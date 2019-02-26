@@ -1,5 +1,5 @@
-// flow-typed signature: ec33a864cb65e46e75e60ff405b816ec
-// flow-typed version: 1901e9cf8e/underscore_v1.x.x/flow_>=v0.75.x
+// flow-typed signature: 89f425e9865fc8cb574c4f9dbfb29c61
+// flow-typed version: f39a579ead/underscore_v1.x.x/flow_>=v0.75.x
 
 // @flow
 /* eslint-disable */
@@ -676,7 +676,7 @@ declare module "underscore" {
     isEqual(other: Array<T>): boolean;
   }
 
-  // Have to use a type with $call instead of function type because otherwise this will cause us to lose type
+  // Have to use a type with [[call]] instead of function type because otherwise this will cause us to lose type
   // information. see: https://github.com/facebook/flow/issues/3781
   declare type WrappedExports = {
     [[call]]:

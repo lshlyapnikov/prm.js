@@ -5,6 +5,7 @@ import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
 import { toArray, mergeMap } from 'rxjs/operators'
 import stream from "stream"
+// flowlint-next-line untyped-import:off
 import utils from "../server/utils.js"
 
 const log = utils.logger("DailyAdjusted")
