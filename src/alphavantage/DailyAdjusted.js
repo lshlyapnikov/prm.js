@@ -1,11 +1,10 @@
-// @flow
+// @flow strict
 import csv from "csv-parser"
 import fs from "fs"
 import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
 import { toArray, mergeMap } from 'rxjs/operators'
 import stream from "stream"
-// flowlint-next-line untyped-import:off
 import utils from "../server/utils.js"
 
 const log = utils.logger("DailyAdjusted")

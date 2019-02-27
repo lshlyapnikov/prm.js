@@ -1,10 +1,23 @@
+// @flow strict
 /* global describe, it */
 
-const utils = require("./utils")
-const assert = require("assert")
-const numeric = require("numeric")
+import utils from "./utils"
+import assert from "assert"
+import numeric from "numeric"
 
 describe("utils", function() {
+  describe("#toFixedNumber", () => {
+    it("should round up", () => {
+      assert.equal(12.35, utils.toFixedNumber(12.3456, 2))
+      assert.equal(1.235, utils.toFixedNumber(1.23456, 3))
+      assert.equal(1235, utils.toFixedNumber(1234.5678, 0))
+    })
+    it("should round down", () => {
+      assert.equal(12.3, utils.toFixedNumber(12.3456, 1))
+      assert.equal(1.23, utils.toFixedNumber(1.23456, 2))
+      assert.equal(123, utils.toFixedNumber(123.456, 0))
+    })
+  })
   describe("#generateRandomWeightsMatrix", function() {
     it("should generate a matrix of random weights", function() {
       // GIVEN
@@ -36,19 +49,17 @@ describe("utils", function() {
     it("should throw up when invalid arguments passed", function() {
       // GIVEN
       // Valid arguments: rowNum > 0 and colNum > 1
-      var invalidArguments = [
-        [undefined, undefined],
-        [undefined, 10],
-        [10, undefined],
+      const invalidArguments: Array<Array<number>> = [
         [0, 10],
         [-1, 10],
         [10, 0],
         [10, -1],
-        [10, 1]
+        [10, 1],
+        [0, 0],
       ]
 
-      function test(rowNum, colNum) {
-        var actualException
+      function test(rowNum: number, colNum: number): void {
+        var actualException: Error
         // WHEN
         try {
           utils.generateRandomWeightsMatrix(rowNum, colNum)
@@ -58,75 +69,11 @@ describe("utils", function() {
         // THEN
         var debugMsg = "rowNum: " + rowNum + ", colNum: " + colNum
         assert.notEqual(undefined, actualException, debugMsg)
-        assert.equal("Error", actualException.name, debugMsg)
       }
+
       for(var i = 0; i < invalidArguments.length; i++) {
         test(invalidArguments[i][0], invalidArguments[i][1])
       }
-    })
-  })
-  describe("#parseCsvStr", () => {
-    const csvStr = "Date,Open,High,Low,Close,Volume,Adj Close\n" +
-      "2010-01-25,39.965,41.57,39.115,41.225,5301000,33.403\n" +
-      "2010-01-18,41.75,42.93,40.13,40.465,4340200,32.787\n" +
-      "2010-01-11,44.285,44.435,41.375,41.565,4399300,33.678\n" +
-      "2010-01-04,43.46,44.85,43.35,44.02,2939200,35.667\n" +
-      "2009-12-28,44.07,44.14,43.37,43.46,1562400,35.214\n"
-
-    it("should return all fields", () => {
-      var matrix5x7 = utils.parseCsvStr(csvStr, ["Date", "Open", "High", "Low", "Close", "Volume", "Adj Close"],
-        [utils.noop, utils.noop, utils.noop, utils.noop, utils.noop, utils.noop, utils.noop])
-      assert.equal(5, matrix5x7.length)
-      assert.deepEqual(["2010-01-25","39.965","41.57","39.115","41.225","5301000","33.403"], matrix5x7[0])
-      assert.deepEqual(["2010-01-18", "41.75", "42.93", "40.13", "40.465", "4340200", "32.787"], matrix5x7[1])
-      assert.deepEqual(["2010-01-11", "44.285", "44.435", "41.375", "41.565", "4399300", "33.678"], matrix5x7[2])
-      assert.deepEqual(["2010-01-04", "43.46", "44.85", "43.35", "44.02", "2939200", "35.667"], matrix5x7[3])
-      assert.deepEqual(["2009-12-28", "44.07", "44.14", "43.37", "43.46", "1562400", "35.214"], matrix5x7[4])
-    })
-    it("should return only 'Date' and 'Adj Close' fields", () => {
-      var matrix5x7 = utils.parseCsvStr(csvStr, ["Date", "Adj Close"], [utils.noop, utils.noop])
-      assert.equal(5, matrix5x7.length)
-      assert.deepEqual(["2010-01-25", "33.403"], matrix5x7[0])
-      assert.deepEqual(["2010-01-18", "32.787"], matrix5x7[1])
-      assert.deepEqual(["2010-01-11", "33.678"], matrix5x7[2])
-      assert.deepEqual(["2010-01-04", "35.667"], matrix5x7[3])
-      assert.deepEqual(["2009-12-28", "35.214"], matrix5x7[4])
-    })
-    it("should return only 'Date' and 'Adj Close' fields converted to Date and Float", () => {
-      var matrix5x7 = utils.parseCsvStr(csvStr, ["Date", "Adj Close"], [utils.noop, utils.strToNumber])
-      assert.equal(5, matrix5x7.length)
-      assert.deepEqual(["2010-01-25", 33.403], matrix5x7[0])
-      assert.deepEqual(["2010-01-18", 32.787], matrix5x7[1])
-      assert.deepEqual(["2010-01-11", 33.678], matrix5x7[2])
-      assert.deepEqual(["2010-01-04", 35.667], matrix5x7[3])
-      assert.deepEqual(["2009-12-28", 35.214], matrix5x7[4])
-    })
-    it("should return only 'Adj Close' field converted to Float", () => {
-      var matrix5x7 = utils.parseCsvStr(csvStr, ["Adj Close"], [utils.strToNumber])
-      assert.equal(5, matrix5x7.length)
-      assert.deepEqual([33.403], matrix5x7[0])
-      assert.deepEqual([32.787], matrix5x7[1])
-      assert.deepEqual([33.678], matrix5x7[2])
-      assert.deepEqual([35.667], matrix5x7[3])
-      assert.deepEqual([35.214], matrix5x7[4])
-    })
-    it("should return empty matrix when CSV string contains only header", () => {
-      var emptyMatrix = utils.parseCsvStr("Date,Open,High,Low,Close,Volume,Adj Close\n", ["Adj Close"],
-        [utils.strToNumber])
-      assert.equal(0, emptyMatrix.length)
-    })
-    it("should return empty matrix when CSV string is empty", () => {
-      var emptyMatrix = utils.parseCsvStr("", ["Adj Close"], [utils.strToNumber])
-      assert.equal(0, emptyMatrix.length)
-    })
-    it("should throw an exception when fieldIndexes.length != fieldConverters.length", () => {
-      assert.throws(() => {
-        utils.parseCsvStr(csvStr, ["Adj Close"], [utils.noop, utils.noop])
-      }, "InvalidArgument: fieldNames.length != fieldConverters.length, 1 != 2")
-
-      assert.throws(() => {
-        utils.parseCsvStr(csvStr, ["Adj Close"], [])
-      }, "InvalidArgument: fieldNames.length != fieldConverters.length, 1 != 0")
     })
   })
 })

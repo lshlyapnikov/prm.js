@@ -1,10 +1,10 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
+// @flow strict
+import _ from "underscore"
+import log4js from 'log4js'
 
-var _ = require("underscore")
-var log4js = require('log4js')
-
-function updateArrayElements(arr, convertOneElement) {
+function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {
   if (!Array.isArray(arr)) {
     throw new Error("InvalidArgument: Array arr is either undefined or empty")
   }
@@ -13,13 +13,13 @@ function updateArrayElements(arr, convertOneElement) {
     throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument")
   }
 
-  var i
+  var i = 0
   for (i = 0; i < arr.length; i++) {
     arr[i] = convertOneElement(arr[i])
   }
 }
 
-function updateMatrixElements(matrix, convertOneElement) {
+function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: A => A): void {
   if (!Array.isArray(matrix)) {
     throw new Error("InvalidArgument:  matrix is either undefined or empty")
   }
@@ -28,12 +28,11 @@ function updateMatrixElements(matrix, convertOneElement) {
     throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument")
   }
 
-  var m = matrix.length
-  var n = matrix[0].length
+  const m = matrix.length
+  const n = matrix[0].length
 
-  var i, j
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
       matrix[i][j] = convertOneElement(matrix[i][j])
     }
   }
@@ -48,7 +47,7 @@ function updateMatrixElements(matrix, convertOneElement) {
  * @throws {Object} {name: "InvalidArgument", message: "description"}   when invalid argument passed.
  * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
-function generateRandomWeightsMatrix(rowNum, colNum) {
+function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
   if ("number" !== typeof rowNum || rowNum <= 0) {
     throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0")
   }
@@ -57,21 +56,18 @@ function generateRandomWeightsMatrix(rowNum, colNum) {
     throw new Error("Invalid argument colNum: " + colNum + ", must be > 1")
   }
 
-  var matrix = new Array(rowNum)
+  var matrix: Array<Array<number>> = new Array(rowNum)
 
-  var i, j
-  var vector
-  var sum
-  for (i = 0; i < rowNum; i++) {
-    vector = new Array(colNum)
-    sum = 0
+  for (let i = 0; i < rowNum; i++) {
+    const vector: Array<number> = new Array(colNum)
+    var sum: number = 0
     // generate random numbers
-    for (j = 0; j < colNum; j++) {
+    for (let j = 0; j < colNum; j++) {
       vector[j] = Math.random()
       sum += vector[j]
     }
     // normalize all numbers, so vector sum equals 1
-    for (j = 0; j < colNum; j++) {
+    for (let j = 0; j < colNum; j++) {
       vector[j] /= sum
     }
     matrix[i] = vector
@@ -80,100 +76,54 @@ function generateRandomWeightsMatrix(rowNum, colNum) {
   return matrix
 }
 
-function strToNumber(str) {
+function strToNumber(str: string): number {
   return Number(str)
 }
 
-function noop(str) {
+function noop(str: string): string {
   return str
 }
 
-exports.setMatrixElementsScale = function (matrix, scale) {
-  updateMatrixElements(matrix, function (num) {
-    return num.toFixed(scale)
-  })
+function toFixedNumber (num: number, fractionDigits: number): number {
+  const multiplier = Math.pow(10, fractionDigits)
+  return Math.round(num * multiplier) / multiplier
+}
+
+exports.toFixedNumber = toFixedNumber
+
+function setMatrixElementsScale(matrix: Array<Array<number>>, scale: number): Array<Array<number>> {
+  updateMatrixElements(matrix, (num: number) => toFixedNumber(num, scale))
   return matrix
 }
 
-exports.setArrayElementsScale = function (arr, scale) {
-  updateArrayElements(arr, function (num) {
-    return num.toFixed(scale)
-  })
+exports.setMatrixElementsScale = setMatrixElementsScale
+
+exports.setArrayElementsScale = function (arr: Array<number>, scale: number) {
+  updateArrayElements(arr, (num: number) =>  toFixedNumber(num, scale))
   return arr
 }
 
-exports.newArrayWithScale = function (arr, scale) {
+exports.newArrayWithScale = function (arr: Array<number>, scale: number): Array<number> {
   if (!Array.isArray(arr)) {
     throw new Error("InvalidArgument: arr must be a non-empty array object")
   }
 
-  var n = arr.length
-  var result = new Array(n)
+  var n: number = arr.length
+  var result: Array<number> = new Array(n)
 
-  var i
-  for (i = 0; i < n; i++) {
-    result[i] = arr[i].toFixed(scale);
+  for (let i = 0; i < n; i++) {
+    result[i] = toFixedNumber(arr[i], scale)
   }
 
   return result
 }
 
-function getFieldIndexes(csvHeader, fields) {
-  var headerFields = csvHeader.split(",")
-  var i = 0
-  var result = _(headerFields).reduce((acc, field) => {
-    if (_(fields).contains(field)) {
-      acc.push(i)
-    }
-    i++
-    return acc
-  }, [])
-
-  if (result.length !== fields.length) {
-    throw new Error("InvalidState: csvHeader: '" + csvHeader +
-    "' does not contain some of the requested fields: " + fields)
-  } else {
-    return result
-  }
-}
-
-function parseLineAndKeepFieldsWithIndexes(line, fieldIndexes, fieldConverters) {
-  const values = line.split(",")
-  const result = []
-  for (var i = 0; i < fieldIndexes.length; i++) {
-    var fieldIndex = fieldIndexes[i]
-    var fieldConverter = fieldConverters[i]
-    var value = values[fieldIndex].trim()
-    result.push(fieldConverter(value))
-  }
-  return result
-}
-
-exports.parseCsvStr = function parseCsvStr(csvStr, fieldNames, fieldConverters) {
-  if (fieldNames.length !== fieldConverters.length) {
-    throw new Error(`InvalidArgument: fieldNames.length: ${fieldNames.length} != fieldConverters.length: ${fieldConverters.length}`)
-  }
-
-  var lines = csvStr.split("\n").filter(line => !_.isEmpty(line))
-  if (_.isEmpty(lines)) {
-    return []
-  } else {
-    var fieldIndexes = getFieldIndexes(lines[0], fieldNames)
-    var valueLines = lines.slice(1)
-    return _(valueLines).map(line => {
-      return parseLineAndKeepFieldsWithIndexes(line, fieldIndexes, fieldConverters)
-    })
-  }
-}
-
-exports.logger = function (category) {
+exports.logger = function (category: string) {
   var logger = log4js.getLogger(category)
   // logger.setLevel(log4js.levels.INFO)
   return logger
 }
 
-exports.updateArrayElements = updateArrayElements
-exports.updateMatrixElements = updateMatrixElements
 exports.generateRandomWeightsMatrix = generateRandomWeightsMatrix
 exports.strToNumber = strToNumber
 exports.noop = noop
