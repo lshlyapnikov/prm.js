@@ -41,7 +41,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "test-all": "flow; react-scripts test --env=jsdom --all --no-watch"
   },
   "devDependencies": {
     "flow-bin": "^0.93.0",
