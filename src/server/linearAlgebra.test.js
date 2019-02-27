@@ -1,3 +1,4 @@
+// @flow strict
 /* global describe, it */
 
 import la from "./linearAlgebra"
@@ -31,9 +32,6 @@ describe("linearAlgebra", () => {
         [1, 2, 3]
       ])
       assert.deepEqual(actual, [1, 3])
-    })
-    it("should throw an exception when vector passed", () => {
-      assert.throws(() => la.dim([1, 2, 3]))
     })
   })
   describe("#rowMatrix", () => {
@@ -146,20 +144,9 @@ describe("linearAlgebra", () => {
     })
     it("should throw exception when argument 2x1 and 2x1", () => {
       assert.throws(() => {
-        la.multiplyMatrices([1, 2], [2, 1])
+        la.multiplyMatrices([[1, 2]], [[2, 1]])
       },
         Error)
-    })
-    it("should throw exception when argument 1x2 and 2x1", () => {
-      assert.throws(() => {
-        la.multiplyMatrices(la.transpose([1, 2]), [2, 1])
-      },
-        Error)
-    })
-    it("should throw exception when argument 2x1 and 1x2", () => {
-      assert.throws(() => {
-        la.multiplyMatrices([1, 2], la.transpose([2, 1]))
-      }, Error)
     })
   })
   describe("#multiplyVectors", () => {
@@ -168,20 +155,6 @@ describe("linearAlgebra", () => {
     })
     it("should multiply two vectors and return zero vector", () => {
       assert.equal(la.multiplyVectors([1, 2], [0, 0]), 0)
-    })
-    it("should throw exception 1st argument is not vector", () => {
-      assert.throws(() => {
-        la.multiplyVectors(la.columnMatrix([1, 2]), [2, 1])
-      },
-        /InvalidArgument: 1st argument has to be a vector/)
-
-    })
-    it("should throw exception 2nd argument is not vector", () => {
-      assert.throws(() => {
-        la.multiplyVectors([1, 2], la.rowMatrix([2, 1]))
-      },
-        /InvalidArgument: 2nd argument has to be a vector/)
-
     })
     it("should throw exception when arguments have different dimensions", () => {
       assert.throws(() => {
@@ -202,9 +175,6 @@ describe("linearAlgebra", () => {
         [1, 2, 3]
       ];
       la.validateMatrix(matrix)
-    })
-    it("undefined should fail validation", () => {
-      assert.throws(() => la.validateMatrix(undefined), Error)
     })
     it("matrix should fail validation when a row contains number of elements less than expected", () => {
       var matrix = [

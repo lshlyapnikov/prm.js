@@ -1,26 +1,27 @@
-var linearAlgebra = require("./linearAlgebra");
-var utils = require("./utils");
-var assert = require("assert");
-var _ = require("underscore")
+// @flow strict
+import { type Matrix, validateMatrix, copyMatrix } from "./linearAlgebra"
+import utils from "./utils"
+import assert from "assert"
+import _ from "underscore"
 
-exports.equal = function(actualMatrix, expectedMatrix, scale) {
-  linearAlgebra.validateMatrix(actualMatrix);
-  linearAlgebra.validateMatrix(expectedMatrix);
+exports.equal = function (actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+  validateMatrix(actualMatrix);
+  validateMatrix(expectedMatrix);
   if (_.isUndefined(scale)) {
     throw new Error("InvalidArgument: scale is not defined");
   }
   assert.deepEqual(
-    utils.setMatrixElementsScale(linearAlgebra.copyMatrix(actualMatrix), scale),
-    utils.setMatrixElementsScale(linearAlgebra.copyMatrix(expectedMatrix), scale));
+    utils.setMatrixElementsScale(copyMatrix(actualMatrix), scale),
+    utils.setMatrixElementsScale(copyMatrix(expectedMatrix), scale));
 };
 
-exports.notEqual = function(actualMatrix, expectedMatrix, scale) {
-  linearAlgebra.validateMatrix(actualMatrix);
-  linearAlgebra.validateMatrix(expectedMatrix);
+exports.notEqual = function (actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+  validateMatrix(actualMatrix);
+  validateMatrix(expectedMatrix);
   if (_.isUndefined(scale)) {
     throw new Error("InvalidArgument: scale is not defined");
   }
   assert.notDeepEqual(
-    utils.setMatrixElementsScale(linearAlgebra.copyMatrix(actualMatrix), scale),
-    utils.setMatrixElementsScale(linearAlgebra.copyMatrix(expectedMatrix), scale));
+    utils.setMatrixElementsScale(copyMatrix(actualMatrix), scale),
+    utils.setMatrixElementsScale(copyMatrix(expectedMatrix), scale));
 };
