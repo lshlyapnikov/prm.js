@@ -13,8 +13,7 @@ Node v4.2.0 <TODO: ???>
 
 # Build instructions
 > flow-typed update
-> yarn flow
-> yarn test
+> yarn flow; yarn test --no-watch
 
 # Running Tests
 - Request free Alphavantage API Key: https://www.alphavantage.co/support/#api-key

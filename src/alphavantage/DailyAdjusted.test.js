@@ -13,8 +13,10 @@ import {
   AscendingDates,
   DescendingDates
 } from "./DailyAdjusted"
-// $FlowIgnore
-import { alphavantage } from "../../.test-config.js"
+import { alphavantage } from "../../test-config.js"
+import utils from "../server/utils"
+
+const log = utils.logger("DailyAdjusted.test.js")
 
 function doneOnFailure(assertStatement, doneFn) {
   try {
@@ -72,7 +74,7 @@ describe("DailyAdjusted", () => {
   })
 
   it("should parse and return adjusted closing prices requested from alphavantage", (done) => {
-    console.log(`apiKey: ${alphavantage.apiKey}`)
+    log.info(`apiKey: ${alphavantage.apiKey}`)
     const observable = dailyAdjustedStockPrices(alphavantage.apiKey, "MSFT", new Date("2018-08-20"),
       new Date("2018-08-22"), AscendingDates).pipe(
         toArray()).subscribe(

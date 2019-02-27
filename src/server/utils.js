@@ -118,9 +118,9 @@ exports.newArrayWithScale = function (arr: Array<number>, scale: number): Array<
   return result
 }
 
-exports.logger = function (category: string) {
-  var logger = log4js.getLogger(category)
-  // logger.setLevel(log4js.levels.INFO)
+exports.logger = function (category: string): log4js.Logger {
+  const logger: log4js.Logger = log4js.getLogger(category)
+  logger.level = log4js.levels.INFO
   return logger
 }
 
