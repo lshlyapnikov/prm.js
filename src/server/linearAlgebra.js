@@ -22,10 +22,10 @@ function dim(matrixMxN: Matrix<number>): [number, number] {
 }
 
 function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
-  if (!_.isNumber(m) || m <= 0) {
+  if (m <= 0) {
     throw new Error("InvalidArgument: invalid m: " + m)
   }
-  if (!_.isNumber(n) || n <= 0) {
+  if (n <= 0) {
     throw new Error("InvalidArgument: invalid n: " + n)
   }
 
@@ -47,9 +47,6 @@ function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
 }
 
 function rowMatrix(vector: Array<number>): Matrix<number> {
-  if (!_.isArray(vector)) {
-    throw new Error("InvalidArgument: argument vector has to be an Array")
-  }
   return [vector]
 }
 
@@ -75,14 +72,6 @@ function transpose(matrixMxN: Matrix<number>): Matrix<number> {
 
 // TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
 function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<number> {
-  if (_.isUndefined(mXn)) {
-    throw new Error("InvalidArgument: Argument mXn is undefined")
-  }
-
-  if (_.isUndefined(nXm)) {
-    throw new Error("InvalidArgument: Argument nXm is undefined")
-  }
-
   var dim0: [number, number] = dim(mXn)
   var dim1: [number, number] = dim(nXm)
 
@@ -97,12 +86,6 @@ function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<numb
 function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
   var d0: number = v0.length
   var d1: number = v1.length
-  if (_.isArray(v0[0])) {
-    throw new Error("InvalidArgument: 1st argument has to be a vector")
-  }
-  if (_.isArray(v1[0])) {
-    throw new Error("InvalidArgument: 2nd argument has to be a vector")
-  }
   if (d0 !== d1) {
     throw new Error("InvalidArgument: vectors have different dimensions: " + d0 + " and " + d1)
   }
