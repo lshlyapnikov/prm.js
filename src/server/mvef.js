@@ -6,33 +6,7 @@
 const utils = require("./utils")
 const linearAlgebra = require("./linearAlgebra")
 const portfolioStats = require("./portfolioStats")
-const yahooFinanceApi = require("./../yahoo/yahooFinanceApi")
 const Q = require("q")
-
-/**
- * Generates portfolio MVEF for the specified symbols, using
- * Yahoo Finance API as a historical prices provider.
- *
- * @param {Array} symbols   The stock symbols you are interested in,
- *                          1st parameter in loadStockHistoryAsObject()
- * @param {Date} fromDate   Specifies the start of the interval, inclusive,
- *                          2nd parameter in loadStockHistoryAsObject()
- * @param {Date} toDate     Specifies the end of the interval, inclusive,
- *                          3rd parameter in loadStockHistoryAsObject()
- * @param {String} interval   Where: 'd' - Daily, 'w' - Weekly, 'm' - Monthly,
- *                               4th parameter in loadStockHistoryAsObject()
- * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
- *                                         to generate MVEF.
- * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
- */
-function mvefYahooFinanceApi(symbols, fromDate, toDate, interval, numberOfRandomWeights) {
-  function loadHistoricalPricesFromYahoo(symbol) {
-    return yahooFinanceApi.loadStockHistory(symbol, fromDate, toDate, interval,
-      ["Adj Close"], [utils.strToNumber])
-  }
-
-  return mvef(loadHistoricalPricesFromYahoo, symbols, numberOfRandomWeights)
-}
 
 /**
  * Generates portfolio MVEF for the specified symbols, using
@@ -167,7 +141,6 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
   return result
 }
 
-exports.mvefYahooFinanceApi = mvefYahooFinanceApi
 exports.mvef = mvef
 exports.mvefFromHistoricalPrices = mvefFromHistoricalPrices
 exports.mvefFromHistoricalReturnRates = mvefFromHistoricalReturnRates
