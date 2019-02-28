@@ -1,13 +1,13 @@
 // @flow strict
 /* global describe, it */
 
-const pStats = require("./portfolioStats");
-const utils = require("./utils");
-const la = require("./linearAlgebra");
-const matrixAssert = require("./matrixAssert");
-const testData = require("./testData");
-const assert = require("assert");
-const numeric = require("numeric");
+import * as assert from "assert"
+import * as pStats from "./portfolioStats"
+import * as utils from "./utils"
+import * as la from "./linearAlgebra"
+import { assertEqualMatrices } from "./matrixAssert"
+import * as testData from "./testData"
+import { dim } from "./linearAlgebra"
 
 const priceMatrixMxN = la.transpose([testData.NYX, testData.INTC]);
 
@@ -25,7 +25,7 @@ describe("pStats", () => {
     });
     it("[2] should calculate mean", () => {
       var actualMean = pStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
-      assert.equal(397.79303, actualMean.toFixed(5));
+      assert.equal(actualMean.toFixed(5), 397.79303);
     });
     it("[4] should throw up when array is empty", () => {
       var caught;
@@ -54,7 +54,7 @@ describe("pStats", () => {
         [3, 30, 300],
         [4, 40, 400]
       ]);
-      assert.deepEqual(expectedMean, actualMean);
+      assert.deepEqual(actualMean, expectedMean);
     });
     it("should calculate vector mean values using test data", () => {
       var expectedMeanReturnRatesMatrix = [
@@ -63,56 +63,55 @@ describe("pStats", () => {
       ];
       var returnRatesMatrix = pStats.calculateReturnRatesFromPriceMatrix(priceMatrixMxN);
       var meanReturnRatesMatrix = pStats.mean(returnRatesMatrix);
-      matrixAssert.equal(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 5);
+      assertEqualMatrices(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 5);
     });
   });
   describe("#variance()", () => {
     var arr = [-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234];
     it("[1] should calculate sample variance", () => {
       var actual = pStats.variance(arr, false);
-      assert.equal(248102.91444, actual.toFixed(5));
+      assert.equal(actual.toFixed(5), 248102.91444);
     });
     it("[2] should calculate sample variance", () => {
       var actual = pStats.variance([1, 2, 3], false);
-      assert.equal(1, actual);
+      assert.equal(actual, 1);
     });
     it("[3] should calculate population variance", () => {
       var actual = pStats.variance(arr, true);
-      assert(220535.92394, actual.toFixed(5));
+      assert.equal(actual.toFixed(5), 220535.92394);
     });
     it("[4] should calculate population variance", () => {
       var actual = pStats.variance([1, 2, 3], true);
-      assert.equal(0.6666667, actual.toFixed(7));
+      assert.equal(actual.toFixed(7), 0.6666667);
     });
   });
   describe("#covariance()", () => {
     it("[1] should calculate sample covariance", () => {
       // GIVEN
-      var m = [
+      const m = [
         [1, 2, 3],
         [40, 50, 60],
         [7, 8, 9],
         [10, 11, 12],
         [13, 14, 15]
       ];
-      var expected = [
+      const expected = [
         [227.70, 285.75, 343.80],
         [285.75, 360.00, 434.25],
         [343.80, 434.25, 524.70]
       ];
 
       // WHEN
-      var actual = pStats.covariance(m);
+      const actual = pStats.covariance(m);
 
       // THEN
-      var rowNum = numeric.dim(actual)[0];
-      var colNum = numeric.dim(actual)[1];
-      for(var i = 0; i < rowNum; i++) {
-        for(var j = 0; j < colNum; j++) {
+      const [rowNum, colNum]  = dim(actual)
+      for(let i = 0; i < rowNum; i++) {
+        for(let j = 0; j < colNum; j++) {
           actual[i][j] = utils.toFixedNumber(actual[i][j], 2)
         }
       }
-      assert.deepEqual(expected, actual);
+      assert.deepStrictEqual(actual, expected);
     });
     it("[2] should calculate sample covariance", () => {
       // GIVEN
@@ -141,7 +140,7 @@ describe("pStats", () => {
 
       // THEN
 
-      matrixAssert.equal(actual, expected, 5);
+      assertEqualMatrices(actual, expected, 5);
     });
     it("[3] should calculate sample covariance using testData", () => {
       // GIVEN
@@ -155,7 +154,7 @@ describe("pStats", () => {
       // THEN
       assert.deepEqual(la.dim(actual), [2, 2]);
       assert.equal(actual[0].length, 2);
-      matrixAssert.equal(expected, actual, 5);
+      assertEqualMatrices(expected, actual, 5);
     });
   });
   describe("#calculateReturnRatesFromPrices()", () => {
@@ -199,7 +198,7 @@ describe("pStats", () => {
       var actual = pStats.calculateReturnRatesFromPriceMatrix(priceMatrix);
 
       // THEN
-      matrixAssert.equal(expected, actual, 5);
+      assertEqualMatrices(expected, actual, 5);
       assert.equal(actual.length, priceMatrix.length - 1);
     });
     it("[2] should throw up if not enough data points to calculate return rate", () => {

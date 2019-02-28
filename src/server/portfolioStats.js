@@ -2,36 +2,32 @@
 /// LGPL Licencsed
 // @flow strict
 import { type Matrix, matrix, multiplyMatrices, dim, validateMatrix, transpose } from "./linearAlgebra"
-import _ from "underscore"
 
-export function PortfolioStats() {
-  return {
-    weights /** {number[]} */: NaN,
-    stdDev /** {number} */: NaN,
-    expectedReturnRate /** {number} */: NaN
+export class PortfolioStats {
+  constructor(weights: Array<number>, stdDev: number, expectedReturnRate: number) {
+    this.weights = weights
+    this.stdDev = stdDev
+    this.expectedReturnRate = expectedReturnRate
   }
+  weights: Array<number>
+  stdDev: number
+  expectedReturnRate: number
 }
 
 export function createPortfolioStats(weightsN: Array<number>, meanRrNx1: Matrix<number>,
-  rrCovarianceNxN: Matrix<number>) {
-  var portfolio = Object.create(PortfolioStats)
+  rrCovarianceNxN: Matrix<number>): PortfolioStats {
+  const weights1xN: Matrix<number> = [weightsN]
+  const expectedRr1x1: Matrix<number> = multiplyMatrices(weights1xN, meanRrNx1)
+  const stdDev: number = portfolioStdDev(weights1xN, rrCovarianceNxN)
 
-  portfolio.weights = weightsN
-
-  var weights1xN = [weightsN]
-  var expectedRr1x1 = multiplyMatrices(weights1xN, meanRrNx1)
-  portfolio.expectedReturnRate = expectedRr1x1[0][0]
-
-  portfolio.stdDev = portfolioStdDev(weights1xN, rrCovarianceNxN)
-
-  return portfolio
+  return new PortfolioStats(weightsN, stdDev, expectedRr1x1[0][0])
 }
 
 export function meanValue(arr: Array<number>): number {
   if (0 === arr.length) {
     throw new Error("InvalidArgument: Array arr is empty")
   }
-  const sum: number = _.reduce(arr, (memo, num) => memo + num)
+  const sum: number = arr.reduce((acc, a) => acc + a, 0)
   return sum / arr.length
 }
 
@@ -74,7 +70,7 @@ export function mean(valuesMxN: Matrix<number>): Matrix<number> {
  * @param {Array} arr   Population or sample.
  * @param {bool} isPopulation   Optional parameter. If true, isPopulation variance returned, else sample variance.
  */
-export function variance(arr: Array<number>, isPopulation: ?boolean) {
+export function variance(arr: Array<number>, isPopulation: ?boolean): number {
   const mu: number = meanValue(arr)
   const length: number = arr.length
   const sum: number = arr.reduce((acc: number, a: number) => acc + Math.pow(a - mu, 2), 0)
@@ -85,14 +81,10 @@ export function variance(arr: Array<number>, isPopulation: ?boolean) {
   }
 }
 
-export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean) {
+export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean): Matrix<number> {
   validateMatrix(valuesMxN)
 
   const [rowNum, colNum] = dim(valuesMxN)
-
-  if (!_.isNumber(rowNum) || !_.isNumber(colNum)) {
-    throw new Error("InvalidArgument: covariance(maxtrix, isPopulation) -- 1st argument must be a matrix")
-  }
 
   // create an empty result matrix (colNum x colNum)
   const result: Matrix<number> = matrix(colNum, colNum, 0)
@@ -180,8 +172,8 @@ export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matri
   return result
 }
 
-export function loadPriceMatrix(loadHistoricalPricesFn: string => Array<number>, symbols: Array<string>) {
-  if (!_.isArray(symbols) || 0 === symbols.length) {
+export function loadPriceMatrix(loadHistoricalPricesFn: string => Array<number>, symbols: Array<string>): Matrix<number> {
+  if ( 0 === symbols.length) {
     throw new Error("InvalidArgument: symbols array is empty")
   }
   const n = symbols.length

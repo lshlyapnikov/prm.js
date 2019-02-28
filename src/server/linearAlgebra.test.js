@@ -5,7 +5,7 @@ import {
   dim, rowMatrix, columnMatrix, transpose, multiplyMatrices, multiplyVectors, inverseMatrix, copyMatrix,
   validateMatrix
 } from "./linearAlgebra"
-import matrixAssert from "./matrixAssert"
+import { assertEqualMatrices, assertNotEqualMatrices } from "./matrixAssert"
 import assert from "assert"
 import { setMatrixElementsScale } from "./utils"
 
@@ -201,7 +201,7 @@ describe("linearAlgebra", () => {
         [4.4, 5.5, 6.6]
       ];
       var matrixCopy = copyMatrix(matrix)
-      matrixAssert.equal(matrixCopy, matrix, 4)
+      assertEqualMatrices(matrixCopy, matrix, 4)
     })
     it("should create a deep copy of the original matrix", () => {
       var matrix = [
@@ -210,7 +210,7 @@ describe("linearAlgebra", () => {
       ];
       var matrixCopy = copyMatrix(matrix)
       matrixCopy[0][0] = -1.1;
-      matrixAssert.notEqual(matrixCopy, matrix, 4)
+      assertNotEqualMatrices(matrixCopy, matrix, 4)
       assert.equal(matrix[0][0], 1.1)
     })
   })
@@ -227,7 +227,7 @@ describe("linearAlgebra", () => {
         [-1, 1, 0],
         [-1, 0, 1]
       ];
-      matrixAssert.equal(actual, expected, 4)
+      assertEqualMatrices(actual, expected, 4)
     })
   })
 })

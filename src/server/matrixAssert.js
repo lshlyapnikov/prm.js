@@ -4,24 +4,24 @@ import { setMatrixElementsScale } from "./utils"
 import assert from "assert"
 import _ from "underscore"
 
-exports.equal = function (actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
-  validateMatrix(actualMatrix);
-  validateMatrix(expectedMatrix);
+export function assertEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+  validateMatrix(actualMatrix)
+  validateMatrix(expectedMatrix)
   if (_.isUndefined(scale)) {
-    throw new Error("InvalidArgument: scale is not defined");
+    throw new Error("InvalidArgument: scale is not defined")
   }
   assert.deepEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale));
-};
+    setMatrixElementsScale(copyMatrix(expectedMatrix), scale))
+}
 
-exports.notEqual = function (actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
-  validateMatrix(actualMatrix);
-  validateMatrix(expectedMatrix);
+export function assertNotEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+  validateMatrix(actualMatrix)
+  validateMatrix(expectedMatrix)
   if (_.isUndefined(scale)) {
-    throw new Error("InvalidArgument: scale is not defined");
+    throw new Error("InvalidArgument: scale is not defined")
   }
   assert.notDeepEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale));
-};
+    setMatrixElementsScale(copyMatrix(expectedMatrix), scale))
+}
