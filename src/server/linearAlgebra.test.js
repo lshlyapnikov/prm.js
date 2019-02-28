@@ -1,4 +1,4 @@
-// @flow strict
+
 /* global describe, it */
 
 import la from "./linearAlgebra"

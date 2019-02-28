@@ -1,3 +1,4 @@
+// @flow strict
 /* global describe, it */
 
 const pStats = require("./portfolioStats");
@@ -26,16 +27,6 @@ describe("pStats", () => {
       var actualMean = pStats.meanValue([-123.456, -234.567, -345.789, 456.789, 567.890, 678.901, 789.0123, 890.123, 901.234]);
       assert.equal(397.79303, actualMean.toFixed(5));
     });
-    it("[3] should throw up when array is undefined", () => {
-      var caught;
-      try {
-        pStats.meanValue(undefined);
-      } catch(e) {
-        caught = e;
-      }
-      assert.equal(true, caught !== undefined);
-      assert.equal("Error", caught.name);
-    });
     it("[4] should throw up when array is empty", () => {
       var caught;
       try {
@@ -44,7 +35,6 @@ describe("pStats", () => {
         caught = e;
       }
       assert.equal(true, caught !== undefined);
-      assert.equal("Error", caught.name);
     });
     it("[5] should calcualte mean value", () => {
       var actual = pStats.meanValue(testData.NYX);
@@ -119,7 +109,7 @@ describe("pStats", () => {
       var colNum = numeric.dim(actual)[1];
       for(var i = 0; i < rowNum; i++) {
         for(var j = 0; j < colNum; j++) {
-          actual[i][j] = actual[i][j].toFixed(2);
+          actual[i][j] = utils.toFixedNumber(actual[i][j], 2)
         }
       }
       assert.deepEqual(expected, actual);
@@ -226,7 +216,6 @@ describe("pStats", () => {
       }
       // THEN
       assert.notEqual(actual, undefined);
-      assert.equal("Error", actual.name);
     });
   });
   describe("#portfolioStdDev()", () => {

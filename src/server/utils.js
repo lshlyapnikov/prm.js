@@ -47,7 +47,7 @@ function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: A =
  * @throws {Object} {name: "InvalidArgument", message: "description"}   when invalid argument passed.
  * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
-function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
+export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
   if ("number" !== typeof rowNum || rowNum <= 0) {
     throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0")
   }
@@ -76,34 +76,30 @@ function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Arra
   return matrix
 }
 
-function strToNumber(str: string): number {
+export function strToNumber(str: string): number {
   return Number(str)
 }
 
-function noop(str: string): string {
+export function noop(str: string): string {
   return str
 }
 
-function toFixedNumber (num: number, fractionDigits: number): number {
+export function toFixedNumber (num: number, fractionDigits: number): number {
   const multiplier = Math.pow(10, fractionDigits)
   return Math.round(num * multiplier) / multiplier
 }
 
-exports.toFixedNumber = toFixedNumber
-
-function setMatrixElementsScale(matrix: Array<Array<number>>, scale: number): Array<Array<number>> {
+export function setMatrixElementsScale(matrix: Array<Array<number>>, scale: number): Array<Array<number>> {
   updateMatrixElements(matrix, (num: number) => toFixedNumber(num, scale))
   return matrix
 }
 
-exports.setMatrixElementsScale = setMatrixElementsScale
-
-exports.setArrayElementsScale = function (arr: Array<number>, scale: number) {
+export function setArrayElementsScale(arr: Array<number>, scale: number) {
   updateArrayElements(arr, (num: number) =>  toFixedNumber(num, scale))
   return arr
 }
 
-exports.newArrayWithScale = function (arr: Array<number>, scale: number): Array<number> {
+export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
   if (!Array.isArray(arr)) {
     throw new Error("InvalidArgument: arr must be a non-empty array object")
   }
@@ -118,12 +114,8 @@ exports.newArrayWithScale = function (arr: Array<number>, scale: number): Array<
   return result
 }
 
-exports.logger = function (category: string): log4js.Logger {
+export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
   logger.level = log4js.levels.INFO
   return logger
 }
-
-exports.generateRandomWeightsMatrix = generateRandomWeightsMatrix
-exports.strToNumber = strToNumber
-exports.noop = noop

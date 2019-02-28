@@ -1,21 +1,21 @@
 // @flow strict
 /* global describe, it */
 
-import utils from "./utils"
+import { toFixedNumber, generateRandomWeightsMatrix } from "./utils"
 import assert from "assert"
 import numeric from "numeric"
 
 describe("utils", function() {
   describe("#toFixedNumber", () => {
     it("should round up", () => {
-      assert.equal(12.35, utils.toFixedNumber(12.3456, 2))
-      assert.equal(1.235, utils.toFixedNumber(1.23456, 3))
-      assert.equal(1235, utils.toFixedNumber(1234.5678, 0))
+      assert.equal(12.35, toFixedNumber(12.3456, 2))
+      assert.equal(1.235, toFixedNumber(1.23456, 3))
+      assert.equal(1235, toFixedNumber(1234.5678, 0))
     })
     it("should round down", () => {
-      assert.equal(12.3, utils.toFixedNumber(12.3456, 1))
-      assert.equal(1.23, utils.toFixedNumber(1.23456, 2))
-      assert.equal(123, utils.toFixedNumber(123.456, 0))
+      assert.equal(12.3, toFixedNumber(12.3456, 1))
+      assert.equal(1.23, toFixedNumber(1.23456, 2))
+      assert.equal(123, toFixedNumber(123.456, 0))
     })
   })
   describe("#generateRandomWeightsMatrix", function() {
@@ -24,7 +24,7 @@ describe("utils", function() {
       var rowNum = 30
       var colNum = 10
       // WHEN
-      var weights = utils.generateRandomWeightsMatrix(rowNum, colNum)
+      var weights = generateRandomWeightsMatrix(rowNum, colNum)
       // THEN
       var sum = numeric.sum(weights)
       assert.equal(rowNum, sum)
@@ -34,8 +34,8 @@ describe("utils", function() {
       var rowNum = 30
       var colNum = 10
       // WHEN
-      var weights0 = utils.generateRandomWeightsMatrix(rowNum, colNum)
-      var weights1 = utils.generateRandomWeightsMatrix(rowNum, colNum)
+      var weights0 = generateRandomWeightsMatrix(rowNum, colNum)
+      var weights1 = generateRandomWeightsMatrix(rowNum, colNum)
       // THEN
       var sum0 = numeric.sum(weights0)
       var sum1 = numeric.sum(weights1)
@@ -62,7 +62,7 @@ describe("utils", function() {
         var actualException: Error
         // WHEN
         try {
-          utils.generateRandomWeightsMatrix(rowNum, colNum)
+          generateRandomWeightsMatrix(rowNum, colNum)
         } catch(e) {
           actualException = e
         }

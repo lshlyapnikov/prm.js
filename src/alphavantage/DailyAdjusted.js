@@ -5,9 +5,9 @@ import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
 import { toArray, mergeMap } from 'rxjs/operators'
 import stream from "stream"
-import utils from "../server/utils.js"
+import { logger } from "../server/utils.js"
 
-const log = utils.logger("DailyAdjusted")
+const log = logger("DailyAdjusted")
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 

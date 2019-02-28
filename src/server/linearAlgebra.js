@@ -11,7 +11,7 @@ import _ from "underscore"
 
 export type Matrix<T> = Array<Array<T>>
 
-function dim(matrixMxN: Matrix<number>): [number, number] {
+export function dim(matrixMxN: Matrix<number>): [number, number] {
   var m = matrixMxN.length
   var n = matrixMxN[0].length
   if (!_.isNumber(n)) {
@@ -21,7 +21,7 @@ function dim(matrixMxN: Matrix<number>): [number, number] {
   return [m, n]
 }
 
-function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
+export function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
   if (m <= 0) {
     throw new Error("InvalidArgument: invalid m: " + m)
   }
@@ -46,16 +46,16 @@ function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
   return result
 }
 
-function rowMatrix(vector: Array<number>): Matrix<number> {
+export function rowMatrix(vector: Array<number>): Matrix<number> {
   return [vector]
 }
 
-function columnMatrix(vector: Array<number>): Matrix<number> {
+export function columnMatrix(vector: Array<number>): Matrix<number> {
   return transpose(rowMatrix(vector))
 }
 
 // TODO(lshlyapnikov) will be slow, C++ Node plugin???
-function transpose(matrixMxN: Matrix<number>): Matrix<number> {
+export function transpose(matrixMxN: Matrix<number>): Matrix<number> {
   var dimensions = dim(matrixMxN)
   var m = dimensions[0]
   var n = dimensions[1]
@@ -71,7 +71,7 @@ function transpose(matrixMxN: Matrix<number>): Matrix<number> {
 }
 
 // TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
-function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<number> {
+export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<number> {
   var dim0: [number, number] = dim(mXn)
   var dim1: [number, number] = dim(nXm)
 
@@ -83,7 +83,7 @@ function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<numb
   return numeric.dot(mXn, nXm)
 }
 
-function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
+export function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
   var d0: number = v0.length
   var d1: number = v1.length
   if (d0 !== d1) {
@@ -92,15 +92,11 @@ function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
   return numeric.dotVV(v0, v1)
 }
 
-function validateMatrix(mXn: Matrix<number>): void {
-  var mn: [number, number] = dim(mXn)
-  var m = mn[0]
-  var n = mn[1]
-
+export function validateMatrix(mXn: Matrix<number>): void {
+  const [m, n] = dim(mXn)
   if (m === 0) {
     throw new Error("InvalidArgument: matrix has 0 rows")
   }
-
   if (n === 0) {
     throw new Error("InvalidArgument: matrix has 0 columns")
   }
@@ -113,7 +109,7 @@ function validateMatrix(mXn: Matrix<number>): void {
   }
 }
 
-exports.copyMatrix = function (mXn: Matrix<number>): Matrix<number> {
+export function copyMatrix(mXn: Matrix<number>): Matrix<number> {
   validateMatrix(mXn)
   var mn: [number, number] = dim(mXn)
   var m = mn[0]
@@ -129,7 +125,7 @@ exports.copyMatrix = function (mXn: Matrix<number>): Matrix<number> {
   return result
 }
 
-exports.copyMatrixInto = function (mXn: Matrix<number>, outputMatrix: Matrix<number>) {
+export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>) {
   validateMatrix(mXn)
   var mn = dim(mXn)
   var m = mn[0]
@@ -144,15 +140,6 @@ exports.copyMatrixInto = function (mXn: Matrix<number>, outputMatrix: Matrix<num
   return outputMatrix
 }
 
-exports.inverseMatrix = function (mXn: Matrix<number>): Matrix<number> {
+export function inverseMatrix(mXn: Matrix<number>): Matrix<number> {
   return numeric.inv(mXn)
 }
-
-exports.dim = dim
-exports.matrix = matrix
-exports.rowMatrix = rowMatrix
-exports.columnMatrix = columnMatrix
-exports.transpose = transpose
-exports.multiplyMatrices = multiplyMatrices
-exports.multiplyVectors = multiplyVectors
-exports.validateMatrix = validateMatrix

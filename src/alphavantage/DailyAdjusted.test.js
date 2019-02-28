@@ -14,9 +14,9 @@ import {
   DescendingDates
 } from "./DailyAdjusted"
 import { alphavantage } from "../../test-config.js"
-import utils from "../server/utils"
+import { logger } from "../server/utils.js"
 
-const log = utils.logger("DailyAdjusted.test.js")
+const log = logger("DailyAdjusted.test.js")
 
 function doneOnFailure(assertStatement, doneFn) {
   try {

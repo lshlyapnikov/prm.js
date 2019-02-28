@@ -1,10 +1,10 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
+// @flow strict
+import { type Matrix, matrix, multiplyMatrices, dim, validateMatrix, transpose } from "./linearAlgebra"
+import _ from "underscore"
 
-const la = require("./linearAlgebra")
-const _ = require("underscore")
-
-function PortfolioStats() {
+export function PortfolioStats() {
   return {
     weights /** {number[]} */: NaN,
     stdDev /** {number} */: NaN,
@@ -12,13 +12,14 @@ function PortfolioStats() {
   }
 }
 
-function createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN) {
+export function createPortfolioStats(weightsN: Array<number>, meanRrNx1: Matrix<number>,
+  rrCovarianceNxN: Matrix<number>) {
   var portfolio = Object.create(PortfolioStats)
 
   portfolio.weights = weightsN
 
   var weights1xN = [weightsN]
-  var expectedRr1x1 = la.multiplyMatrices(weights1xN, meanRrNx1)
+  var expectedRr1x1 = multiplyMatrices(weights1xN, meanRrNx1)
   portfolio.expectedReturnRate = expectedRr1x1[0][0]
 
   portfolio.stdDev = portfolioStdDev(weights1xN, rrCovarianceNxN)
@@ -26,45 +27,41 @@ function createPortfolioStats(weightsN, meanRrNx1, rrCovarianceNxN) {
   return portfolio
 }
 
-function meanValue(arr) {
-  if(!_.isArray(arr) || 0 === arr.length) {
-    throw new Error("InvalidArgument: Array arr is either undefined or empty")
+export function meanValue(arr: Array<number>): number {
+  if (0 === arr.length) {
+    throw new Error("InvalidArgument: Array arr is empty")
   }
-  const sum = _.reduce(arr, (memo, num) => memo + num )
+  const sum: number = _.reduce(arr, (memo, num) => memo + num)
   return sum / arr.length
 }
 
 /**
  * Calculates a vector of expected values (mean values).
  *
- * @param {Array} matrix   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
+ * @param {Array} valuesMxN   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
  * @returns {Array}   Returns a vector of N elements (N x 1 matrix). Each element is an expected value for the
  *                    corresponding column in the matrix argument.
  */
-function mean(matrix) {
-  if(!_.isArray(matrix) || 0 === matrix.length) {
-    throw new Error("InvalidArgument: matrix is either undefined or empty")
+export function mean(valuesMxN: Matrix<number>): Matrix<number> {
+  if (0 === matrix.length) {
+    throw new Error("InvalidArgument: matrix is empty")
   }
 
-  var dimension = la.dim(matrix)
-  var m = dimension[0]
-  var n = dimension[1]
+  var [m, n] = dim(valuesMxN)
 
-  if(undefined === m || undefined === n) {
-    throw new Error("InvalidArgument: argument matrix has to be a matrix (2-dimensional array)")
+  if (undefined === m || undefined === n) {
+    throw new Error("InvalidArgument: argument valuesMxN has to be a matrix (2-dimensional array)")
   }
 
-  var mu = la.matrix(n, 1, 0)
+  const mu: Matrix<number> = matrix(n, 1, 0)
 
-  var i, j
-
-  for(i = 0; i < m; i++) {
-    for(j = 0; j < n; j++) {
-      mu[j][0] += matrix[i][j]
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      mu[j][0] += valuesMxN[i][j]
     }
   }
 
-  for(j = 0; j < n; j++) {
+  for (let j = 0; j < n; j++) {
     mu[j][0] = mu[j][0] / m
   }
 
@@ -77,64 +74,56 @@ function mean(matrix) {
  * @param {Array} arr   Population or sample.
  * @param {bool} isPopulation   Optional parameter. If true, isPopulation variance returned, else sample variance.
  */
-function variance(arr, isPopulation) {
-  var mu = meanValue(arr)
-
-  var sum = 0
-  var length = arr.length
-  for(var i = 0; i < length; i++) {
-    sum += Math.pow(arr[i] - mu, 2)
-  }
-
-  if(true === isPopulation) {
+export function variance(arr: Array<number>, isPopulation: ?boolean) {
+  const mu: number = meanValue(arr)
+  const length: number = arr.length
+  const sum: number = arr.reduce((acc: number, a: number) => acc + Math.pow(a - mu, 2), 0)
+  if (true === isPopulation) {
     return sum / length
   } else {
     return sum / (length - 1)
   }
 }
 
-function covariance(matrix, isPopulation) {
-  la.validateMatrix(matrix)
+export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean) {
+  validateMatrix(valuesMxN)
 
-  var rowNum = matrix.length
-  var colNum = matrix[0].length
+  const [rowNum, colNum] = dim(valuesMxN)
 
-  if(!_.isNumber(rowNum) || !_.isNumber(colNum)) {
+  if (!_.isNumber(rowNum) || !_.isNumber(colNum)) {
     throw new Error("InvalidArgument: covariance(maxtrix, isPopulation) -- 1st argument must be a matrix")
   }
 
   // create an empty result matrix (colNum x colNum)
-  var result = la.matrix(colNum, colNum, 0)
+  const result: Matrix<number> = matrix(colNum, colNum, 0)
 
   // calculate medians (Mx1 matrix)
-  var muMx1 = mean(matrix)
+  const muMx1: Matrix<number> = mean(valuesMxN)
 
   // calculate the covariance matrix
 
-  var i, j, k
-
-  var divisor = true === isPopulation ? rowNum : (rowNum - 1)
+  const divisor: number = true === isPopulation ? rowNum : (rowNum - 1)
 
   // calculate the diagonal elements and the half that is below the diagonal
-  for(j = 0; j < colNum; j++) {
-    for(k = 0; k <= j; k++) {
-      for(i = 0; i < rowNum; i++) {
-        result[j][k] += (matrix[i][j] - muMx1[j][0]) * (matrix[i][k] - muMx1[k][0])
+  for (let j = 0; j < colNum; j++) {
+    for (let k = 0; k <= j; k++) {
+      for (let i = 0; i < rowNum; i++) {
+        result[j][k] += (valuesMxN[i][j] - muMx1[j][0]) * (valuesMxN[i][k] - muMx1[k][0])
       }
       result[j][k] = result[j][k] / divisor
     }
   }
 
   // copy the half from under the diagonal to the part that is above the diagonal
-  for(j = 0; j < colNum; j++) {
-    for(k = 0; k < j; k++) {
+  for (let j = 0; j < colNum; j++) {
+    for (let k = 0; k < j; k++) {
       result[k][j] = result[j][k]
     }
   }
 
-  la.validateMatrix(result)
+  validateMatrix(result)
 
-  // that's it, now we have the covariance matrix
+  // that's it, now we have a covariance matrix
   return result
 }
 
@@ -144,13 +133,13 @@ function covariance(matrix, isPopulation) {
  * @param {Array} prices
  * @returns {Array} return ratess for every price interval.
  */
-function calculateReturnRatesFromPrices(prices) {
-  if(!_.isArray(prices) || 0 === prices.length) {
-    throw new Error("InvalidArgument: Array prices argument is either undefined or empty")
+export function calculateReturnRatesFromPrices(prices: Array<number>): Array<number> {
+  if (0 === prices.length) {
+    throw new Error("InvalidArgument: Array prices is empty")
   }
 
-  var result = new Array(prices.length - 1)
-  for(var i = 0; i < (prices.length - 1); i++) {
+  var result: Array<number> = new Array(prices.length - 1)
+  for (let i = 0; i < (prices.length - 1); i++) {
     result[i] = prices[i + 1] / prices[i] - 1
   }
 
@@ -164,20 +153,14 @@ function calculateReturnRatesFromPrices(prices) {
  * @param {Array} priceMatrix   M x N matrix of prices. Stock prices in columns. N columns -- N stocks.
  * @returns {Array}  M-1 x N matrix of return rates.
  */
-function calculateReturnRatesFromPriceMatrix(priceMatrix) {
-  var dimensions = la.dim(priceMatrix)
-  var m = dimensions[0]
-  var n = dimensions[1]
-
-  var result = la.matrix(m - 1, n)
-
-  var i, j
-  for(i = 0; i < (m - 1); i++) {
-    for(j = 0; j < n; j++) {
+export function calculateReturnRatesFromPriceMatrix(priceMatrix: Matrix<number>): Matrix<number> {
+  const [m, n] = dim(priceMatrix)
+  const result = matrix(m - 1, n)
+  for (let i = 0; i < (m - 1); i++) {
+    for (let j = 0; j < n; j++) {
       result[i][j] = priceMatrix[i + 1][j] / priceMatrix[i][j] - 1
     }
   }
-
   return result
 }
 
@@ -189,40 +172,23 @@ function calculateReturnRatesFromPriceMatrix(priceMatrix) {
  *
  * @return {Number}   Portfolio's Standard Deviation.
  */
-function portfolioStdDev(weights1xN, covarianceNxN) {
-  var transposedWeightsNx1 = la.transpose(weights1xN)
-  var tmp1xN = la.multiplyMatrices(weights1xN, covarianceNxN)
-  var tmp1x1 = la.multiplyMatrices(tmp1xN, transposedWeightsNx1)
-  var result = tmp1x1[0][0]
-  result = Math.sqrt(result)
+export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matrix<number>): number {
+  const transposedWeightsNx1 = transpose(weights1xN)
+  const tmp1xN = multiplyMatrices(weights1xN, covarianceNxN)
+  const tmp1x1 = multiplyMatrices(tmp1xN, transposedWeightsNx1)
+  const result: number = Math.sqrt(tmp1x1[0][0])
   return result
 }
 
-function loadPriceMatrix(loadHistoricalPricesFn, symbols) {
-  if(!_.isFunction(loadHistoricalPricesFn)) {
-    throw new Error("InvalidArgument: loadHistoricalPricesFn must be a function")
+export function loadPriceMatrix(loadHistoricalPricesFn: string => Array<number>, symbols: Array<string>) {
+  if (!_.isArray(symbols) || 0 === symbols.length) {
+    throw new Error("InvalidArgument: symbols array is empty")
   }
-  if(!_.isArray(symbols) || 0 === symbols.length) {
-    throw new Error("InvalidArgument: symbols array is either undefined or empty")
-  }
-
-  var n = symbols.length
-  var transposedPriceMatrix = new Array(n)
-
-  for(var i = 0; i < n; i++) {
+  const n = symbols.length
+  const transposedPriceMatrix: Matrix<number> = new Array(n)
+  for (let i = 0; i < n; i++) {
     transposedPriceMatrix[i] = loadHistoricalPricesFn(symbols[i])
   }
 
-  return la.transpose(transposedPriceMatrix)
+  return transpose(transposedPriceMatrix)
 }
-
-exports.PortfolioStats = PortfolioStats
-exports.createPortfolioStats = createPortfolioStats
-exports.meanValue = meanValue
-exports.mean = mean
-exports.variance = variance
-exports.covariance = covariance
-exports.calculateReturnRatesFromPrices = calculateReturnRatesFromPrices
-exports.calculateReturnRatesFromPriceMatrix = calculateReturnRatesFromPriceMatrix
-exports.portfolioStdDev = portfolioStdDev
-exports.loadPriceMatrix = loadPriceMatrix
