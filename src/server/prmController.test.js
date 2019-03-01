@@ -1,9 +1,5 @@
-/**
- * /* global describe, it
- *
- * @format
- */
-
+/* global describe, it */
+ 
 import _ from "underscore"
 import assert from "assert"
 import { Observable, range } from "rxjs"
