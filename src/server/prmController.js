@@ -9,10 +9,6 @@ import {
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
 
-function wrapper(s, r): { symbol: string, result: Array<number> } {
-  return { symbol: s, result: r }
-}
-
 class Prices {
   constructor(symbol: string, prices: Array<number>) {
     this.symbol = symbol
@@ -83,11 +79,18 @@ export class Output {
 }
 
 export class PrmController {
-  constructor(loadHistoricalPrices: (string, Date, Date) => Array<number>) {
+  constructor(loadHistoricalPrices: (string, Date, Date) => Observable<number>) {
     this.loadHistoricalPrices = loadHistoricalPrices
   }
 
-  loadHistoricalPrices: (string, Date, Date) => Array<number>
+  loadHistoricalPrices: (string, Date, Date) => Observable<number>
+
+  loadHistoricalPricesAsArray(symbol: string, minDate: Date, maxDate: Date): Observable<Prices> {
+    return this.loadHistoricalPrices(symbol, minDate, maxDate).pipe(
+      toArray(),
+      map(prices => new Prices(symbol, prices))
+    )
+  }
 
   /**
    * Returns portfolio analysis.
@@ -107,7 +110,7 @@ export class PrmController {
   ): Observable<[Input, Output]> {
     // TODO: would be nice if `loadHistoricalPrices` can be run in parallel
     return from(symbols).pipe(
-      flatMap(symbol => new Prices(symbol, this.loadHistoricalPrices(symbol, startDate, endDate))),
+      flatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
       toArray(),
       map((arr: Array<Prices>) => {
         const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)

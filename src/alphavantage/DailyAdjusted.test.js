@@ -1,4 +1,4 @@
-// @flow stric
+// @flow strict
 /* global describe, it */
 import _ from "underscore"
 import assert from "assert"
@@ -6,7 +6,6 @@ import { toArray } from "rxjs/operators"
 import csv from "csv-parser"
 import fs from "fs"
 import stringToStream from "string-to-stream"
-import request from "request"
 import {
   dailyAdjustedStockPrices,
   dailyAdjustedStockPricesFromStream,
