@@ -1,4 +1,4 @@
-// @flow
+// @flow stric
 import React, { Component } from "react"
 
 type TextFieldProps = {

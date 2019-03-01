@@ -1,4 +1,4 @@
-// @flow
+// @flow stric
 import React from "react"
 
 type FileUploadProps = {

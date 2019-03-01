@@ -1,4 +1,4 @@
-// @flow
+// @flow stric
 /* global describe, it */
 import _ from "underscore"
 import assert from "assert"
