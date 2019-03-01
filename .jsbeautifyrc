@@ -1,7 +1,0 @@
-{
-  "wrap_line_length": 120,
-  "end_with_newline": true,
-  "indent_size": 2,
-  "comma_first": false,
-  "brace_style": "collapse,preserve-inline"
-}

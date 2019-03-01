@@ -1,9 +1,11 @@
+/** @format */
+
 // @flow strict
 import csv from "csv-parser"
 import fs from "fs"
 import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
-import { toArray, mergeMap } from 'rxjs/operators'
+import { toArray, mergeMap } from "rxjs/operators"
 import stream from "stream"
 import { logger } from "../server/utils.js"
 
@@ -14,21 +16,27 @@ type DateOrder = "AscendingDates" | "DescendingDates"
 export const AscendingDates = "AscendingDates"
 export const DescendingDates = "DescendingDates"
 
-export function dailyAdjustedStockPrices(apiKey: string, symbol: string, minDate: Date, maxDate: Date,
-  dateOrder: DateOrder): Observable<number> {
-  const url: string =
-    `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
+export function dailyAdjustedStockPrices(
+  apiKey: string,
+  symbol: string,
+  minDate: Date,
+  maxDate: Date,
+  dateOrder: DateOrder
+): Observable<number> {
+  const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
   const stream: stream.Readable = request(url).pipe(csv())
   return dailyAdjustedStockPricesFromStream(stream, minDate, maxDate, dateOrder)
 }
 
-export function dailyAdjustedStockPricesFromStream(stream: stream.Readable, minDate: Date, maxDate: Date,
-  dateOrder: DateOrder): Observable<number> {
+export function dailyAdjustedStockPricesFromStream(
+  stream: stream.Readable,
+  minDate: Date,
+  maxDate: Date,
+  dateOrder: DateOrder
+): Observable<number> {
   const observable: Observable<number> = dailyAdjustedStockPricesFromStreamWithDescendingDates(stream, minDate, maxDate)
-  if (dateOrder == DescendingDates)
-    return observable
-  else
-    return reverseObservable(observable)
+  if (dateOrder == DescendingDates) return observable
+  else return reverseObservable(observable)
 }
 
 function reverseObservable<T>(o: Observable<T>): Observable<T> {
@@ -38,12 +46,15 @@ function reverseObservable<T>(o: Observable<T>): Observable<T> {
   )
 }
 
-function dailyAdjustedStockPricesFromStreamWithDescendingDates(stream: stream.Readable,
-  minDate: Date, maxDate: Date): Observable<number> {
+function dailyAdjustedStockPricesFromStreamWithDescendingDates(
+  stream: stream.Readable,
+  minDate: Date,
+  maxDate: Date
+): Observable<number> {
   return Observable.create((observer: Subscriber<number>) => {
     stream
-      .on('error', error => observer.error(error))
-      .on('data', (data) => {
+      .on("error", error => observer.error(error))
+      .on("data", data => {
         const dateStr: string = data["timestamp"]
         const date = new Date(dateStr)
         if (Number.isNaN(date.getTime())) {
@@ -53,7 +64,9 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(stream: stream.Re
         const adjustedCloseStr: string = data["adjusted_close"]
         const adjustedClose: number = Number.parseFloat(adjustedCloseStr)
         if (Number.isNaN(adjustedClose)) {
-          observer.error(`Cannot parse adjusted close price from '${adjustedCloseStr}'. CSV line: ${JSON.stringify(data)}`)
+          observer.error(
+            `Cannot parse adjusted close price from '${adjustedCloseStr}'. CSV line: ${JSON.stringify(data)}`
+          )
           return
         }
         if (minDate <= date && date <= maxDate) {
@@ -64,7 +77,7 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(stream: stream.Re
           observer.complete()
         }
       })
-      .on('end', () => {
+      .on("end", () => {
         observer.complete()
       })
   })

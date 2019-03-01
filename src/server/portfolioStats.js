@@ -1,3 +1,5 @@
+/** @format */
+
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
@@ -14,8 +16,11 @@ export class PortfolioStats {
   expectedReturnRate: number
 }
 
-export function createPortfolioStats(weightsN: Array<number>, meanRrNx1: Matrix<number>,
-  rrCovarianceNxN: Matrix<number>): PortfolioStats {
+export function createPortfolioStats(
+  weightsN: Array<number>,
+  meanRrNx1: Matrix<number>,
+  rrCovarianceNxN: Matrix<number>
+): PortfolioStats {
   const weights1xN: Matrix<number> = [weightsN]
   const expectedRr1x1: Matrix<number> = multiplyMatrices(weights1xN, meanRrNx1)
   const stdDev: number = portfolioStdDev(weights1xN, rrCovarianceNxN)
@@ -94,7 +99,7 @@ export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean): M
 
   // calculate the covariance matrix
 
-  const divisor: number = true === isPopulation ? rowNum : (rowNum - 1)
+  const divisor: number = true === isPopulation ? rowNum : rowNum - 1
 
   // calculate the diagonal elements and the half that is below the diagonal
   for (let j = 0; j < colNum; j++) {
@@ -131,7 +136,7 @@ export function calculateReturnRatesFromPrices(prices: Array<number>): Array<num
   }
 
   var result: Array<number> = new Array(prices.length - 1)
-  for (let i = 0; i < (prices.length - 1); i++) {
+  for (let i = 0; i < prices.length - 1; i++) {
     result[i] = prices[i + 1] / prices[i] - 1
   }
 
@@ -148,7 +153,7 @@ export function calculateReturnRatesFromPrices(prices: Array<number>): Array<num
 export function calculateReturnRatesFromPriceMatrix(priceMatrix: Matrix<number>): Matrix<number> {
   const [m, n] = dim(priceMatrix)
   const result = matrix(m - 1, n)
-  for (let i = 0; i < (m - 1); i++) {
+  for (let i = 0; i < m - 1; i++) {
     for (let j = 0; j < n; j++) {
       result[i][j] = priceMatrix[i + 1][j] / priceMatrix[i][j] - 1
     }
@@ -172,8 +177,11 @@ export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matri
   return result
 }
 
-export function loadPriceMatrix(loadHistoricalPricesFn: string => Array<number>, symbols: Array<string>): Matrix<number> {
-  if ( 0 === symbols.length) {
+export function loadPriceMatrix(
+  loadHistoricalPricesFn: string => Array<number>,
+  symbols: Array<string>
+): Matrix<number> {
+  if (0 === symbols.length) {
     throw new Error("InvalidArgument: symbols array is empty")
   }
   const n = symbols.length

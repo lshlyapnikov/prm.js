@@ -1,3 +1,5 @@
+/** @format */
+
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
@@ -76,8 +78,12 @@ export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matr
   var dim1: [number, number] = dim(nXm)
 
   if (dim0[1] !== dim1[0]) {
-    throw new Error("InvalidArgument: Invalid matrix dimensions. Cannot multiply "
-      + JSON.stringify(dim0) + " matrix by " + JSON.stringify(dim1))
+    throw new Error(
+      "InvalidArgument: Invalid matrix dimensions. Cannot multiply " +
+        JSON.stringify(dim0) +
+        " matrix by " +
+        JSON.stringify(dim1)
+    )
   }
 
   return numeric.dot(mXn, nXm)

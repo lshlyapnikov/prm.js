@@ -1,9 +1,14 @@
-/* global describe, it */
+/**
+ * /* global describe, it
+ *
+ * @format
+ */
+
 import _ from "underscore"
 import assert from "assert"
 import { Observable, range } from "rxjs"
-import { from } from 'rxjs'
-import { flatMap, toArray } from 'rxjs/operators'
+import { from } from "rxjs"
+import { flatMap, toArray } from "rxjs/operators"
 import la from "./linearAlgebra"
 import prmController from "./prmController"
 import pStats from "./portfolioStats"
@@ -37,66 +42,67 @@ function verifyPortfolioAnalysisResult(r) {
 }
 
 describe("PrmController", () => {
-  it.skip("should calculate portfolio statistics", (done) => {
-    const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
-      pTheory)
-    controller.analyzeUsingPortfolioHistoricalPrices(
-      ["IBM", "AA"],
-      new Date("1975/03/01"),
-      new Date("1975/03/31"),
-      1.0).subscribe(analysisResult => {
-        verifyPortfolioAnalysisResult(analysisResult)
-        done()
-      },
-      error => done(error)
-    )
+  it.skip("should calculate portfolio statistics", done => {
+    const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
+    controller
+      .analyzeUsingPortfolioHistoricalPrices(["IBM", "AA"], new Date("1975/03/01"), new Date("1975/03/31"), 1.0)
+      .subscribe(
+        analysisResult => {
+          verifyPortfolioAnalysisResult(analysisResult)
+          done()
+        },
+        error => done(error)
+      )
   })
 
   // TODO: DRY - search for AAA
-  it.skip("should calculate 5 times the same tangency portfolio", (done) => {
+  it.skip("should calculate 5 times the same tangency portfolio", done => {
     function test(attempt) {
-      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
-        pTheory)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         new Date("2015/05/27"),
         new Date("2016/05/27"),
-        1.0)
+        1.0
+      )
     }
 
     const attempts = 5
-    range(0, attempts).pipe(
-      flatMap((x) => test(x)),
-      toArray()
-    ).subscribe(results => {
-        console.log(JSON.stringify(results))
-        assert.equal(results.length, attempts)
-        const tangencyArr = _(results).map(r => r.output.tangencyPortfolio)
-        for (var i = 1; i < attempts; i++) {
-          assert.deepEqual(tangencyArr[i - 1], tangencyArr[i])
-        }
-        done()
-      },
-      error => done(error)
-    )
+    range(0, attempts)
+      .pipe(
+        flatMap(x => test(x)),
+        toArray()
+      )
+      .subscribe(
+        results => {
+          console.log(JSON.stringify(results))
+          assert.equal(results.length, attempts)
+          const tangencyArr = _(results).map(r => r.output.tangencyPortfolio)
+          for (var i = 1; i < attempts; i++) {
+            assert.deepEqual(tangencyArr[i - 1], tangencyArr[i])
+          }
+          done()
+        },
+        error => done(error)
+      )
   })
 
   // TODO: DRY - search for AAA
-  it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (
-    done) => {
+  it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
     function test() {
-      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats,
-        pTheory)
+      const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         new Date("2011/05/27"),
         new Date("2016/05/27"),
-        1.0)
+        1.0
+      )
     }
 
-    test().subscribe(result => {
+    test().subscribe(
+      result => {
         const tangencyArr = result.output.tangencyPortfolio
         console.log("\nweights:")
         _(tangencyArr).each(w => console.log(w))

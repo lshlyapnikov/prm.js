@@ -1,3 +1,5 @@
+/** @format */
+
 // @flow strict
 /* global describe, it */
 
@@ -42,28 +44,21 @@ describe("utils", function() {
       assert.equal(rowNum, sum0)
       assert.equal(rowNum, sum1)
       assert.notDeepEqual(weights0, weights1)
-      for(var i = 0; i < rowNum; i++) {
+      for (var i = 0; i < rowNum; i++) {
         assert.notDeepEqual(weights0[i], weights1[i])
       }
     })
     it("should throw up when invalid arguments passed", function() {
       // GIVEN
       // Valid arguments: rowNum > 0 and colNum > 1
-      const invalidArguments: Array<Array<number>> = [
-        [0, 10],
-        [-1, 10],
-        [10, 0],
-        [10, -1],
-        [10, 1],
-        [0, 0],
-      ]
+      const invalidArguments: Array<Array<number>> = [[0, 10], [-1, 10], [10, 0], [10, -1], [10, 1], [0, 0]]
 
       function test(rowNum: number, colNum: number): void {
         var actualException: Error
         // WHEN
         try {
           generateRandomWeightsMatrix(rowNum, colNum)
-        } catch(e) {
+        } catch (e) {
           actualException = e
         }
         // THEN
@@ -71,7 +66,7 @@ describe("utils", function() {
         assert.notEqual(undefined, actualException, debugMsg)
       }
 
-      for(var i = 0; i < invalidArguments.length; i++) {
+      for (var i = 0; i < invalidArguments.length; i++) {
         test(invalidArguments[i][0], invalidArguments[i][1])
       }
     })

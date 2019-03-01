@@ -1,3 +1,5 @@
+/** @format */
+
 // @flow strict
 import { type Matrix, validateMatrix, copyMatrix } from "./linearAlgebra"
 import { setMatrixElementsScale } from "./utils"
@@ -12,10 +14,15 @@ export function assertEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix
   }
   assert.deepEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale))
+    setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
+  )
 }
 
-export function assertNotEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+export function assertNotEqualMatrices(
+  actualMatrix: Matrix<number>,
+  expectedMatrix: Matrix<number>,
+  scale: number
+): void {
   validateMatrix(actualMatrix)
   validateMatrix(expectedMatrix)
   if (_.isUndefined(scale)) {
@@ -23,5 +30,6 @@ export function assertNotEqualMatrices(actualMatrix: Matrix<number>, expectedMat
   }
   assert.notDeepEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale))
+    setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
+  )
 }

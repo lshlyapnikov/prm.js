@@ -1,17 +1,18 @@
+/** @format */
+
 // @flow
-import React, { Component } from 'react'
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
+import React, { Component } from "react"
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 
-import Help from './ui/Help'
-import LegalInfo from './ui/LegalInfo'
-import Contact from './ui/Contact'
-import News from './ui/News'
-import { CommonProps } from './ui/CommonProps'
+import Help from "./ui/Help"
+import LegalInfo from "./ui/LegalInfo"
+import Contact from "./ui/Contact"
+import News from "./ui/News"
+import { CommonProps } from "./ui/CommonProps"
 
-import StockForm from './ui/StocksForm'
+import StockForm from "./ui/StocksForm"
 
-type AppProps = {
-}
+type AppProps = {}
 
 type AppState = {
   title: string
@@ -33,7 +34,7 @@ class App extends Component<AppProps, AppState> implements CommonProps {
           <header className="demo-header mdl-layout__header mdl-color--blue-grey-800 mdl-color-text--blue-grey-400">
             <div className="mdl-layout__header-row">
               <span className="mdl-layout-title">Portfolio Risk Management&nbsp;/&nbsp;{this.state.title}</span>
-              <div className="mdl-layout-spacer"></div>
+              <div className="mdl-layout-spacer" />
             </div>
           </header>
           <div className="demo-drawer mdl-layout__drawer mdl-color--blue-grey-800 mdl-color-text--blue-grey-400">
@@ -41,24 +42,53 @@ class App extends Component<AppProps, AppState> implements CommonProps {
               <img src="images/user.jpg" className="demo-avatar" alt="user icon" />
               <div className="demo-avatar-dropdown">
                 <span>hello@example.com</span>
-                <div className="mdl-layout-spacer"></div>
+                <div className="mdl-layout-spacer" />
                 <button id="accbtn" className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                  <i className="material-icons" role="presentation">arrow_drop_down</i>
+                  <i className="material-icons" role="presentation">
+                    arrow_drop_down
+                  </i>
                   <span className="visuallyhidden">Accounts</span>
                 </button>
                 <ul className="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" htmlFor="accbtn">
                   <li className="mdl-menu__item">hello@example.com</li>
                   <li className="mdl-menu__item">info@example.com</li>
-                  <li className="mdl-menu__item"><i className="material-icons">add</i>Add another account...</li>
+                  <li className="mdl-menu__item">
+                    <i className="material-icons">add</i>Add another account...
+                  </li>
                 </ul>
               </div>
             </header>
             <nav className="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-              <Link className="mdl-navigation__link" to="/"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</Link>
-              <Link className="mdl-navigation__link" to="/news"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">flag</i>News</Link>
-              <Link className="mdl-navigation__link" to="/contact"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Contact</Link>
-              <Link className="mdl-navigation__link" to="/legal-info"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Legal Information</Link>
-              <Link className="mdl-navigation__link" to="/help"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i>Help</Link>
+              <Link className="mdl-navigation__link" to="/">
+                <i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">
+                  home
+                </i>
+                Home
+              </Link>
+              <Link className="mdl-navigation__link" to="/news">
+                <i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">
+                  flag
+                </i>
+                News
+              </Link>
+              <Link className="mdl-navigation__link" to="/contact">
+                <i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">
+                  inbox
+                </i>
+                Contact
+              </Link>
+              <Link className="mdl-navigation__link" to="/legal-info">
+                <i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">
+                  forum
+                </i>
+                Legal Information
+              </Link>
+              <Link className="mdl-navigation__link" to="/help">
+                <i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">
+                  help_outline
+                </i>
+                Help
+              </Link>
             </nav>
           </div>
           <main className="mdl-layout__content mdl-color--grey-100">

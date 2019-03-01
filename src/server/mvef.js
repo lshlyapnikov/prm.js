@@ -1,3 +1,5 @@
+/** @format */
+
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 
@@ -23,17 +25,17 @@ const Q = require("q")
 function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
   var deferred = Q.defer()
 
-  if("function" !== typeof loadHistoricalPrices) {
+  if ("function" !== typeof loadHistoricalPrices) {
     deferred.reject(new Error("InvalidArgument: loadHistoricalPrices must be a function"))
     return deferred.promise
   }
 
-  if(undefined === symbols || 0 === symbols.length) {
+  if (undefined === symbols || 0 === symbols.length) {
     deferred.reject(new Error("InvalidArgument: symbols array is either undefined or empty"))
     return deferred.promise
   }
 
-  if(undefined === numberOfRandomWeights) {
+  if (undefined === numberOfRandomWeights) {
     deferred.reject(new Error("InvalidArgument: numberOfRandomWeights is undefined"))
     return deferred.promise
   }
@@ -43,7 +45,7 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
 
   var promises = new Array(n)
 
-  for(var i = 0; i < n; i++) {
+  for (var i = 0; i < n; i++) {
     promises[i] = loadHistoricalPrices(symbols[i])
   }
 
@@ -51,13 +53,12 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
     .then(function(promises) {
       var transposedPriceMatrix = new Array(n)
       var p
-      for(var i = 0; i < n; i++) {
+      for (var i = 0; i < n; i++) {
         p = promises[i]
-        if(p.state === 'fulfilled') {
+        if (p.state === "fulfilled") {
           transposedPriceMatrix[i] = p.value
         } else {
-          deferred.reject(new Error("Could not load symbol: " + symbols[i] +
-            ", i: " + i))
+          deferred.reject(new Error("Could not load symbol: " + symbols[i] + ", i: " + i))
         }
       }
       return transposedPriceMatrix
@@ -65,7 +66,8 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
     .then(function(transposedPriceMatrix) {
       return mvefFromHistoricalPrices(
         utils.generateRandomWeightsMatrix(m, n),
-        linearAlgebra.transpose(transposedPriceMatrix))
+        linearAlgebra.transpose(transposedPriceMatrix)
+      )
     })
     .then(function(result) {
       deferred.resolve(result)
@@ -113,24 +115,23 @@ function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
   //var n = la.dim(weightsMxN)[1]
 
   // MxN x Nx1 = Nx1
-  var portfolioExpReturnRatesMx1 = linearAlgebra.multiplyMatrices(
-    weightsMxN, expReturnRatesNx1)
+  var portfolioExpReturnRatesMx1 = linearAlgebra.multiplyMatrices(weightsMxN, expReturnRatesNx1)
 
   var portfolioExpReturnRateArr = linearAlgebra.transpose(portfolioExpReturnRatesMx1)[0]
 
   var i
   var weights1xN
   var portfolioStdDevArr = new Array(m)
-  for(i = 0; i < m; i++) {
+  for (i = 0; i < m; i++) {
     weights1xN = weightsMxN[i]
     portfolioStdDevArr[i] = portfolioStats.portfolioStdDev([weights1xN], covarianceNxN)
   }
 
-  if(portfolioExpReturnRateArr.length !== m) {
+  if (portfolioExpReturnRateArr.length !== m) {
     throw new Error("InvalidState: portfolioExpReturnRateArr.length !== " + m)
   }
 
-  if(portfolioStdDevArr.length !== m) {
+  if (portfolioStdDevArr.length !== m) {
     throw new Error("InvalidState: portfolioStdDevArr.length !== " + m)
   }
 

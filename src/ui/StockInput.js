@@ -1,11 +1,12 @@
+/** @format */
+
 // @flow
-import React, { Component } from 'react'
+import React, { Component } from "react"
 
 // import TextField from 'material-ui/TextField'
 // import FloatingActionButton from 'material-ui/FloatingActionButton'
 // import ContentAdd from 'material-ui/svg-icons/content/add'
 // import ContentRemove from 'material-ui/svg-icons/content/remove'
-
 
 type Props = {
   id: string,

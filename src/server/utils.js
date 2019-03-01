@@ -1,8 +1,10 @@
+/** @format */
+
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
 import _ from "underscore"
-import log4js from 'log4js'
+import log4js from "log4js"
 
 function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {
   if (!Array.isArray(arr)) {
@@ -84,7 +86,7 @@ export function noop(str: string): string {
   return str
 }
 
-export function toFixedNumber (num: number, fractionDigits: number): number {
+export function toFixedNumber(num: number, fractionDigits: number): number {
   const multiplier = Math.pow(10, fractionDigits)
   return Math.round(num * multiplier) / multiplier
 }
@@ -95,7 +97,7 @@ export function setMatrixElementsScale(matrix: Array<Array<number>>, scale: numb
 }
 
 export function setArrayElementsScale(arr: Array<number>, scale: number) {
-  updateArrayElements(arr, (num: number) =>  toFixedNumber(num, scale))
+  updateArrayElements(arr, (num: number) => toFixedNumber(num, scale))
   return arr
 }
 

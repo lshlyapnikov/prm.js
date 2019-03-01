@@ -1,5 +1,7 @@
-const express = require('express')
-const Immutable = require('immutable')
+/** @format */
+
+const express = require("express")
+const Immutable = require("immutable")
 const prmController = require("./prmController")
 const yahooFinanceApi = require("./../yahoo/yahooFinanceApi")
 const pStats = require("./portfolioStats")
@@ -14,7 +16,7 @@ const staticFolder = process.argv[3].trim()
 const app = express()
 app.use(express.static(staticFolder))
 
-app.get('/analyze', (req, res) => {
+app.get("/analyze", (req, res) => {
   console.log("query: " + JSON.stringify(req.query))
   const symbols = Immutable.List(req.query.symbols.split(",").map(s => s.trim()))
   const startDate = new Date(req.query.startDate)
@@ -24,12 +26,12 @@ app.get('/analyze', (req, res) => {
   // TODO: handle exceptions
   const result = controller.analyzeUsingPortfolioHistoricalPrices(symbols, startDate, endDate, riskFreeRr)
   res.json({
-    input: {symbols: symbols, startDate: startDate, endDate: endDate, riskFreeRr: riskFreeRr},
+    input: { symbols: symbols, startDate: startDate, endDate: endDate, riskFreeRr: riskFreeRr },
     output: result
   })
 })
 
-app.get('/analyze2', (req, res) => {
+app.get("/analyze2", (req, res) => {
   const input = req.query.input
   const rrKxN = input.rrKxN
   const expectedRrNx1 = input.expectedRrNx1

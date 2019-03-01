@@ -1,10 +1,12 @@
-// @flow
-import React from 'react'
-import { Subject } from 'rxjs'
-import autoBind from 'react-autobind'
+/** @format */
 
-import TextField from './TextField'
-import FileUpload from './FileUpload'
+// @flow
+import React from "react"
+import { Subject } from "rxjs"
+import autoBind from "react-autobind"
+
+import TextField from "./TextField"
+import FileUpload from "./FileUpload"
 
 class FileContent {
   text: string
@@ -27,8 +29,8 @@ type StockFormState = {
 }
 
 function fileUploaded(text: string): void {
-  const node: HTMLElement | null = document.getElementById('output');
-  if (node != null && typeof text === 'string') {
+  const node: HTMLElement | null = document.getElementById("output")
+  if (node != null && typeof text === "string") {
     node.innerText = text
   }
 }
@@ -50,7 +52,7 @@ class StockForm extends React.Component<StockFormProps, StockFormState> {
   handleFileUpload(file: File): void {
     const reader = new FileReader()
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         this.state.fileUploadSubject.next(new FileContent(reader.result, 0))
       }
     }
@@ -61,13 +63,16 @@ class StockForm extends React.Component<StockFormProps, StockFormState> {
     return (
       <div className="mdl-grid">
         <form action="#">
-          <TextField id="riskFreeInterestRate" label="Risk Free Interest Rate, %"
+          <TextField
+            id="riskFreeInterestRate"
+            label="Risk Free Interest Rate, %"
             value={this.state.riskFreeReturnRate}
             pattern="[0-6](\.[0-9]{1,2})?"
-            error="Not a valid risk free interest rate! Examples: 1.50, 2.58" />
+            error="Not a valid risk free interest rate! Examples: 1.50, 2.58"
+          />
           <TextField id="stock-1" label="Stock..." value={this.state.rows[0]} />
           <FileUpload id="file-1" label="File..." handleFileUpload={this.handleFileUpload} />
-          <div id='output'></div>
+          <div id="output" />
         </form>
       </div>
     )

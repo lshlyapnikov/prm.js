@@ -1,6 +1,8 @@
+/** @format */
+
 // @flow
-import React, { Component } from 'react'
-import { CommonProps } from './CommonProps'
+import React, { Component } from "react"
+import { CommonProps } from "./CommonProps"
 
 class News extends Component<CommonProps> {
   constructor(props: CommonProps) {
@@ -11,9 +13,7 @@ class News extends Component<CommonProps> {
   render() {
     return (
       <div className="mdl-grid">
-        <div className="mdl-cell">
-          News
-        </div>
+        <div className="mdl-cell">News</div>
       </div>
     )
   }

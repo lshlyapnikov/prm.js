@@ -1,3 +1,5 @@
+/** @format */
+
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
@@ -60,8 +62,11 @@ export class TangencyPortfolio {
    * @param riskFreeReturnRate
    * @returns {Array} an array of N elements. Every element is a stock weight in the portfolio.
    */
-  calculate(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>,
-    riskFreeReturnRate: number): Array<number> {
+  calculate(
+    expectedReturnRatesNx1: Matrix<number>,
+    returnRatesCovarianceNxN: Matrix<number>,
+    riskFreeReturnRate: number
+  ): Array<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN)
     const riskFreeReturnRateNx1 = matrix(n, 1, riskFreeReturnRate)
@@ -81,9 +86,11 @@ export const tangencyPortfolio = new TangencyPortfolio()
  * A and B matrices are different from global minimum efficient portfolio.
  */
 export class TargetReturnEfficientPortfolio {
-
-  calculate(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>,
-    targetReturnRate: number): Array<number> {
+  calculate(
+    expectedReturnRatesNx1: Matrix<number>,
+    returnRatesCovarianceNxN: Matrix<number>,
+    targetReturnRate: number
+  ): Array<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const b = n + 2
     const matrixA = this.createMatrixA(expectedReturnRatesNx1, returnRatesCovarianceNxN)
@@ -132,12 +139,14 @@ export class EfficientPortfolioFrontier {
     const globalMinVarianceEp = createPortfolioStats(
       globalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN),
       expectedRrNx1,
-      rrCovarianceNxN)
+      rrCovarianceNxN
+    )
 
     const maxReturnEp = createPortfolioStats(
       targetReturnEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN, maxExpectedRr),
       expectedRrNx1,
-      rrCovarianceNxN)
+      rrCovarianceNxN
+    )
 
     const maxNum = 21 // TODO: why 21? That is the number from the lecture... just a number of iterations?
     const result: Array<PortfolioStats> = new Array(maxNum)
@@ -146,14 +155,18 @@ export class EfficientPortfolioFrontier {
       result[i] = createPortfolioStats(
         this._calculateEfficientPortfolioWeights(globalMinVarianceEp.weights, maxReturnEp.weights, alpha),
         expectedRrNx1,
-        rrCovarianceNxN)
+        rrCovarianceNxN
+      )
     }
 
     return result
   }
 
-  _calculateEfficientPortfolioWeights(globalMinVarianceEpWeigthsN: Array<number>, maxReturnEpWeightsN: Array<number>,
-    alpha: number) {
+  _calculateEfficientPortfolioWeights(
+    globalMinVarianceEpWeigthsN: Array<number>,
+    maxReturnEpWeightsN: Array<number>,
+    alpha: number
+  ) {
     const x = globalMinVarianceEpWeigthsN.map(n => alpha * n)
     const y = maxReturnEpWeightsN.map(n => (1 - alpha) * n)
     return numeric.add(x, y)
