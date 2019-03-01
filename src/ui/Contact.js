@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow
 import React, { Component } from "react"
 import { CommonProps } from "./CommonProps"

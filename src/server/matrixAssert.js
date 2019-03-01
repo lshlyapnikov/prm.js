@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow strict
 import { type Matrix, validateMatrix, copyMatrix } from "./linearAlgebra"
 import { setMatrixElementsScale } from "./utils"

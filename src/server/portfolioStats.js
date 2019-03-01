@@ -1,5 +1,3 @@
-/** @format */
-
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict

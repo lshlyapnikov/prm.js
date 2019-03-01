@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow strict
 /* global describe, it */
 

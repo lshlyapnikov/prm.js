@@ -1,5 +1,3 @@
-/** @format */
-
 import { from } from "rxjs"
 import { map, mergeMap, toArray } from "rxjs/operators"
 import _ from "underscore"

@@ -1,5 +1,3 @@
-/** @format */
-
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
@@ -100,18 +98,17 @@ export class TargetReturnEfficientPortfolio {
   }
 
   createMatrixA(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
-    var n = dim(returnRatesCovarianceNxN)[0]
-    var a = n + 2
-    var twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
+    const n = dim(returnRatesCovarianceNxN)[0]
+    const a = n + 2
+    const twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
     var matrixA = matrix(a, a, 0)
     matrixA = copyMatrixInto(twoBySigmaNxN, matrixA)
-    var i
-    for (i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       var r = expectedReturnRatesNx1[i][0]
       matrixA[n][i] = r
       matrixA[i][n] = r
     }
-    for (i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
       matrixA[n + 1][i] = 1
       matrixA[i][n + 1] = 1
     }

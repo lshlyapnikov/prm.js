@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow
 /* global describe, it */
 import _ from "underscore"

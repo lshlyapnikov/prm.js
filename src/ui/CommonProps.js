@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow
 
 export interface CommonProps {

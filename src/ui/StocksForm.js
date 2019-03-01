@@ -1,5 +1,3 @@
-/** @format */
-
 // @flow
 import React from "react"
 import { Subject } from "rxjs"

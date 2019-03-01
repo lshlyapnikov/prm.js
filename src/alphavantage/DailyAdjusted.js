@@ -1,6 +1,5 @@
-/** @format */
-
 // @flow strict
+
 import csv from "csv-parser"
 import fs from "fs"
 import request from "request"
