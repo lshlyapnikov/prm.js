@@ -1,6 +1,5 @@
 // @flow strict
 /* global describe, it */
-import _ from "underscore"
 import assert from "assert"
 import { from, range, throwError, Observable } from "rxjs"
 import { flatMap, toArray } from "rxjs/operators"
@@ -26,11 +25,8 @@ function loadMockStockHistory(symbol: string, dummy0: Date, dummy1: Date): Obser
   else return throwError(`Unsupported mock symbol: ${symbol}`)
 }
 
-function verifyPortfolioStatsObjects(o) {
-  assert.ok(_.isObject(o))
-  assert.ok(_.isArray(o.weights))
-  assert.ok(_.isNumber(o.stdDev))
-  assert.ok(_.isNumber(o.expectedReturnRate))
+function verifyPortfolioStatsObjects(o: PortfolioStats) {
+  assert.ok(o !== null)
 }
 
 function verifyPortfolioAnalysisResult(r: [Input, Output]): void {
@@ -93,7 +89,7 @@ describe("PrmController", () => {
 
   // TODO: DRY - search for AAA
   it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
-    function test() {
+    function test(): Observable<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -104,10 +100,9 @@ describe("PrmController", () => {
       )
     }
 
-    test().subscribe(result => {
-      const tangencyArr = result[1].tangencyPortfolio
-      console.log("\nweights:")
-      _(tangencyArr).each(w => console.log(w))
+    test().subscribe((result: [Input, Output]) => {
+      const weights: Array<number> = result[1].tangencyPortfolio.weights
+      console.log(`\nweights: ${JSON.stringify(weights)}`)
       done()
     })
   })

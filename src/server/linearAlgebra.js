@@ -7,17 +7,14 @@
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.
 
 import numeric from "numeric"
-import _ from "underscore"
-
 export type Matrix<T> = Array<Array<T>>
 
 export function dim(matrixMxN: Matrix<number>): [number, number] {
   var m = matrixMxN.length
   var n = matrixMxN[0].length
-  if (!_.isNumber(n)) {
+  if (typeof n !== "number") {
     throw new Error("InvalidArgument: argument matrix does not have columns")
   }
-
   return [m, n]
 }
 

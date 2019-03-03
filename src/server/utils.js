@@ -1,7 +1,6 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
-import _ from "underscore"
 import log4js from "log4js"
 
 function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {

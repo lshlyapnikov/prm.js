@@ -1,6 +1,5 @@
 // @flow strict
 /* global describe, it */
-import _ from "underscore"
 import assert from "assert"
 import { toArray } from "rxjs/operators"
 import csv from "csv-parser"
