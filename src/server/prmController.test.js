@@ -12,7 +12,7 @@ import {
   dailyAdjustedStockPrices,
   AscendingDates
 } from "../alphavantage/DailyAdjusted"
-import { toFixedNumber, toFixedNumberArray } from "./utils"
+import { toFixedNumber, newArrayWithScale } from "./utils"
 import { alphavantage } from "../../test-config.js"
 import * as testData from "./testData"
 
@@ -39,8 +39,7 @@ function verifyPortfolioAnalysisResult(r: [Input, Output]): void {
   validateMatrix(input.expectedRrNx1)
   validateMatrix(input.rrCovarianceNxN)
   verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
-  assert.ok(_.isArray(output.tangencyPortfolio))
-  output.tangencyPortfolio.forEach(n => assert.ok(!_.isNaN(n)))
+  verifyPortfolioStatsObjects(output.tangencyPortfolio)
   assert.equal(output.efficientPortfolioFrontier.length, 21)
   output.efficientPortfolioFrontier.forEach(p => verifyPortfolioStatsObjects(p))
 }
@@ -57,7 +56,7 @@ describe("PrmController", () => {
         // numbers are from the lecture, I think
         assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
         assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
-        assert.deepEqual(toFixedNumberArray(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
+        assert.deepEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
         done()
       })
   })

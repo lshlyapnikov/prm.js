@@ -6,31 +6,21 @@ import { type PortfolioStats, createPortfolioStats } from "./portfolioStats"
 const numeric = require("numeric")
 
 export class GlobalMinimumVarianceEfficientPortfolio {
-  /**
-   * Calculates Global Minimum Variance Portfolio.
-   *
-   * @param {Array.<Array.<number>>} expectedRrNx1    N x 1 expected/mean return rates matrix, where
-   * @param {Array.<Array.<number>>} rrCovarianceNxN
-   */
   calculate(expectedRrNx1: Matrix<number>, rrCovarianceNxN: Matrix<number>): PortfolioStats {
-    const weightsN = this.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN)
+    const weightsN = this.calculateWeights(rrCovarianceNxN)
     return createPortfolioStats(weightsN, expectedRrNx1, rrCovarianceNxN)
   }
 
-  /**
-   * @param returnRatesCovarianceNxN
-   * @returns {Array.<number>} an array of N elements. Every element is a stock weight in the portfolio.
-   */
-  calculateWeightsFromReturnRatesCovariance(returnRatesCovarianceNxN: Matrix<number>): Array<number> {
+  calculateWeights(returnRatesCovarianceNxN: Matrix<number>): Array<number> {
     var n = dim(returnRatesCovarianceNxN)[0]
     var b = n + 1
-    var matrixA = this.createMatrixA(returnRatesCovarianceNxN)
-    var matrixB = this.createMatrixB(b)
+    var matrixA = this._createMatrixA(returnRatesCovarianceNxN)
+    var matrixB = this._createMatrixB(b)
     var matrixZ = numeric.solve(matrixA, matrixB)
     return matrixZ.slice(0, b - 1)
   }
 
-  createMatrixA(returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
+  _createMatrixA(returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
     var n = dim(returnRatesCovarianceNxN)[0]
     var a = n + 1
     var twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
@@ -44,7 +34,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
     return matrixA
   }
 
-  createMatrixB(b: number): Matrix<number> {
+  _createMatrixB(b: number): Matrix<number> {
     var matrixB = matrix(b, 1, 0)
     matrixB[b - 1][0] = 1
     return matrixB
@@ -54,13 +44,20 @@ export class GlobalMinimumVarianceEfficientPortfolio {
 export const globalMinimumVarianceEfficientPortfolio = new GlobalMinimumVarianceEfficientPortfolio()
 
 export class TangencyPortfolio {
-  /**
-   * @param expectedReturnRatesNx1
-   * @param returnRatesCovarianceNxN
-   * @param riskFreeReturnRate
-   * @returns {Array} an array of N elements. Every element is a stock weight in the portfolio.
-   */
   calculate(
+    expectedReturnRatesNx1: Matrix<number>,
+    returnRatesCovarianceNxN: Matrix<number>,
+    riskFreeReturnRate: number
+  ): PortfolioStats {
+    const weightsN: Array<number> = this.calculateWeights(
+      expectedReturnRatesNx1,
+      returnRatesCovarianceNxN,
+      riskFreeReturnRate
+    )
+    return createPortfolioStats(weightsN, expectedReturnRatesNx1, returnRatesCovarianceNxN)
+  }
+
+  calculateWeights(
     expectedReturnRatesNx1: Matrix<number>,
     returnRatesCovarianceNxN: Matrix<number>,
     riskFreeReturnRate: number
@@ -73,7 +70,8 @@ export class TangencyPortfolio {
     const one1xN = matrix(1, n, 1)
     const bot1x1 = multiplyMatrices(one1xN, topNx1)
     const resultNx1 = numeric.div(topNx1, bot1x1[0][0])
-    return transpose(resultNx1)[0]
+    const weightsN: Array<number> = transpose(resultNx1)[0]
+    return weightsN
   }
 }
 
@@ -88,16 +86,30 @@ export class TargetReturnEfficientPortfolio {
     expectedReturnRatesNx1: Matrix<number>,
     returnRatesCovarianceNxN: Matrix<number>,
     targetReturnRate: number
+  ): PortfolioStats {
+    const weightsN: Array<number> = this.calculateWeights(
+      expectedReturnRatesNx1,
+      returnRatesCovarianceNxN,
+      targetReturnRate
+    )
+    return createPortfolioStats(weightsN, expectedReturnRatesNx1, returnRatesCovarianceNxN)
+  }
+
+  calculateWeights(
+    expectedReturnRatesNx1: Matrix<number>,
+    returnRatesCovarianceNxN: Matrix<number>,
+    targetReturnRate: number
   ): Array<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const b = n + 2
-    const matrixA = this.createMatrixA(expectedReturnRatesNx1, returnRatesCovarianceNxN)
-    const matrixB = this.createMatrixB(b, targetReturnRate)
+    const matrixA = this._createMatrixA(expectedReturnRatesNx1, returnRatesCovarianceNxN)
+    const matrixB = this._createMatrixB(b, targetReturnRate)
     const matrixZ = numeric.solve(matrixA, matrixB)
-    return matrixZ.slice(0, b - 2)
+    const weightsN: Array<number> = matrixZ.slice(0, b - 2)
+    return weightsN
   }
 
-  createMatrixA(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
+  _createMatrixA(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const a = n + 2
     const twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
@@ -115,7 +127,7 @@ export class TargetReturnEfficientPortfolio {
     return matrixA
   }
 
-  createMatrixB(b: number, targetReturnRate: number) {
+  _createMatrixB(b: number, targetReturnRate: number): Matrix<number> {
     const matrixB = matrix(b, 1, 0)
     matrixB[b - 2][0] = targetReturnRate
     matrixB[b - 1][0] = 1
@@ -127,25 +139,29 @@ export const targetReturnEfficientPortfolio = new TargetReturnEfficientPortfolio
 
 /**
  * econ424/08.2 portfolioTheoryMatrix.pdf, p.21
+ * TODO: why 21? That is the number from the lecture... just a number of iterations?
  */
 export class EfficientPortfolioFrontier {
-  calculate(expectedRrNx1: Matrix<number>, rrCovarianceNxN: Matrix<number>): Array<PortfolioStats> {
+  calculate(
+    expectedRrNx1: Matrix<number>,
+    rrCovarianceNxN: Matrix<number>,
+    maxNum: number = 21
+  ): Array<PortfolioStats> {
     const arr: Array<number> = expectedRrNx1.map(row => row[0])
     const maxExpectedRr: number = Math.max(...arr)
 
     const globalMinVarianceEp = createPortfolioStats(
-      globalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(rrCovarianceNxN),
+      globalMinimumVarianceEfficientPortfolio.calculateWeights(rrCovarianceNxN),
       expectedRrNx1,
       rrCovarianceNxN
     )
 
-    const maxReturnEp = createPortfolioStats(
-      targetReturnEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN, maxExpectedRr),
+    const maxReturnEp: PortfolioStats = targetReturnEfficientPortfolio.calculate(
       expectedRrNx1,
-      rrCovarianceNxN
+      rrCovarianceNxN,
+      maxExpectedRr
     )
 
-    const maxNum = 21 // TODO: why 21? That is the number from the lecture... just a number of iterations?
     const result: Array<PortfolioStats> = new Array(maxNum)
 
     for (let i = 0, alpha = 1; i < maxNum; i++, alpha -= 0.1) {

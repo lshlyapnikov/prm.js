@@ -98,23 +98,8 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
   updateArrayElements(arr, (num: number) => toFixedNumber(num, scale))
   return arr
 }
-export function toFixedNumberArray(arr: Array<number>, scale: number): Array<number> {
-  return arr.map((a: number) => toFixedNumber(a, scale))
-}
-
 export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
-  if (!Array.isArray(arr)) {
-    throw new Error("InvalidArgument: arr must be a non-empty array object")
-  }
-
-  var n: number = arr.length
-  var result: Array<number> = new Array(n)
-
-  for (let i = 0; i < n; i++) {
-    result[i] = toFixedNumber(arr[i], scale)
-  }
-
-  return result
+  return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
 export function logger(category: string): log4js.Logger {

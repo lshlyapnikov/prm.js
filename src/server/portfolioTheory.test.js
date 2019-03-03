@@ -31,9 +31,7 @@ describe("pTheory", () => {
 
   describe("Global Minimum Variance Portfolio", () => {
     it("should calculate global min variance portfolio from return rate covariance matrix", () => {
-      const actualWeights = pTheory.globalMinimumVarianceEfficientPortfolio.calculateWeightsFromReturnRatesCovariance(
-        rrCovariance3x3
-      )
+      const actualWeights = pTheory.globalMinimumVarianceEfficientPortfolio.calculateWeights(rrCovariance3x3)
       log.debug("actualWeights: " + numeric.prettyPrint(actualWeights) + "\n")
       assert.deepEqual(numeric.dim(actualWeights), [3])
       utils.setArrayElementsScale(actualWeights, 4)
@@ -65,7 +63,7 @@ describe("pTheory", () => {
         var n = dim(rrCov)[0]
         var a = n + 1
 
-        var matrixA = pTheory.globalMinimumVarianceEfficientPortfolio.createMatrixA(rrCov)
+        var matrixA = pTheory.globalMinimumVarianceEfficientPortfolio._createMatrixA(rrCov)
 
         log.debug("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
 
@@ -96,8 +94,12 @@ describe("pTheory", () => {
   })
   describe("Tangency Portfolio", () => {
     it("should calculate tangency portfolio from return rate covariance matrix", () => {
-      var expectedTangencyPortfolioWeights = [1.0268, -0.3263, 0.2994]
-      var actualWeights = pTheory.tangencyPortfolio.calculate(expectedRr3x1, rrCovariance3x3, riskFreeRr)
+      const expectedTangencyPortfolioWeights = [1.0268, -0.3263, 0.2994]
+      const actualWeights: Array<number> = pTheory.tangencyPortfolio.calculateWeights(
+        expectedRr3x1,
+        rrCovariance3x3,
+        riskFreeRr
+      )
       assert.deepEqual(utils.newArrayWithScale(actualWeights, 4), expectedTangencyPortfolioWeights)
     })
   })
@@ -112,18 +114,18 @@ describe("pTheory", () => {
         [1, 2, 3, 0, 0],
         [1, 1, 1, 0, 0]
       ]
-      var actualMatrixA = pTheory.targetReturnEfficientPortfolio.createMatrixA(expectedRr3x1, rrCovMatrix3x3)
+      var actualMatrixA = pTheory.targetReturnEfficientPortfolio._createMatrixA(expectedRr3x1, rrCovMatrix3x3)
       assert.deepEqual(actualMatrixA, expectedMatrixA)
     })
     it("should create expected matrix B", () => {
-      const actualMatrixB = pTheory.targetReturnEfficientPortfolio.createMatrixB(5, 10)
+      const actualMatrixB = pTheory.targetReturnEfficientPortfolio._createMatrixB(5, 10)
       assert.deepEqual(actualMatrixB, columnMatrix([0, 0, 0, 10, 1]))
     })
     it("should calculate efficient portfolio with the same expected return as Microsoft", () => {
       // econ424/08.2 portfolioTheoryMatrix.pdf, p. 13, example 6
       const expectedWeights = [0.82745, -0.09075, 0.26329]
 
-      const actualWeights = pTheory.targetReturnEfficientPortfolio.calculate(
+      const actualWeights: Array<number> = pTheory.targetReturnEfficientPortfolio.calculateWeights(
         expectedRr3x1,
         rrCovariance3x3,
         expectedRr3x1[0][0]
@@ -134,13 +136,11 @@ describe("pTheory", () => {
     it("should calculate efficient portfolio with the same expected return as Starbucks", () => {
       // econ424/08.2 portfolioTheoryMatrix.pdf, p. 14, example 7
       const expectedWeights: Array<number> = [0.5194, 0.2732, 0.2075]
-
-      const actualWeights = pTheory.targetReturnEfficientPortfolio.calculate(
+      const actualWeights: Array<number> = pTheory.targetReturnEfficientPortfolio.calculateWeights(
         expectedRr3x1,
         rrCovariance3x3,
         expectedRr3x1[2][0]
       )
-
       assert.deepEqual(utils.newArrayWithScale(actualWeights, 4), expectedWeights)
     })
   })

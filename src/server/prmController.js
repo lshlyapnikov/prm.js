@@ -66,7 +66,7 @@ export class Input {
 export class Output {
   constructor(
     globalMinVarianceEfficientPortfolio: PortfolioStats,
-    tangencyPortfolio: Array<number>,
+    tangencyPortfolio: PortfolioStats,
     efficientPortfolioFrontier: Array<PortfolioStats>
   ) {
     this.globalMinVarianceEfficientPortfolio = globalMinVarianceEfficientPortfolio
@@ -74,7 +74,7 @@ export class Output {
     this.efficientPortfolioFrontier = efficientPortfolioFrontier
   }
   globalMinVarianceEfficientPortfolio: PortfolioStats
-  tangencyPortfolio: Array<number>
+  tangencyPortfolio: PortfolioStats
   efficientPortfolioFrontier: Array<PortfolioStats>
 }
 
