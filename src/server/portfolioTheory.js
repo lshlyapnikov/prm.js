@@ -12,22 +12,20 @@ export class GlobalMinimumVarianceEfficientPortfolio {
   }
 
   calculateWeights(returnRatesCovarianceNxN: Matrix<number>): Array<number> {
-    var n = dim(returnRatesCovarianceNxN)[0]
-    var b = n + 1
-    var matrixA = this._createMatrixA(returnRatesCovarianceNxN)
-    var matrixB = this._createMatrixB(b)
-    var matrixZ = numeric.solve(matrixA, matrixB)
+    const n = dim(returnRatesCovarianceNxN)[0]
+    const b = n + 1
+    const matrixA = this._createMatrixA(returnRatesCovarianceNxN)
+    const matrixB = this._createMatrixB(b)
+    const matrixZ = numeric.solve(matrixA, matrixB)
     return matrixZ.slice(0, b - 1)
   }
 
   _createMatrixA(returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
-    var n = dim(returnRatesCovarianceNxN)[0]
-    var a = n + 1
-    var twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
-    var matrixA = matrix(a, a, 0)
-    matrixA = copyMatrixInto(twoBySigmaNxN, matrixA)
-    var i
-    for (i = 0; i < a - 1; i++) {
+    const n = dim(returnRatesCovarianceNxN)[0]
+    const a = n + 1
+    const twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
+    const matrixA = copyMatrixInto(twoBySigmaNxN, matrix(a, a, 0))
+    for (let i = 0; i < a - 1; i++) {
       matrixA[a - 1][i] = 1
       matrixA[i][a - 1] = 1
     }
@@ -35,7 +33,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
   }
 
   _createMatrixB(b: number): Matrix<number> {
-    var matrixB = matrix(b, 1, 0)
+    const matrixB = matrix(b, 1, 0)
     matrixB[b - 1][0] = 1
     return matrixB
   }

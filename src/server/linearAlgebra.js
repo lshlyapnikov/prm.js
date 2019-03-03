@@ -129,18 +129,14 @@ export function copyMatrix(mXn: Matrix<number>): Matrix<number> {
   return result
 }
 
-export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>) {
+export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>): Matrix<number> {
   validateMatrix(mXn)
-  var mn = dim(mXn)
-  var m = mn[0]
-  var n = mn[1]
-
-  for (var i = 0; i < m; i++) {
-    for (var j = 0; j < n; j++) {
+  const [m, n] = dim(mXn)
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
       outputMatrix[i][j] = Number(mXn[i][j])
     }
   }
-
   return outputMatrix
 }
 
