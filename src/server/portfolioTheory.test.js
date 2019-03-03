@@ -1,6 +1,4 @@
 // @flow strict
-/* global describe, it */
-
 import * as assert from "assert"
 import * as numeric from "numeric"
 
@@ -23,9 +21,7 @@ describe("pTheory", () => {
   // MSFT, NORD, SBUX
 
   const expectedRr3x1: Matrix<number> = columnMatrix([0.0427, 0.0015, 0.0285])
-
   const rrCovariance3x3: Matrix<number> = [[0.01, 0.0018, 0.0011], [0.0018, 0.0109, 0.0026], [0.0011, 0.0026, 0.0199]]
-
   const riskFreeRr: number = 0.005
   const globalMinVariancePortfolio = new PortfolioStats([0.4411, 0.3656, 0.1933], 0.07267607, 0.02489184)
 
