@@ -3,6 +3,12 @@
 // @flow strict
 import log4js from "log4js"
 
+export function logger(category: string): log4js.Logger {
+  const logger: log4js.Logger = log4js.getLogger(category)
+  logger.level = log4js.levels.INFO
+  return logger
+}
+
 function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = convertOneElement(arr[i])
@@ -61,8 +67,8 @@ export function strToNumber(str: string): number {
   return Number(str)
 }
 
-export function noop(str: string): string {
-  return str
+export function id<A>(a: A): A {
+  return a
 }
 
 export function toFixedNumber(num: number, fractionDigits: number): number {
@@ -82,10 +88,4 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
 
 export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
   return arr.map((a: number) => toFixedNumber(a, scale))
-}
-
-export function logger(category: string): log4js.Logger {
-  const logger: log4js.Logger = log4js.getLogger(category)
-  logger.level = log4js.levels.INFO
-  return logger
 }
