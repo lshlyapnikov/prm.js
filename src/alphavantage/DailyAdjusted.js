@@ -52,8 +52,8 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
 ): Observable<number> {
   return Observable.create((observer: Subscriber<number>) => {
     stream
-      .on("error", error => observer.error(error))
-      .on("data", data => {
+      .on("error", (error: Error) => observer.error(error))
+      .on("data", (data: { [string]: string }) => {
         const dateStr: string = data["timestamp"]
         const date = new Date(dateStr)
         if (Number.isNaN(date.getTime())) {
