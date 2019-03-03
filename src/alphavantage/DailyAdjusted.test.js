@@ -3,6 +3,7 @@
 import assert from "assert"
 import { toArray } from "rxjs/operators"
 import csv from "csv-parser"
+import stream from "stream"
 import fs from "fs"
 import stringToStream from "string-to-stream"
 import {
@@ -79,7 +80,7 @@ describe("DailyAdjusted", () => {
       )
   })
   it("should return error when CSV stream errors out", done => {
-    function testShouldReturnError(rawStream, expectedError) {
+    function testShouldReturnError(rawStream: stream.Readable, expectedError: string) {
       dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
         .pipe(toArray())
         .subscribe(
