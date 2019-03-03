@@ -5,32 +5,14 @@ import _ from "underscore"
 import log4js from "log4js"
 
 function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {
-  if (!Array.isArray(arr)) {
-    throw new Error("InvalidArgument: Array arr is either undefined or empty")
-  }
-
-  if (typeof convertOneElement !== "function") {
-    throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument")
-  }
-
-  var i = 0
-  for (i = 0; i < arr.length; i++) {
+  for (let i = 0; i < arr.length; i++) {
     arr[i] = convertOneElement(arr[i])
   }
 }
 
 function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: A => A): void {
-  if (!Array.isArray(matrix)) {
-    throw new Error("InvalidArgument:  matrix is either undefined or empty")
-  }
-
-  if (typeof convertOneElement !== "function") {
-    throw new Error("InvalidArgument: convertOneElement argument should be a function with one argument")
-  }
-
   const m = matrix.length
   const n = matrix[0].length
-
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < n; j++) {
       matrix[i][j] = convertOneElement(matrix[i][j])
@@ -48,15 +30,15 @@ function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: A =
  * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
 export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
-  if ("number" !== typeof rowNum || rowNum <= 0) {
+  if (rowNum <= 0) {
     throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0")
   }
 
-  if ("number" !== typeof colNum || colNum <= 1) {
+  if (colNum <= 1) {
     throw new Error("Invalid argument colNum: " + colNum + ", must be > 1")
   }
 
-  var matrix: Array<Array<number>> = new Array(rowNum)
+  const matrix: Array<Array<number>> = new Array(rowNum)
 
   for (let i = 0; i < rowNum; i++) {
     const vector: Array<number> = new Array(colNum)
@@ -98,6 +80,7 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
   updateArrayElements(arr, (num: number) => toFixedNumber(num, scale))
   return arr
 }
+
 export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
