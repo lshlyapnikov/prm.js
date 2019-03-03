@@ -1,9 +1,9 @@
 // prm.js VSCode settings
 {
-  "files.exclude": {
-    "node_modules/": true,
-    "flow-typed/": true,
-  },
+  // "files.exclude": {
+  //   "node_modules/": true,
+  //   "flow-typed/": true,
+  // },
   "search.exclude": {
     "node_modules/": true,
     "flow-typed/": true,

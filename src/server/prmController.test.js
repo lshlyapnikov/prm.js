@@ -45,16 +45,19 @@ describe("PrmController", () => {
     const controller = new PrmController(loadMockStockHistory)
     controller
       .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)
-      .subscribe((analysisResult: [Input, Output]) => {
-        console.log(JSON.stringify(analysisResult, null, 2))
-        verifyPortfolioAnalysisResult(analysisResult)
-        const [input, output] = analysisResult
-        // numbers are from the lecture, I think
-        assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
-        assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
-        assert.deepEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
-        done()
-      })
+      .subscribe(
+        (analysisResult: [Input, Output]) => {
+          // console.log(JSON.stringify(analysisResult, null, 2))
+          verifyPortfolioAnalysisResult(analysisResult)
+          const [input, output] = analysisResult
+          // numbers are from the lecture, I think
+          assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
+          assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
+          assert.deepEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
+          done()
+        },
+        error => done.fail(error)
+      )
   })
 
   // TODO: DRY - search for AAA
