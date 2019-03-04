@@ -26,7 +26,7 @@ function createPriceMatrix(symbols: Array<string>, arr: Array<Prices>): Matrix<n
 
   var nXm: Matrix<number> = new Array(symbols.length)
 
-  // need to keep the order or symbols in the provided symbols array
+  // need to keep the order of symbols in the provided symbols array
   for (let i = 0; i < symbols.length; i++) {
     const prices = symbolToPricesMap.get(symbols[i])
     if (prices != null) {

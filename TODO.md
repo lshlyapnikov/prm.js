@@ -7,4 +7,5 @@
 5. [x] remove `// flowlint-next-line untyped-import:off` in `src/alphavantage/DailyAdjusted.js`
 6. [ ] replace console.log with util.log
 7. [ ] add `// @flow` to the rest of the files
-8. [ ] delete `mvef.js` if it is not used anywhere
+8. [ ] delete `mvef.js` if it is not used anywhere, but move the tests into prmController.test
+9. [ ] allow loading `Prices` directly in the `prmController`
