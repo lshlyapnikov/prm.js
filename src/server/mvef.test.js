@@ -16,6 +16,10 @@ const numeric = require("numeric")
 
 const log = utils.logger("mvefTest")
 
+import { PorfolioStats } from "./portfolioStats"
+import { Observable, from } from "rxjs"
+import { toArray, flatMap, map } from "rxjs/operators"
+
 describe("mvef", () => {
   describe("#mvef()", () => {
     it("step by step", () => {
@@ -246,11 +250,8 @@ describe("mvef", () => {
       const expectedReturnRate = 0.64
       const expectedWeights = [0.11, 0.89]
 
-      function mockHistoricalPricesProvider(symbol) {
-        const deferred = Q.defer()
-        const result = prices[symbol]
-        deferred.resolve(result)
-        return deferred.promise
+      function mockHistoricalPricesProvider(symbol: string): Observable<number> {
+        return from(prices[symbol])
       }
 
       const numOfRandomWeights = 5000
@@ -258,23 +259,24 @@ describe("mvef", () => {
       // WHEN
       mvef
         .mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
-        .then(portfolio => {
+        .pipe(toArray())
+        .subscribe((array: Array<PortfolioStats>) => {
           // THEN
-          assert.equal(numOfRandomWeights, portfolio.expectedReturnRate.length)
-          assert.equal(numOfRandomWeights, portfolio.stdDev.length)
-          var i
+          assert.equal(numOfRandomWeights, array.length)
+
           var minStd = Number.MAX_VALUE
           var minStdIndx = -1
-          for (i = 0; i < numOfRandomWeights; i++) {
-            if (portfolio.stdDev[i] < minStd) {
+          for (let i = 0; i < numOfRandomWeights; i++) {
+            const stdDev: number = array[i].stdDev
+            if (stdDev < minStd) {
               minStdIndx = i
-              minStd = portfolio.stdDev[i]
+              minStd = stdDev
             }
           }
 
           const actualMinRisk = minStd * 100
-          const actualReturnRate = portfolio.expectedReturnRate[minStdIndx] * 100
-          const actualWeights = portfolio.weights[minStdIndx]
+          const actualReturnRate = arr[minStdIndx].expectedReturnRate * 100
+          const actualWeights = arr[minStdIndx].weights
 
           log.debug("min Std, %: ", actualMinRisk)
           log.debug("return rate, %: ", actualReturnRate)
@@ -284,7 +286,6 @@ describe("mvef", () => {
           assert.equal(actualReturnRate.toFixed(2), expectedReturnRate)
           assert.deepEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights)
         })
-        .then(() => done(), error => done(error))
     })
   })
 })

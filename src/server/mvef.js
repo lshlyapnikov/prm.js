@@ -1,12 +1,20 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
+// @flow strict
 
-// TODO make sure it typechecks with flow
-
-const utils = require("./utils")
-const linearAlgebra = require("./linearAlgebra")
-const portfolioStats = require("./portfolioStats")
-const Q = require("q")
+import { generateRandomWeightsMatrix } from "./utils"
+import { type Matrix, transpose, dim, multiplyMatrices } from "./linearAlgebra"
+import {
+  calculateReturnRatesFromPriceMatrix,
+  mean,
+  covariance,
+  portfolioStdDev,
+  PortfolioStats,
+  createPortfolioStats
+} from "./portfolioStats"
+import { Observable, Subscriber, from } from "rxjs"
+import { toArray, flatMap, map } from "rxjs/operators"
+import { Prices, createPriceMatrix } from "./priceMatrix"
 
 /**
  * Generates portfolio MVEF for the specified symbols, using
@@ -20,59 +28,60 @@ const Q = require("q")
  *                                         to generate MVEF.
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
-  var deferred = Q.defer()
-
-  if ("function" !== typeof loadHistoricalPrices) {
-    deferred.reject(new Error("InvalidArgument: loadHistoricalPrices must be a function"))
-    return deferred.promise
+export function mvef(
+  loadHistoricalPrices: string => Observable<number>,
+  symbols: Array<string>,
+  numberOfRandomWeights: number
+): Observable<Array<PortfolioStats>> {
+  if (0 === symbols.length) {
+    return Observable.throw(new Error("InvalidArgument: symbols array is empty"))
   }
 
-  if (undefined === symbols || 0 === symbols.length) {
-    deferred.reject(new Error("InvalidArgument: symbols array is either undefined or empty"))
-    return deferred.promise
+  if (numberOfRandomWeights <= 0) {
+    return Observable.throw(new Error("InvalidArgument: numberOfRandomWeights is <= 0"))
   }
 
-  if (undefined === numberOfRandomWeights) {
-    deferred.reject(new Error("InvalidArgument: numberOfRandomWeights is undefined"))
-    return deferred.promise
-  }
+  const m: number = numberOfRandomWeights
+  const n: number = symbols.length
 
-  var m = numberOfRandomWeights
-  var n = symbols.length
-
-  var promises = new Array(n)
-
-  for (var i = 0; i < n; i++) {
-    promises[i] = loadHistoricalPrices(symbols[i])
-  }
-
-  Q.allSettled(promises)
-    .then(function(promises) {
-      var transposedPriceMatrix = new Array(n)
-      var p
-      for (var i = 0; i < n; i++) {
-        p = promises[i]
-        if (p.state === "fulfilled") {
-          transposedPriceMatrix[i] = p.value
-        } else {
-          deferred.reject(new Error("Could not load symbol: " + symbols[i] + ", i: " + i))
-        }
-      }
-      return transposedPriceMatrix
+  return from(symbols).pipe(
+    flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
+    toArray(),
+    map((arr: Array<Prices>) => {
+      const priceMatrix: Matrix<number> = createPriceMatrix(symbols, arr)
+      const weightsMatrix: Matrix<number> = generateRandomWeightsMatrix(m, n)
+      return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
     })
-    .then(function(transposedPriceMatrix) {
-      return mvefFromHistoricalPrices(
-        utils.generateRandomWeightsMatrix(m, n),
-        linearAlgebra.transpose(transposedPriceMatrix)
-      )
-    })
-    .then(function(result) {
-      deferred.resolve(result)
-    })
-    .done()
+  )
 
-  return deferred.promise
+  // Q.allSettled(promises)
+  //   .then(function(promises) {
+  //     var transposedPriceMatrix = new Array(n)
+  //     var p
+  //     for (var i = 0; i < n; i++) {
+  //       p = promises[i]
+  //       if (p.state === "fulfilled") {
+  //         transposedPriceMatrix[i] = p.value
+  //       } else {
+  //         deferred.reject(new Error("Could not load symbol: " + symbols[i] + ", i: " + i))
+  //       }
+  //     }
+  //     return transposedPriceMatrix
+  //   })
+  //   .then(function(transposedPriceMatrix) {
+  //     return mvefFromHistoricalPrices(generateRandomWeightsMatrix(m, n), transpose(transposedPriceMatrix))
+  //   })
+  //   .then(function(result) {
+  //     deferred.resolve(result)
+  //   })
+  //   .done()
+}
+
+function loadHistoricalPricesAsArray(fn: string => Observable<number>, symbol: string): Observable<Prices> {
+  return fn(symbol).pipe(
+    toArray(),
+    map((prices: Array<number>) => new Prices(symbol, prices))
+  )
 }
 
 /**
@@ -86,9 +95,9 @@ function mvef(loadHistoricalPrices, symbols, numberOfRandomWeights) {
  *                               N is the number of stocks in portfolio
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
+export function mvefFromHistoricalPrices(weightsMxN: Matrix<number>, pricesKxN: Matrix<number>): Array<PortfolioStats> {
   // K x N (actually K-1 x N)
-  var returnRatesKxN = portfolioStats.calculateReturnRatesFromPriceMatrix(pricesKxN)
+  const returnRatesKxN: Matrix<number> = calculateReturnRatesFromPriceMatrix(pricesKxN)
   return mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN)
 }
 
@@ -103,43 +112,44 @@ function mvefFromHistoricalPrices(weightsMxN, pricesKxN) {
  *                                 N is the number of stocks in portfolio
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-function mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN) {
+export function mvefFromHistoricalReturnRates(
+  weightsMxN: Matrix<number>,
+  returnRatesKxN: Matrix<number>
+): Array<PortfolioStats> {
   // K x 1
-  var expReturnRatesNx1 = portfolioStats.mean(returnRatesKxN)
+  const expReturnRatesNx1 = mean(returnRatesKxN)
   // N x N
-  var covarianceNxN = portfolioStats.covariance(returnRatesKxN)
+  const covarianceNxN = covariance(returnRatesKxN)
 
-  var m = linearAlgebra.dim(weightsMxN)[0]
+  const m = dim(weightsMxN)[0]
   //var n = la.dim(weightsMxN)[1]
 
   // MxN x Nx1 = Nx1
-  var portfolioExpReturnRatesMx1 = linearAlgebra.multiplyMatrices(weightsMxN, expReturnRatesNx1)
+  const portfolioExpReturnRatesMx1 = multiplyMatrices(weightsMxN, expReturnRatesNx1)
+  const portfolioExpReturnRateArr = transpose(portfolioExpReturnRatesMx1)[0]
 
-  var portfolioExpReturnRateArr = linearAlgebra.transpose(portfolioExpReturnRatesMx1)[0]
+  return weightsMxN.map((weights1xN: Array<number>) =>
+    createPortfolioStats(weights1xN, portfolioExpReturnRatesMx1, covarianceNxN)
+  )
 
-  var i
-  var weights1xN
-  var portfolioStdDevArr = new Array(m)
-  for (i = 0; i < m; i++) {
-    weights1xN = weightsMxN[i]
-    portfolioStdDevArr[i] = portfolioStats.portfolioStdDev([weights1xN], covarianceNxN)
-  }
+  // var weights1xN
+  // var portfolioStdDevArr = new Array(m)
+  // for (let i = 0; i < m; i++) {
+  //   const weights1xN: Array<number> = weightsMxN[i]
+  //   portfolioStdDevArr[i] = portfolioStdDev([weights1xN], covarianceNxN)
+  // }
 
-  if (portfolioExpReturnRateArr.length !== m) {
-    throw new Error("InvalidState: portfolioExpReturnRateArr.length !== " + m)
-  }
+  // if (portfolioExpReturnRateArr.length !== m) {
+  //   throw new Error("InvalidState: portfolioExpReturnRateArr.length !== " + m)
+  // }
 
-  if (portfolioStdDevArr.length !== m) {
-    throw new Error("InvalidState: portfolioStdDevArr.length !== " + m)
-  }
+  // if (portfolioStdDevArr.length !== m) {
+  //   throw new Error("InvalidState: portfolioStdDevArr.length !== " + m)
+  // }
 
-  var result = Object.create(portfolioStats.PortfolioStats)
-  result.weights = weightsMxN
-  result.expectedReturnRate = portfolioExpReturnRateArr
-  result.stdDev = portfolioStdDevArr
-  return result
+  // var result = Object.create(portfolioStats.PortfolioStats)
+  // result.weights = weightsMxN
+  // result.expectedReturnRate = portfolioExpReturnRateArr
+  // result.stdDev = portfolioStdDevArr
+  // return result
 }
-
-exports.mvef = mvef
-exports.mvefFromHistoricalPrices = mvefFromHistoricalPrices
-exports.mvefFromHistoricalReturnRates = mvefFromHistoricalReturnRates
