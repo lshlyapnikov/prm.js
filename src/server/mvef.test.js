@@ -238,7 +238,7 @@ describe("mvef", () => {
       assertEqualMatrices(returnRatesCovariance, expectedReturnRatesCovariance, 6)
     })
     it("should load historical prices using the specified provider and return MVEF numbers", done => {
-      // GIVEN
+      // GIVEN (I believe I took those numbers from the R examples in the lecture notes)
       const prices = { NYX: testData.NYX, INTC: testData.INTC }
       const expectedMinRisk = 7.37
       const expectedReturnRate = 0.64
