@@ -16,19 +16,15 @@ import { Observable, Subscriber, from } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
 import { Prices, createPriceMatrix } from "./priceMatrix"
 
-/**
- * Generates portfolio MVEF for the specified symbols, using
- * historical prices provided by loadHistoricalPrices function.
- *
- * @param {function} loadHistoricalPrices   function(symbol) provider of historical prices,
- *                                          takes a symbol,  returns a promise to an array of
- *                                          historical prices
- * @param {Array} symbols   The stock symbols you are interested in,
- * @param {Number} numberOfRandomWeights   Number of random stock weights to be  used to
- *                                         to generate MVEF.
- * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
- */
 export function mvef(
+  loadHistoricalPrices: string => Observable<number>,
+  symbols: Array<string>,
+  numberOfRandomWeights: number
+): Promise<Array<PortfolioStats>> {
+  return _mvef(loadHistoricalPrices, symbols, numberOfRandomWeights).toPromise()
+}
+
+function _mvef(
   loadHistoricalPrices: string => Observable<number>,
   symbols: Array<string>,
   numberOfRandomWeights: number

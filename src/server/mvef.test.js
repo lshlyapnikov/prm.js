@@ -2,7 +2,6 @@
 
 import { prettyPrint } from "numeric"
 import { Observable, from } from "rxjs"
-import { toArray, flatMap, map } from "rxjs/operators"
 import * as assert from "assert"
 
 import { mvef } from "./mvef"
@@ -253,36 +252,34 @@ describe("mvef", () => {
 
       // WHEN
       mvef
-      mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).subscribe(
-        (array: Array<PortfolioStats>) => {
-          // THEN
-          assert.strictEqual(array.length, numOfRandomWeights)
+      mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).then((array: Array<PortfolioStats>) => {
+        // THEN
+        assert.strictEqual(array.length, numOfRandomWeights)
 
-          var minStd = Number.MAX_VALUE
-          var minStdIndx = -1
-          for (let i = 0; i < numOfRandomWeights; i++) {
-            const stdDev: number = array[i].stdDev
-            if (stdDev < minStd) {
-              minStdIndx = i
-              minStd = stdDev
-            }
+        var minStd = Number.MAX_VALUE
+        var minStdIndx = -1
+        for (let i = 0; i < numOfRandomWeights; i++) {
+          const stdDev: number = array[i].stdDev
+          if (stdDev < minStd) {
+            minStdIndx = i
+            minStd = stdDev
           }
-
-          const actualMinRisk = minStd * 100
-          const actualReturnRate = array[minStdIndx].expectedReturnRate * 100
-          const actualWeights = array[minStdIndx].weights
-
-          log.debug("min Std, %: ", actualMinRisk)
-          log.debug("return rate, %: ", actualReturnRate)
-          log.debug("weights: ", prettyPrint(actualWeights))
-
-          assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
-          assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
-          assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
-
-          done()
         }
-      )
+
+        const actualMinRisk = minStd * 100
+        const actualReturnRate = array[minStdIndx].expectedReturnRate * 100
+        const actualWeights = array[minStdIndx].weights
+
+        log.debug("min Std, %: ", actualMinRisk)
+        log.debug("return rate, %: ", actualReturnRate)
+        log.debug("weights: ", prettyPrint(actualWeights))
+
+        assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
+        assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
+        assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
+
+        done()
+      })
     })
   })
 })
