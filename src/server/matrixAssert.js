@@ -6,7 +6,7 @@ import assert from "assert"
 export function assertEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
   validateMatrix(actualMatrix)
   validateMatrix(expectedMatrix)
-  assert.deepEqual(
+  assert.deepStrictEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
     setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
   )
@@ -19,7 +19,7 @@ export function assertNotEqualMatrices(
 ): void {
   validateMatrix(actualMatrix)
   validateMatrix(expectedMatrix)
-  assert.notDeepEqual(
+  assert.notDeepStrictEqual(
     setMatrixElementsScale(copyMatrix(actualMatrix), scale),
     setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
   )

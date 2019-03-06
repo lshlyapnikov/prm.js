@@ -1,31 +1,26 @@
-/**
- * /* global describe, it
- *
- * @format
- */
+// @flow strict
 
-const mvef = require("./mvef")
-const testData = require("./testData")
-const linearAlgebra = require("./linearAlgebra")
-const portfolioStats = require("./portfolioStats")
-const matrixAssert = require("./matrixAssert")
-const utils = require("./utils")
-const assert = require("assert")
-const numeric = require("numeric")
-
-const log = utils.logger("mvefTest")
-
-import { PorfolioStats } from "./portfolioStats"
+import { prettyPrint } from "numeric"
 import { Observable, from } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
+import * as assert from "assert"
+
+import { mvef } from "./mvef"
+import { type Matrix, transpose } from "./linearAlgebra"
+import { assertEqualMatrices } from "./matrixAssert"
+import { toFixedNumber, setArrayElementsScale, logger } from "./utils"
+import { PortfolioStats, calculateReturnRatesFromPriceMatrix, mean, covariance } from "./portfolioStats"
+import * as testData from "./testData"
+
+const log = logger("mvefTest")
 
 describe("mvef", () => {
   describe("#mvef()", () => {
     it("step by step", () => {
-      const pricesMxN = linearAlgebra.transpose([testData.NYX, testData.INTC])
+      const pricesMxN: Matrix<number> = transpose([testData.NYX, testData.INTC])
 
       // Return Rate Matrix Calculation
-      var nyxR = [
+      const nyxR: Array<number> = [
         -0.0205761316872428,
         0.164705882352941,
         0.308802308802309,
@@ -125,7 +120,7 @@ describe("mvef", () => {
         -0.00444264943457207,
         -0.0344827586206896
       ]
-      var intcR = [
+      const intcR: Array<number> = [
         -0.0576368876080692,
         0.110091743119266,
         0.00716253443526194,
@@ -225,22 +220,23 @@ describe("mvef", () => {
         -0.0873942811115586,
         -0.05207413945278
       ]
-      var expectedReturnRatesMatrix = linearAlgebra.transpose([nyxR, intcR])
-      var returnRatesMatrix = portfolioStats.calculateReturnRatesFromPriceMatrix(pricesMxN)
-      matrixAssert.assertEqualMatrices(returnRatesMatrix, expectedReturnRatesMatrix, 6)
+      const expectedReturnRatesMatrix = transpose([nyxR, intcR])
+      const returnRatesMatrix = calculateReturnRatesFromPriceMatrix(pricesMxN)
+      assertEqualMatrices(returnRatesMatrix, expectedReturnRatesMatrix, 6)
+      assertEqualMatrices(returnRatesMatrix, expectedReturnRatesMatrix, 6)
 
       // Mean Return Rate Calculation
-      var expectedMeanReturnRatesMatrix = [[0.01674256058568205], [0.00504504938397936]]
-      var meanReturnRatesMatrix = portfolioStats.mean(returnRatesMatrix)
-      matrixAssert.assertEqualMatrices(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 6)
+      const expectedMeanReturnRatesMatrix = [[0.01674256058568205], [0.00504504938397936]]
+      const meanReturnRatesMatrix = mean(returnRatesMatrix)
+      assertEqualMatrices(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 6)
 
       // Covariance Matrix Calculation
-      var expectedReturnRatesCovariance = [
+      const expectedReturnRatesCovariance: Matrix<number> = [
         [0.02268916431463616, 0.00324263433660444],
         [0.00324263433660444, 0.0057115697552338]
       ]
-      var returnRatesCovariance = portfolioStats.covariance(returnRatesMatrix)
-      matrixAssert.assertEqualMatrices(returnRatesCovariance, expectedReturnRatesCovariance, 6)
+      const returnRatesCovariance = covariance(returnRatesMatrix)
+      assertEqualMatrices(returnRatesCovariance, expectedReturnRatesCovariance, 6)
     })
     it("should load historical prices using the specified provider and return MVEF numbers", done => {
       // GIVEN
@@ -257,8 +253,8 @@ describe("mvef", () => {
 
       // WHEN
       mvef
-        .mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
-        .subscribe((array: Array<PortfolioStats>) => {
+      mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).subscribe(
+        (array: Array<PortfolioStats>) => {
           // THEN
           assert.strictEqual(array.length, numOfRandomWeights)
 
@@ -278,14 +274,15 @@ describe("mvef", () => {
 
           log.debug("min Std, %: ", actualMinRisk)
           log.debug("return rate, %: ", actualReturnRate)
-          log.debug("weights: ", numeric.prettyPrint(actualWeights))
+          log.debug("weights: ", prettyPrint(actualWeights))
 
-          assert.strictEqual(utils.toFixedNumber(actualMinRisk, 2), expectedMinRisk)
-          assert.strictEqual(utils.toFixedNumber(actualReturnRate, 2), expectedReturnRate)
-          assert.deepStrictEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights)
+          assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
+          assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
+          assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
 
           done()
-        })
+        }
+      )
     })
   })
 })

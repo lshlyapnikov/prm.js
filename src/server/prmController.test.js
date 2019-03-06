@@ -47,7 +47,6 @@ describe("PrmController", () => {
       .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)
       .subscribe(
         (analysisResult: [Input, Output]) => {
-          // console.log(JSON.stringify(analysisResult, null, 2))
           verifyPortfolioAnalysisResult(analysisResult)
           const [input, output] = analysisResult
           // numbers are from the lecture, I think
