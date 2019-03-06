@@ -11,7 +11,6 @@ const portfolioStats = require("./portfolioStats")
 const matrixAssert = require("./matrixAssert")
 const utils = require("./utils")
 const assert = require("assert")
-const Q = require("q")
 const numeric = require("numeric")
 
 const log = utils.logger("mvefTest")
@@ -259,10 +258,9 @@ describe("mvef", () => {
       // WHEN
       mvef
         .mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights)
-        .pipe(toArray())
         .subscribe((array: Array<PortfolioStats>) => {
           // THEN
-          assert.equal(numOfRandomWeights, array.length)
+          assert.strictEqual(array.length, numOfRandomWeights)
 
           var minStd = Number.MAX_VALUE
           var minStdIndx = -1
@@ -275,16 +273,18 @@ describe("mvef", () => {
           }
 
           const actualMinRisk = minStd * 100
-          const actualReturnRate = arr[minStdIndx].expectedReturnRate * 100
-          const actualWeights = arr[minStdIndx].weights
+          const actualReturnRate = array[minStdIndx].expectedReturnRate * 100
+          const actualWeights = array[minStdIndx].weights
 
           log.debug("min Std, %: ", actualMinRisk)
           log.debug("return rate, %: ", actualReturnRate)
           log.debug("weights: ", numeric.prettyPrint(actualWeights))
 
-          assert.equal(actualMinRisk.toFixed(2), expectedMinRisk)
-          assert.equal(actualReturnRate.toFixed(2), expectedReturnRate)
-          assert.deepEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights)
+          assert.strictEqual(utils.toFixedNumber(actualMinRisk, 2), expectedMinRisk)
+          assert.strictEqual(utils.toFixedNumber(actualReturnRate, 2), expectedReturnRate)
+          assert.deepStrictEqual(utils.setArrayElementsScale(actualWeights, 2), expectedWeights)
+
+          done()
         })
     })
   })

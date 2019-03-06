@@ -53,28 +53,6 @@ export function mvef(
       return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
     })
   )
-
-  // Q.allSettled(promises)
-  //   .then(function(promises) {
-  //     var transposedPriceMatrix = new Array(n)
-  //     var p
-  //     for (var i = 0; i < n; i++) {
-  //       p = promises[i]
-  //       if (p.state === "fulfilled") {
-  //         transposedPriceMatrix[i] = p.value
-  //       } else {
-  //         deferred.reject(new Error("Could not load symbol: " + symbols[i] + ", i: " + i))
-  //       }
-  //     }
-  //     return transposedPriceMatrix
-  //   })
-  //   .then(function(transposedPriceMatrix) {
-  //     return mvefFromHistoricalPrices(generateRandomWeightsMatrix(m, n), transpose(transposedPriceMatrix))
-  //   })
-  //   .then(function(result) {
-  //     deferred.resolve(result)
-  //   })
-  //   .done()
 }
 
 function loadHistoricalPricesAsArray(fn: string => Observable<number>, symbol: string): Observable<Prices> {
@@ -121,35 +99,5 @@ export function mvefFromHistoricalReturnRates(
   // N x N
   const covarianceNxN = covariance(returnRatesKxN)
 
-  const m = dim(weightsMxN)[0]
-  //var n = la.dim(weightsMxN)[1]
-
-  // MxN x Nx1 = Nx1
-  const portfolioExpReturnRatesMx1 = multiplyMatrices(weightsMxN, expReturnRatesNx1)
-  const portfolioExpReturnRateArr = transpose(portfolioExpReturnRatesMx1)[0]
-
-  return weightsMxN.map((weights1xN: Array<number>) =>
-    createPortfolioStats(weights1xN, portfolioExpReturnRatesMx1, covarianceNxN)
-  )
-
-  // var weights1xN
-  // var portfolioStdDevArr = new Array(m)
-  // for (let i = 0; i < m; i++) {
-  //   const weights1xN: Array<number> = weightsMxN[i]
-  //   portfolioStdDevArr[i] = portfolioStdDev([weights1xN], covarianceNxN)
-  // }
-
-  // if (portfolioExpReturnRateArr.length !== m) {
-  //   throw new Error("InvalidState: portfolioExpReturnRateArr.length !== " + m)
-  // }
-
-  // if (portfolioStdDevArr.length !== m) {
-  //   throw new Error("InvalidState: portfolioStdDevArr.length !== " + m)
-  // }
-
-  // var result = Object.create(portfolioStats.PortfolioStats)
-  // result.weights = weightsMxN
-  // result.expectedReturnRate = portfolioExpReturnRateArr
-  // result.stdDev = portfolioStdDevArr
-  // return result
+  return weightsMxN.map((weightsN: Array<number>) => createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN))
 }
