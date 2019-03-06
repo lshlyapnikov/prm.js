@@ -254,7 +254,7 @@ describe("mvef", () => {
         // THEN
         assert.strictEqual(array.length, numOfRandomWeights)
 
-        const [minStd: number, minStdIndx: number] = array.reduce(
+        const [minStdDev, minStdDevIndx]: [number, number] = array.reduce(
           (state: [number, number], p: PortfolioStats, currentIndex: number) => {
             if (p.stdDev < state[0]) {
               return [p.stdDev, currentIndex]
@@ -265,11 +265,11 @@ describe("mvef", () => {
           [Number.MAX_VALUE, -1]
         )
 
-        assert.notStrictEqual(minStdIndx, -1)
+        assert.notStrictEqual(minStdDevIndx, -1)
 
-        const actualMinRisk = minStd * 100
-        const actualReturnRate = array[minStdIndx].expectedReturnRate * 100
-        const actualWeights = array[minStdIndx].weights
+        const actualMinRisk = minStdDev * 100
+        const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
+        const actualWeights = array[minStdDevIndx].weights
 
         log.debug("min Std, %: ", actualMinRisk)
         log.debug("return rate, %: ", actualReturnRate)
