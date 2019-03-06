@@ -271,7 +271,7 @@ describe("mvef", () => {
         const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
         const actualWeights = array[minStdDevIndx].weights
 
-        log.debug("min Std, %: ", actualMinRisk)
+        log.debug("min StdDev, %: ", actualMinRisk)
         log.debug("return rate, %: ", actualReturnRate)
         log.debug("weights: ", prettyPrint(actualWeights))
 
