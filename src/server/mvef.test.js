@@ -243,28 +243,29 @@ describe("mvef", () => {
       const expectedMinRisk = 7.37
       const expectedReturnRate = 0.64
       const expectedWeights = [0.11, 0.89]
+      const numOfRandomWeights = 5000
 
       function mockHistoricalPricesProvider(symbol: string): Observable<number> {
         return from(prices[symbol])
       }
 
-      const numOfRandomWeights = 5000
-
       // WHEN
-      mvef
       mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).then((array: Array<PortfolioStats>) => {
         // THEN
         assert.strictEqual(array.length, numOfRandomWeights)
 
-        var minStd = Number.MAX_VALUE
-        var minStdIndx = -1
-        for (let i = 0; i < numOfRandomWeights; i++) {
-          const stdDev: number = array[i].stdDev
-          if (stdDev < minStd) {
-            minStdIndx = i
-            minStd = stdDev
-          }
-        }
+        const [minStd: number, minStdIndx: number] = array.reduce(
+          (state: [number, number], p: PortfolioStats, currentIndex: number) => {
+            if (p.stdDev < state[0]) {
+              return [p.stdDev, currentIndex]
+            } else {
+              return state
+            }
+          },
+          [Number.MAX_VALUE, -1]
+        )
+
+        assert.notStrictEqual(minStdIndx, -1)
 
         const actualMinRisk = minStd * 100
         const actualReturnRate = array[minStdIndx].expectedReturnRate * 100
