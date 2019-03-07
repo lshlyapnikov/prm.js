@@ -54,14 +54,12 @@ describe("pTheory", () => {
       assert.equal(actualPortfolio.stdDev.toFixed(4), expectedPortfolio.stdDev)
     })
     describe("#createMatrixA", () => {
-      function testCreateMatrixA(rrCov) {
+      function testCreateMatrixA(rrCov: Matrix<number>): void {
         const n = dim(rrCov)[0]
         const a = n + 1
 
         const matrixA = pTheory.globalMinimumVarianceEfficientPortfolio._createMatrixA(rrCov)
-
         log.debug("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
-
         assert.deepEqual(dim(matrixA), [a, a])
         for (let i = 0; i < n; i++) {
           for (let j = 0; j < n; j++) {
