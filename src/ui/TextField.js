@@ -1,4 +1,5 @@
 // @flow stric
+/* global SyntheticEvent */
 import React, { Component } from "react"
 
 type TextFieldProps = {

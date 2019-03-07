@@ -1,14 +1,10 @@
 // @flow strict
 
 import csv from "csv-parser"
-import fs from "fs"
 import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
 import stream from "stream"
-import { logger } from "../server/utils.js"
-
-const log = logger("DailyAdjusted")
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 
@@ -23,8 +19,8 @@ export function dailyAdjustedStockPrices(
   dateOrder: DateOrder
 ): Observable<number> {
   const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
-  const stream: stream.Readable = request(url).pipe(csv())
-  return dailyAdjustedStockPricesFromStream(stream, minDate, maxDate, dateOrder)
+  const rawStream: stream.Readable = request(url).pipe(csv())
+  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
 }
 
 export function dailyAdjustedStockPricesFromStream(

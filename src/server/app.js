@@ -4,7 +4,8 @@ const prmController = require("./prmController")
 const yahooFinanceApi = require("./../yahoo/yahooFinanceApi")
 const pStats = require("./portfolioStats")
 const pTheory = require("./portfolioTheory")
-//var _ = require("underscore")
+const util = require("./util")
+const log = util.logger("app.js")
 
 const controller = prmController.create(yahooFinanceApi.loadStockHistory, pStats, pTheory)
 
@@ -15,7 +16,7 @@ const app = express()
 app.use(express.static(staticFolder))
 
 app.get("/analyze", (req, res) => {
-  console.log("query: " + JSON.stringify(req.query))
+  log.info("query: " + JSON.stringify(req.query))
   const symbols = Immutable.List(req.query.symbols.split(",").map(s => s.trim()))
   const startDate = new Date(req.query.startDate)
   const endDate = new Date(req.query.endDate)
@@ -45,6 +46,6 @@ app.get("/analyze2", (req, res) => {
 })
 
 const server = app.listen(port, () => {
-  console.log("PRM.js is listening at %s", JSON.stringify(server.address()))
-  console.log("Static folder: %s", staticFolder)
+  log.info("PRM.js is listening at %s", JSON.stringify(server.address()))
+  log.info("Static folder: %s", staticFolder)
 })

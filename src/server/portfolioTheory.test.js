@@ -9,7 +9,7 @@ import {
   covariance,
   mean
 } from "./portfolioStats"
-import { type Matrix, columnMatrix, matrix, multiplyMatrices, transpose, dim } from "./linearAlgebra"
+import { type Matrix, columnMatrix, multiplyMatrices, transpose, dim } from "./linearAlgebra"
 import * as pTheory from "./portfolioTheory"
 import * as utils from "./utils"
 import * as testData from "./testData"

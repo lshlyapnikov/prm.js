@@ -40,11 +40,17 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "flow": "flow",
-    "prettier-check": "prettier --check 'src/**/*.js'",
-    "prettier-write": "prettier --write 'src/**/*.js'",
-    "test-all": "prettier --check 'src/**/*.js' && flow && react-scripts test --env=jsdom --all --no-watch"
+    "prettier-check": "prettier --check './src/**/*.js'",
+    "prettier-write": "prettier --write './src/**/*.js'",
+    "eslint": "eslint --env node ./src",
+    "test-all": "prettier --check './src/**/*.js' && eslint --env node ./src && flow && react-scripts test --env=jsdom --all --no-watch"
   },
   "devDependencies": {
+    "babel-eslint": "9.0.0",
+    "eslint": "5.12.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-flowtype": "^3.4.2",
+    "eslint-plugin-react": "^7.12.4",
     "flow-bin": "^0.93.0",
     "prettier": "1.16.4",
     "string-to-stream": "^1.1.1"

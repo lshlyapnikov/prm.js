@@ -3,16 +3,15 @@
 // @flow strict
 
 import { generateRandomWeightsMatrix } from "./utils"
-import { type Matrix, transpose, dim, multiplyMatrices } from "./linearAlgebra"
+import { type Matrix } from "./linearAlgebra"
 import {
   calculateReturnRatesFromPriceMatrix,
   mean,
   covariance,
-  portfolioStdDev,
   PortfolioStats,
   createPortfolioStats
 } from "./portfolioStats"
-import { Observable, Subscriber, from } from "rxjs"
+import { Observable, from } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
 import { Prices, createPriceMatrix } from "./priceMatrix"
 

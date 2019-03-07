@@ -1,7 +1,7 @@
 // @flow strict
 import { from, Observable } from "rxjs"
 import { map, flatMap, toArray } from "rxjs/operators"
-import { type Matrix, transpose } from "./linearAlgebra"
+import { type Matrix } from "./linearAlgebra"
 import {
   efficientPortfolioFrontier,
   tangencyPortfolio,
