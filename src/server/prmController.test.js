@@ -1,5 +1,4 @@
 // @flow strict
-/* global describe, it */
 import assert from "assert"
 import { from, range, throwError, Observable } from "rxjs"
 import { flatMap, toArray } from "rxjs/operators"

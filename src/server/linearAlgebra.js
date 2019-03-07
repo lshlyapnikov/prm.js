@@ -1,7 +1,7 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
-
 // @flow strict
+
 // for some reason the current numeric.js implementation does not check matrix dimensions before multiplication.
 // numeric.dot() does too many assumptions/deductions -- don't really like it. Want my functions to throw
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.

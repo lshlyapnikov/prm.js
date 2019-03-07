@@ -1,5 +1,4 @@
 // @flow strict
-
 import { prettyPrint } from "numeric"
 import { Observable, from } from "rxjs"
 import * as assert from "assert"

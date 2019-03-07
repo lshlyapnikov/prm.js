@@ -1,6 +1,4 @@
 // @flow strict
-/* global describe, it */
-
 import {
   dim,
   rowMatrix,

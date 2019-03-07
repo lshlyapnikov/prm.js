@@ -1,5 +1,4 @@
 // @flow strict
-/* global describe, it */
 
 import { toFixedNumber, generateRandomWeightsMatrix } from "./utils"
 import assert from "assert"

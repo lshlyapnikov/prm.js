@@ -7,7 +7,7 @@
 4.  [x] add `// @flow` to `server/utils.js`
 5.  [x] remove `// flowlint-next-line untyped-import:off` in `src/alphavantage/DailyAdjusted.js`
 6.  [x] replace console.log with util.log
-7.  [ ] add `// @flow` to the rest of the files
+7.  [x] add `// @flow` to the rest of the files
 8.  [x] fix `mvef.js` and add types
 9.  [ ] allow loading `Prices` directly in the `prmController`
 10. [x] add ESLint
@@ -16,3 +16,4 @@
 11. [ ] switch to using react hooks:
     - https://reactjs.org/docs/hooks-state.html
     - https://reactjs.org/docs/hooks-rules.html
+12. [ ] either remove `server/app.js` or add `// @flow strict` to it

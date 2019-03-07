@@ -1,7 +1,6 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
-
 import { generateRandomWeightsMatrix } from "./utils"
 import { type Matrix } from "./linearAlgebra"
 import {

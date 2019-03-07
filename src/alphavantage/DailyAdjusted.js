@@ -1,5 +1,4 @@
 // @flow strict
-
 import csv from "csv-parser"
 import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
