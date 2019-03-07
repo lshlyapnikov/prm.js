@@ -32,12 +32,12 @@ describe("pTheory", () => {
       utils.setArrayElementsScale(actualWeights, 4)
       assert.deepEqual(actualWeights, globalMinVariancePortfolio.weights)
 
-      var actualWeights1x3 = [actualWeights]
-      var actualStdDev = portfolioStdDev(actualWeights1x3, rrCovariance3x3)
+      const actualWeights1x3 = [actualWeights]
+      const actualStdDev = portfolioStdDev(actualWeights1x3, rrCovariance3x3)
       log.debug("actualStdDev: " + actualStdDev)
       assert.equal(actualStdDev.toFixed(8), globalMinVariancePortfolio.stdDev)
 
-      var portfolioRr = multiplyMatrices(actualWeights1x3, expectedRr3x1)
+      const portfolioRr = multiplyMatrices(actualWeights1x3, expectedRr3x1)
       assert.equal(portfolioRr[0][0].toFixed(4), globalMinVariancePortfolio.expectedReturnRate.toFixed(4))
     })
     it("should calculate global min variance portfolio for NYX and INTC using historic prices", () => {
@@ -47,7 +47,7 @@ describe("pTheory", () => {
       const expectedRrNx1 = mean(returnRatesKxN)
       const rrCovarianceNxN = covariance(returnRatesKxN)
 
-      var actualPortfolio = pTheory.globalMinimumVarianceEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN)
+      const actualPortfolio = pTheory.globalMinimumVarianceEfficientPortfolio.calculate(expectedRrNx1, rrCovarianceNxN)
 
       assert.deepEqual(utils.newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights)
       assert.equal(actualPortfolio.expectedReturnRate.toFixed(4), expectedPortfolio.expectedReturnRate)
@@ -55,21 +55,20 @@ describe("pTheory", () => {
     })
     describe("#createMatrixA", () => {
       function testCreateMatrixA(rrCov) {
-        var n = dim(rrCov)[0]
-        var a = n + 1
+        const n = dim(rrCov)[0]
+        const a = n + 1
 
-        var matrixA = pTheory.globalMinimumVarianceEfficientPortfolio._createMatrixA(rrCov)
+        const matrixA = pTheory.globalMinimumVarianceEfficientPortfolio._createMatrixA(rrCov)
 
         log.debug("matrixA: \n" + numeric.prettyPrint(matrixA) + "\n")
 
         assert.deepEqual(dim(matrixA), [a, a])
-        var i, j
-        for (i = 0; i < n; i++) {
-          for (j = 0; j < n; j++) {
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
             assert.equal(matrixA[i][j], 2 * rrCov[i][j])
           }
         }
-        for (i = 0; i < a - 1; i++) {
+        for (let i = 0; i < a - 1; i++) {
           assert.equal(matrixA[a - 1][i], 1)
           assert.equal(matrixA[i][a - 1], 1)
         }
@@ -109,7 +108,7 @@ describe("pTheory", () => {
         [1, 2, 3, 0, 0],
         [1, 1, 1, 0, 0]
       ]
-      var actualMatrixA = pTheory.targetReturnEfficientPortfolio._createMatrixA(expectedRr3x1, rrCovMatrix3x3)
+      const actualMatrixA = pTheory.targetReturnEfficientPortfolio._createMatrixA(expectedRr3x1, rrCovMatrix3x3)
       assert.deepEqual(actualMatrixA, expectedMatrixA)
     })
     it("should create expected matrix B", () => {
