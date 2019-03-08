@@ -61,7 +61,7 @@ describe("PrmController", () => {
   it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         new Date("2011/05/27"),
