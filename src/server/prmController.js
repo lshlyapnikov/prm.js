@@ -68,10 +68,10 @@ export class PrmController {
   /**
    * Returns portfolio analysis.
    *
-   * @param {Object} symbols  Immutable.List, symbols   The stock symbols you are interested in
-   * @param {Date} startDate  Specifies the start of the interval, inclusive
-   * @param {Date} endDate    Specifies the end of the interval, inclusive
-   * @param {Number} riskFreeRr Risk Free Return Rate
+   * @param symbols  The stock symbols you are interested in
+   * @param startDate  Specifies the start of the interval, inclusive
+   * @param endDate    Specifies the end of the interval, inclusive
+   * @param riskFreeRr Risk Free Return Rate
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
 
@@ -80,21 +80,23 @@ export class PrmController {
     startDate: Date,
     endDate: Date,
     riskFreeRr: number
-  ): Observable<[Input, Output]> {
+  ): Promise<[Input, Output]> {
     // TODO: would be nice if `loadHistoricalPrices` can be run in parallel
-    return from(symbols).pipe(
-      flatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
-      toArray(),
-      map((arr: Array<Prices>) => {
-        const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
-        const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN)
-        const expectedRrNx1 = mean(rrKxN)
-        const rrCovarianceNxN = covariance(rrKxN, false)
-        const input = new Input(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
-        const output = this.analyzeUsingPortfolioStatistics(input)
-        return [input, output]
-      })
-    )
+    return from(symbols)
+      .pipe(
+        flatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
+        toArray(),
+        map((arr: Array<Prices>) => {
+          const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
+          const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN)
+          const expectedRrNx1 = mean(rrKxN)
+          const rrCovarianceNxN = covariance(rrKxN, false)
+          const input = new Input(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
+          const output = this.analyzeUsingPortfolioStatistics(input)
+          return [input, output]
+        })
+      )
+      .toPromise()
   }
 
   analyzeUsingPortfolioStatistics(input: Input): Output {

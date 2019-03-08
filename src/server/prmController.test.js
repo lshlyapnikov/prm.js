@@ -1,7 +1,6 @@
 // @flow strict
 import assert from "assert"
-import { from, range, throwError, Observable } from "rxjs"
-import { flatMap, toArray } from "rxjs/operators"
+import { from, throwError, Observable } from "rxjs"
 import { validateMatrix } from "./linearAlgebra"
 import { PrmController, Input, Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
@@ -44,7 +43,7 @@ describe("PrmController", () => {
     const controller = new PrmController(loadMockStockHistory)
     controller
       .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)
-      .subscribe(
+      .then(
         (analysisResult: [Input, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult)
           const [input, output] = analysisResult
@@ -58,40 +57,9 @@ describe("PrmController", () => {
         error => done.fail(error)
       )
   })
-
-  // TODO: DRY - search for AAA
-  it.skip("should calculate 5 times the same tangency portfolio", done => {
-    function test(attempt) {
-      log.info(`attempt: ${attempt}`)
-      const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG"]
-      return controller.analyzeUsingPortfolioHistoricalPrices(
-        symbols,
-        new Date("2015/05/27"),
-        new Date("2016/05/27"),
-        1.0
-      )
-    }
-
-    const attempts = 5
-    range(0, attempts)
-      .pipe(
-        flatMap(x => test(x)),
-        toArray()
-      )
-      .subscribe(results => {
-        assert.strictEqual(results.length, attempts)
-        const tangencyArr: Array<Array<number>> = results.map(r => r[1].tangencyPortfolio)
-        for (let i = 1; i < attempts; i++) {
-          assert.deepStrictEqual(tangencyArr[i - 1], tangencyArr[i])
-        }
-        done()
-      })
-  })
-
   // TODO: DRY - search for AAA
   it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
-    function test(): Observable<[Input, Output]> {
+    function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "STJ", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -102,7 +70,7 @@ describe("PrmController", () => {
       )
     }
 
-    test().subscribe((result: [Input, Output]) => {
+    test().then((result: [Input, Output]) => {
       const weights: Array<number> = result[1].tangencyPortfolio.weights
       log.info(`\nweights: ${JSON.stringify(weights)}`)
       done()
