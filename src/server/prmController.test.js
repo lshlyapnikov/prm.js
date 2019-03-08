@@ -1,26 +1,29 @@
 // @flow strict
 import assert from "assert"
+import csv from "csv-parser"
+import fs from "fs"
+import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { validateMatrix } from "./linearAlgebra"
 import { PrmController, Input, Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
-import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
+import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale } from "./utils"
-import { alphavantage } from "../../test-config.js"
 import * as testData from "./testData"
 import { logger } from "./utils"
 
 const log = logger("prmController.test.js")
-
-function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
-  return dailyAdjustedStockPrices(alphavantage.apiKey, symbol, minDate, maxDate, AscendingDates)
-}
 
 // eslint-disable-next-line no-unused-vars
 function loadMockStockHistory(symbol: string, dummy0: Date, dummy1: Date): Observable<number> {
   if (symbol === "NYX") return from(testData.NYX)
   else if (symbol == "INTC") return from(testData.INTC)
   else return throwError(`Unsupported mock symbol: ${symbol}`)
+}
+
+function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
+  const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`).pipe(csv())
+  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 }
 
 function verifyPortfolioStatsObjects(o: PortfolioStats) {
@@ -57,22 +60,21 @@ describe("PrmController", () => {
         error => done.fail(error)
       )
   })
-  // TODO: DRY - search for AAA
-  it.skip("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
+  it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "PEG"]
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
-        new Date("2011/05/27"),
-        new Date("2016/05/27"),
+        new Date("2014/03/07"),
+        new Date("2019/03/07"),
         1.0
       )
     }
 
     test().then((result: [Input, Output]) => {
-      const weights: Array<number> = result[1].tangencyPortfolio.weights
-      log.info(`\nweights: ${JSON.stringify(weights)}`)
+      const output = result[1]
+      log.info(`output:\n${prettyPrint(output)}`)
       done()
     })
   })
