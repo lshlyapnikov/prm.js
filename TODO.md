@@ -17,3 +17,4 @@
     - https://reactjs.org/docs/hooks-state.html
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
+13. [ ] implement prm.js CLI before the GUI
