@@ -21,6 +21,7 @@
     "minimum"
   ],
   "dependencies": {
+    "command-line-args": "^5.0.2",
     "csv-parser": "^2.2.0",
     "immutable": "^4.0.0-rc.12",
     "log4js": "^4.0.2",
@@ -44,7 +45,8 @@
     "prettier-write": "prettier --write './src/**/*.js'",
     "eslint": "eslint ./src",
     "test-all": "prettier --check './src/**/*.js' && eslint ./src && flow && react-scripts test --env=jsdom --all --no-watch",
-    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js"
+    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js",
+    "start-cli": "node --experimental-modules ./build-cli/cli/prm.mjs"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
