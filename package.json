@@ -43,7 +43,8 @@
     "prettier-check": "prettier --check './src/**/*.js'",
     "prettier-write": "prettier --write './src/**/*.js'",
     "eslint": "eslint ./src",
-    "test-all": "prettier --check './src/**/*.js' && eslint ./src && flow && react-scripts test --env=jsdom --all --no-watch"
+    "test-all": "prettier --check './src/**/*.js' && eslint ./src && flow && react-scripts test --env=jsdom --all --no-watch",
+    "build-cli": "flow-remove-types ./src/ -d ./build-cli"
   },
   "devDependencies": {
     "eslint": "5.12.0",

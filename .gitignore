@@ -10,6 +10,7 @@ test-config.js
 
 # production
 /build
+/build-cli
 
 # misc
 .DS_Store
