@@ -4,16 +4,19 @@ prm.js
 # Requirements
 Node v4.2.0 <TODO: ???>
 
-# How to Start <TODO: ????>
+# How to Start <TODO: obsolete>
 ```shell
-> yarn install
-> node ./src/main/server/app.js 8080 ./src/main/client
+$ yarn install
+$ node ./src/main/server/app.js 8080 ./src/main/client
 <browser> http://localhost:8080/
 ```
 
-# Build instructions
-> flow-typed update
-> yarn test-all
+# Build Instructions
+$ flow-typed update
+$ yarn test-all
+$ yarn build
+$ yarn build-cli
+$ node --experimental-modules ./build-cli/cli/prm.mjs
 
 # Running Tests
 - Request free Alphavantage API Key: https://www.alphavantage.co/support/#api-key

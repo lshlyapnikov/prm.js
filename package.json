@@ -44,14 +44,17 @@
     "prettier-write": "prettier --write './src/**/*.js'",
     "eslint": "eslint ./src",
     "test-all": "prettier --check './src/**/*.js' && eslint ./src && flow && react-scripts test --env=jsdom --all --no-watch",
-    "build-cli": "flow-remove-types ./src/ -d ./build-cli"
+    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
     "eslint": "5.12.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-flowtype": "^3.4.2",
     "eslint-plugin-react": "^7.12.4",
     "flow-bin": "^0.93.0",
+    "js-to-mjs": "^0.2.0",
     "prettier": "1.16.4",
     "string-to-stream": "^1.1.1"
   },

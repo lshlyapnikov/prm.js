@@ -13,7 +13,7 @@ import {
   DescendingDates
 } from "./DailyAdjusted"
 import { alphavantage } from "../../test-config.js"
-import { logger } from "../server/utils.js"
+import { logger } from "../server/utils"
 
 const log = logger("DailyAdjusted.test.js")
 
