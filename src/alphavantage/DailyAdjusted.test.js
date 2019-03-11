@@ -17,8 +17,6 @@ import { logger } from "../server/utils"
 
 const log = logger("DailyAdjusted.test.js")
 
-const i = 100
-
 describe("DailyAdjusted", () => {
   it("should parse and return adjusted closing prices in with ascending date order", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
