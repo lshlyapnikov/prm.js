@@ -18,3 +18,12 @@
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
 13. [ ] implement prm.js CLI before the GUI
+14. [ ] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
+    ```
+    warning "react-scripts > pnp-webpack-plugin > ts-pnp@1.0.0" has unmet peer dependency "typescript@*".
+    warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-import@>=2.13.0".
+    warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-node@>=7.0.0".
+    warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-promise@>=4.0.0".
+    warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-standard@>=4.0.0".
+    ```
+    
