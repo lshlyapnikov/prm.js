@@ -46,7 +46,7 @@
     "prettier-check": "prettier --check './src/**/*.js'",
     "prettier-write": "prettier --write './src/**/*.js'",
     "eslint": "eslint ./src",
-    "test-all": "run-s prettier-check eslint flow test-no-watch",
+    "test-all": "run-s --print-name prettier-check eslint flow test-no-watch",
     "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js",
     "start-cli": "node --experimental-modules ./build-cli/cli/prm.mjs"
   },
