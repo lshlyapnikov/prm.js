@@ -26,4 +26,5 @@
     warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-promise@>=4.0.0".
     warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-standard@>=4.0.0".
     ```
-    
+15. riskFreeRate should be a ratio not percents, 1.0 in the below looks wrong:
+    `analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)`
