@@ -47,12 +47,15 @@
     "prettier-write": "prettier --write './src/**/*.js'",
     "eslint": "eslint ./src",
     "test-all": "run-s --print-name prettier-check eslint flow test-no-watch",
-    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js",
+    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js'",
+    "build-cli2": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js' && j2m ./build-cli/cli/prm.js",
     "start-cli": "node --experimental-modules ./build-cli/cli/prm.mjs"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-flow": "^6.23.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/preset-flow": "^7.0.0",
     "eslint": "5.12.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-flowtype": "^3.4.2",
