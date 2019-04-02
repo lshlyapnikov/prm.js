@@ -48,23 +48,28 @@ const options = commandLineArgs(optionDefinitions, { stopAtFirstUnknown: true })
 const uknownArgs: ?Array<string> = options["_unknown"]
 if (uknownArgs != null) {
   const uknownArgsStr: string = uknownArgs.reduce((z: string, a: string) => z + ", " + a)
-  log.error(`Uknown command line arguments: ${uknownArgsStr}`)
+  log.warn(`Uknown command line arguments: ${uknownArgsStr}`)
 }
 
-const stocks: Array<string> = options["stock"]
-const years: number = options["years"]
-
-// XOM, GOOG, VCSH, F
-//  BAC COM STK FUND, DODGE & COX STOCK FUND (MUTF: DODGX), LIFEPATH INDEX 2040 FUND O
-
 log.info(`options: ${JSON.stringify(options)}`)
+
+const stocks: Array<string> = options["stock"]
+if (stocks === undefined || stocks.length == 0) {
+  log.error("At least one --stock=<SYMBOL> argument is required")
+  process.exit(1)
+}
+const years: number = options["years"]
+if (years === undefined || years <= 0) {
+  log.error("Number of years (> 0) have to be specified with --years=<INTEGER> argument")
+  process.exit(2)
+}
+
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`years: ${JSON.stringify(years)}`)
 
 const maxDate = new Date()
 const minDate = subYears(maxDate, years)
 const riskFreeRate: number = 0.01 / 10
-// const myStocks: Array<string> = ["XOM", "GOOG", "F"] // ["XOM", "GOOG", "VCSH", "F"]
 
 log.info(`minDate: ${minDate.toString()}, maxDate: ${maxDate.toString()}`)
 
@@ -74,7 +79,6 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, riskF
     const output: Output = analysisResult[1]
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
     log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
-
     log.info(
       `tangencyAnnualInterest, %: ${cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) * 100}`
     )
