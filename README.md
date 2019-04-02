@@ -2,7 +2,7 @@ prm.js
 ======
 
 # Requirements
-Node v4.2.0 <TODO: ???>
+Node v10.x.x
 
 # How to Start <TODO: obsolete>
 ```shell
@@ -16,7 +16,7 @@ $ flow-typed update
 $ yarn test-all
 $ yarn build
 $ yarn build-cli
-$ node --experimental-modules ./build-cli/cli/prm.mjs
+$ node ./build-cli/cli/prm.js --years=1 --stock=XOM --stock=GOOG --stock=F --stock=VCSH
 
 # Running Tests
 - Request free Alphavantage API Key: https://www.alphavantage.co/support/#api-key
