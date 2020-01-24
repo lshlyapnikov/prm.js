@@ -57,6 +57,7 @@ describe("PrmController", () => {
           assert.deepStrictEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
           done()
         },
+        // $FlowIgnore: TODO fix it
         error => done.fail(error)
       )
   })
