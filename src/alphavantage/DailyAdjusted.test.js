@@ -24,7 +24,6 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98, 107.06]),
-        // $FlowIgnore: TODO fix it
         error => done.fail(error),
         () => done()
       )
@@ -36,7 +35,6 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [107.06, 105.98]),
-        // $FlowIgnore: TODO fix it
         error => done.fail(error),
         () => done()
       )
@@ -48,7 +46,6 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98]),
-        // $FlowIgnore: TODO fix it
         error => done.fail(error),
         () => done()
       )
@@ -60,7 +57,6 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, []),
-        // $FlowIgnore: TODO fix it
         error => done.fail(error),
         () => done()
       )
@@ -78,7 +74,6 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [104.845, 103.9718, 105.0314]),
-        // $FlowIgnore: TODO fix it
         error => done.fail(error),
         () => done()
       )
@@ -89,15 +84,13 @@ describe("DailyAdjusted", () => {
         .pipe(toArray())
         .subscribe(
           (array: Array<number>) => {
-            // $FlowIgnore: TODO fix it
-            done.fail(`Expected error, but got: ${JSON.stringify(array)}`)
+            done.fail(new Error(`Expected error, but got: ${JSON.stringify(array)}`))
           },
           error => {
             if (typeof error === "string" && error.startsWith(expectedError)) {
               done()
             } else {
-              // $FlowIgnore: TODO fix it
-              done.fail(`Expected error message that starts with: ${expectedError}, but got: ${error}`)
+              done.fail(new Error(`Expected error message that starts with: ${expectedError}, but got: ${error}`))
             }
           },
           () => done()
