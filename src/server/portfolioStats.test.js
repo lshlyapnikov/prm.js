@@ -52,7 +52,12 @@ describe("pStats", () => {
   describe("#mean()", () => {
     it("should calculate vector of mean values", () => {
       var expectedMean = [[2.5], [25], [250]]
-      var actualMean = pStats.mean([[1, 10, 100], [2, 20, 200], [3, 30, 300], [4, 40, 400]])
+      var actualMean = pStats.mean([
+        [1, 10, 100],
+        [2, 20, 200],
+        [3, 30, 300],
+        [4, 40, 400]
+      ])
       assert.deepEqual(actualMean, expectedMean)
     })
     it("should calculate vector mean values using test data", () => {
@@ -84,8 +89,18 @@ describe("pStats", () => {
   describe("#covariance()", () => {
     it("[1] should calculate sample covariance", () => {
       // GIVEN
-      const m = [[1, 2, 3], [40, 50, 60], [7, 8, 9], [10, 11, 12], [13, 14, 15]]
-      const expected = [[227.7, 285.75, 343.8], [285.75, 360.0, 434.25], [343.8, 434.25, 524.7]]
+      const m = [
+        [1, 2, 3],
+        [40, 50, 60],
+        [7, 8, 9],
+        [10, 11, 12],
+        [13, 14, 15]
+      ]
+      const expected = [
+        [227.7, 285.75, 343.8],
+        [285.75, 360.0, 434.25],
+        [343.8, 434.25, 524.7]
+      ]
 
       // WHEN
       const actual = pStats.covariance(m)
@@ -131,7 +146,10 @@ describe("pStats", () => {
     it("[3] should calculate sample covariance using testData", () => {
       // GIVEN
       var mXn = la.transpose([testData.INTC, testData.NYX])
-      var expected = [[11.4424425066996, -0.5151149866007], [-0.5151149866007, 343.78364145537]]
+      var expected = [
+        [11.4424425066996, -0.5151149866007],
+        [-0.5151149866007, 343.78364145537]
+      ]
       // WHEN
       var actual = pStats.covariance(mXn)
       // THEN
@@ -168,8 +186,15 @@ describe("pStats", () => {
   describe("#calculateReturnRatesFromPriceMatrix()", () => {
     it("[1] should calculate return rates from price matrix", () => {
       // GIVEN
-      var priceMatrix = [[100.123, 1.123], [200.123, 2.123], [300.123, 3.123]]
-      var expected = [[0.998771511, 0.89047195], [0.499692689, 0.471031559]]
+      var priceMatrix = [
+        [100.123, 1.123],
+        [200.123, 2.123],
+        [300.123, 3.123]
+      ]
+      var expected = [
+        [0.998771511, 0.89047195],
+        [0.499692689, 0.471031559]
+      ]
       // WHEN
       var actual = pStats.calculateReturnRatesFromPriceMatrix(priceMatrix)
 
@@ -195,7 +220,11 @@ describe("pStats", () => {
     it("[1] should calculate portfolio Std Dev", () => {
       // GIVEN
       var weights1xN = [[1 / 3, 1 / 3, 1 / 3]]
-      var covarianceNxN = [[0.01, 0.0018, 0.0011], [0.0018, 0.0109, 0.0026], [0.0011, 0.0026, 0.0199]]
+      var covarianceNxN = [
+        [0.01, 0.0018, 0.0011],
+        [0.0018, 0.0109, 0.0026],
+        [0.0011, 0.0026, 0.0199]
+      ]
       var expected = 0.07586538
       // WHEN
       var actual = pStats.portfolioStdDev(weights1xN, covarianceNxN)
@@ -205,7 +234,11 @@ describe("pStats", () => {
     it("[2] should calculate portfolio Std Dev", () => {
       // GIVEN
       var weights1xN = [[0.2, 0.4, 0.4]]
-      var covarianceNxN = [[0.036224, 0.03298, 0.047716], [0.03298, 0.150345, 0.021842], [0.047716, 0.021842, 0.814886]]
+      var covarianceNxN = [
+        [0.036224, 0.03298, 0.047716],
+        [0.03298, 0.150345, 0.021842],
+        [0.047716, 0.021842, 0.814886]
+      ]
       var expected = 0.4193
       // WHEN
       var actual = pStats.portfolioStdDev(weights1xN, covarianceNxN)

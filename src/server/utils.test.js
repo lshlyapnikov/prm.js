@@ -48,7 +48,14 @@ describe("utils", function() {
     it("should throw up when invalid arguments passed", function() {
       // GIVEN
       // Valid arguments: rowNum > 0 and colNum > 1
-      const invalidArguments: Array<Array<number>> = [[0, 10], [-1, 10], [10, 0], [10, -1], [10, 1], [0, 0]]
+      const invalidArguments: Array<Array<number>> = [
+        [0, 10],
+        [-1, 10],
+        [10, 0],
+        [10, -1],
+        [10, 1],
+        [0, 0]
+      ]
 
       function test(rowNum: number, colNum: number): void {
         var actualException: Error

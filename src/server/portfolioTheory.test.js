@@ -20,7 +20,11 @@ describe("pTheory", () => {
   // numbers taken from econ424/08.2 portfolioTheoryMatrix.pdf, p. 4, example 2
   // MSFT, NORD, SBUX
   const expectedRr3x1: Matrix<number> = columnMatrix([0.0427, 0.0015, 0.0285])
-  const rrCovariance3x3: Matrix<number> = [[0.01, 0.0018, 0.0011], [0.0018, 0.0109, 0.0026], [0.0011, 0.0026, 0.0199]]
+  const rrCovariance3x3: Matrix<number> = [
+    [0.01, 0.0018, 0.0011],
+    [0.0018, 0.0109, 0.0026],
+    [0.0011, 0.0026, 0.0199]
+  ]
   const riskFreeRr: number = 0.005
   const globalMinVariancePortfolio = new PortfolioStats([0.4411, 0.3656, 0.1933], 0.07267607, 0.02489184)
 
@@ -98,7 +102,11 @@ describe("pTheory", () => {
   describe("Efficient Portfolio with Target Return", () => {
     it("should create expected matrix A", () => {
       const expectedRr3x1 = columnMatrix([1, 2, 3])
-      const rrCovMatrix3x3 = [[10, 11, 12], [20, 21, 22], [30, 31, 32]]
+      const rrCovMatrix3x3 = [
+        [10, 11, 12],
+        [20, 21, 22],
+        [30, 31, 32]
+      ]
       const expectedMatrixA = [
         [20, 22, 24, 1, 1],
         [40, 42, 44, 2, 1],

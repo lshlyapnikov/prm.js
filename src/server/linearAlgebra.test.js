@@ -18,7 +18,10 @@ describe("linearAlgebra", () => {
   describe("#dim()", () => {
     it("should return matrix dimensions", () => {
       // WHEN
-      const actual = dim([[1, 2, 3, 4], [6, 7, 8, 9]])
+      const actual = dim([
+        [1, 2, 3, 4],
+        [6, 7, 8, 9]
+      ])
       // THEN
       assert.deepEqual(actual, [2, 4])
     })
@@ -48,9 +51,17 @@ describe("linearAlgebra", () => {
   describe("#transpose()", () => {
     it("should transpose a matrix", () => {
       // GIVEN
-      var expected = [[1, 6], [2, 7], [3, 8], [4, 9]]
+      var expected = [
+        [1, 6],
+        [2, 7],
+        [3, 8],
+        [4, 9]
+      ]
       // WHEN
-      const actual = transpose([[1, 2, 3, 4], [6, 7, 8, 9]])
+      const actual = transpose([
+        [1, 2, 3, 4],
+        [6, 7, 8, 9]
+      ])
       // THEN
       assert.deepEqual(actual, expected)
     })
@@ -66,14 +77,31 @@ describe("linearAlgebra", () => {
   describe("#multiplyMatrices()", () => {
     it("should multiply two matrices", () => {
       // GIVEN
-      const expected = [[-2, -7], [-22, 11], [32, -9]]
+      const expected = [
+        [-2, -7],
+        [-22, 11],
+        [32, -9]
+      ]
       // WHEN
-      const actual = multiplyMatrices([[4, -1], [-4, -3], [2, 5]], [[1, -2], [6, -1]])
+      const actual = multiplyMatrices(
+        [
+          [4, -1],
+          [-4, -3],
+          [2, 5]
+        ],
+        [
+          [1, -2],
+          [6, -1]
+        ]
+      )
       // THEN
       assert.deepEqual(actual, expected)
     })
     it("should multiply 2x1 and 1x2 matrices", () => {
-      assert.deepEqual(multiplyMatrices(columnMatrix([1, 2]), rowMatrix([2, 1])), [[2, 1], [4, 2]])
+      assert.deepEqual(multiplyMatrices(columnMatrix([1, 2]), rowMatrix([2, 1])), [
+        [2, 1],
+        [4, 2]
+      ])
     })
     it("should multiply 1x2 and 2x1 matrices", () => {
       assert.equal(multiplyMatrices(rowMatrix([1, 2]), columnMatrix([2, 1])), 4)
@@ -87,7 +115,10 @@ describe("linearAlgebra", () => {
     })
     it("should multiply 1x2 and 2x2 matrices and return zero 1x2 matrix", () => {
       const a = [[-0.2958994892957374, 1.2958994892957374]]
-      const b = [[0.00042280114208275815, 0.0000965403899371335], [0.0000965403899371335, 0.000022043570751257575]]
+      const b = [
+        [0.00042280114208275815, 0.0000965403899371335],
+        [0.0000965403899371335, 0.000022043570751257575]
+      ]
       const actual = multiplyMatrices(a, b)
       const expected = [[0, 0]]
       assert.deepEqual(actual, expected)
@@ -117,26 +148,43 @@ describe("linearAlgebra", () => {
   })
   describe("#validateMatrix()", () => {
     it("matrix should pass validation when all rows have the same number of elements", () => {
-      var matrix = [[1, 2, 3], [1, 2, 3]]
+      var matrix = [
+        [1, 2, 3],
+        [1, 2, 3]
+      ]
       validateMatrix(matrix)
     })
     it("matrix should fail validation when a row contains number of elements less than expected", () => {
-      var matrix = [[1, 2, 3], [1, 2], [1, 2, 3]]
+      var matrix = [
+        [1, 2, 3],
+        [1, 2],
+        [1, 2, 3]
+      ]
       assert.throws(() => validateMatrix(matrix))
     })
     it("matrix should fail validation when a row contains number of elements larger than expected", () => {
-      var matrix = [[1, 2, 3], [1, 2, 3, 4], [1, 2, 3]]
+      var matrix = [
+        [1, 2, 3],
+        [1, 2, 3, 4],
+        [1, 2, 3]
+      ]
       assert.throws(() => validateMatrix(matrix))
     })
   })
   describe("#copyMatrix", () => {
     it("should copy matrix", () => {
-      var matrix = [[1.1, 2.2, 3.3], [4.4, 5.5, 6.6]]
+      var matrix = [
+        [1.1, 2.2, 3.3],
+        [4.4, 5.5, 6.6]
+      ]
       var matrixCopy = copyMatrix(matrix)
       assertEqualMatrices(matrixCopy, matrix, 4)
     })
     it("should create a deep copy of the original matrix", () => {
-      var matrix = [[1.1, 2.2, 3.3], [4.4, 5.5, 6.6]]
+      var matrix = [
+        [1.1, 2.2, 3.3],
+        [4.4, 5.5, 6.6]
+      ]
       var matrixCopy = copyMatrix(matrix)
       matrixCopy[0][0] = -1.1
       assertNotEqualMatrices(matrixCopy, matrix, 4)
@@ -145,9 +193,17 @@ describe("linearAlgebra", () => {
   })
   describe("#inverseMatrix", () => {
     it("should inverse matrix", () => {
-      var matrix = [[1, 3, 3], [1, 4, 3], [1, 3, 4]]
+      var matrix = [
+        [1, 3, 3],
+        [1, 4, 3],
+        [1, 3, 4]
+      ]
       const actual = inverseMatrix(matrix)
-      var expected = [[7, -3, -3], [-1, 1, 0], [-1, 0, 1]]
+      var expected = [
+        [7, -3, -3],
+        [-1, 1, 0],
+        [-1, 0, 1]
+      ]
       assertEqualMatrices(actual, expected, 4)
     })
   })

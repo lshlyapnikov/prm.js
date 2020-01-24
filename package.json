@@ -41,7 +41,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "clean": "rimraf build/ build-cli/ coverage/",
-    "test-no-watch": "react-scripts test --env=jsdom --all --no-watch",
+    "test-no-watch": "react-scripts test --env=jsdom --all --watchAll=false",
     "eject": "react-scripts eject",
     "flow": "flow",
     "prettier-check": "prettier --check './src/**/*.js'",
