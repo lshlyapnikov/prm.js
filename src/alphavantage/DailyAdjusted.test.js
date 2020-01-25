@@ -17,7 +17,7 @@ import { logger } from "../server/utils"
 const log = logger("DailyAdjusted.test.js")
 
 describe("DailyAdjusted", () => {
-  it("should parse and return adjusted closing prices in with ascending date order", done => {
+  test("should parse and return adjusted closing prices with ascending date order", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), AscendingDates)
       .pipe(toArray())
@@ -28,7 +28,7 @@ describe("DailyAdjusted", () => {
       )
   })
 
-  it("should parse and return adjusted closing prices with descending date order", done => {
+  test("should parse and return adjusted closing prices with descending date order", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), DescendingDates)
       .pipe(toArray())
@@ -39,7 +39,7 @@ describe("DailyAdjusted", () => {
       )
   })
 
-  it("should parse and return one adjusted closing price value", done => {
+  test("should parse and return one adjusted closing price value", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
       .pipe(toArray())
@@ -50,7 +50,7 @@ describe("DailyAdjusted", () => {
       )
   })
 
-  it("should return empty array when date it out of range", done => {
+  test("should return empty array when date it out of range", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(rawStream, new Date("1970-01-01"), new Date("1970-01-01"), AscendingDates)
       .pipe(toArray())
@@ -61,7 +61,8 @@ describe("DailyAdjusted", () => {
       )
   })
 
-  it("should parse and return adjusted closing prices requested from alphavantage", done => {
+  // TODO: run integration tests separately
+  test.skip("should parse and return adjusted closing prices requested from alphavantage", done => {
     log.info(`apiKey: ${alphavantage.apiKey}`)
     dailyAdjustedStockPrices(
       alphavantage.apiKey,
@@ -77,7 +78,7 @@ describe("DailyAdjusted", () => {
         () => done()
       )
   })
-  it("should return error when CSV stream errors out", done => {
+  test("should return error when CSV stream errors out", done => {
     function testShouldReturnError(rawStream: stream.Readable, expectedError: string) {
       dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
         .pipe(toArray())

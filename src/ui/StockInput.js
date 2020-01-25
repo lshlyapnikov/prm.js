@@ -1,4 +1,4 @@
-// @flow stric
+// @flow strict
 import React, { Component } from "react"
 
 // import TextField from 'material-ui/TextField'

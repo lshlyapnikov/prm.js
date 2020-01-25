@@ -1,4 +1,4 @@
-// @flow stric
+// @flow strict
 export const alphavantage = {
   apiKey: "demo"
 }

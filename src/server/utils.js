@@ -5,7 +5,7 @@ import log4js from "log4js"
 
 export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
-  logger.level = log4js.levels.INFO
+  logger.level = log4js.levels.WARN
   return logger
 }
 
