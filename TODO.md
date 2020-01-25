@@ -13,12 +13,12 @@
 10. [x] add ESLint
     - https://www.npmjs.com/package/eslint-plugin-react
     - https://github.com/joarwilk/flowgen/blob/master/.eslintrc
-11. [ ] switch to using react hooks:
+11. [ ] [UI] switch to using react hooks:
     - https://reactjs.org/docs/hooks-state.html
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
 13. [ ] implement prm.js CLI before the GUI
-14. [ ] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
+14. [x] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
     ```
     warning "react-scripts > pnp-webpack-plugin > ts-pnp@1.0.0" has unmet peer dependency "typescript@*".
     warning " > eslint-config-standard@12.0.0" has unmet peer dependency "eslint-plugin-import@>=2.13.0".
@@ -28,3 +28,6 @@
     ```
 15. riskFreeRate should be a ratio not percents, 1.0 in the below looks wrong:
     `analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)`
+16. [ ] [UI] Give an option to load stock prices in Yahoo CSV format
+17. [ ] [UI] Give an option to load stock prices in Google Finance CSV format
+18. [ ] [UI] Give an option to load stock prices in Alphavantage CSV format
