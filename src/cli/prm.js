@@ -1,5 +1,5 @@
 // @flow strict
-import commandLineArgs from "command-line-args"
+import * as yargs from "yargs"
 import { Observable } from "rxjs"
 import { prettyPrint } from "numeric"
 import { logger } from "../server/utils"
@@ -26,43 +26,44 @@ function cumulativeReturnRate(returnRate: number, periods: number): number {
   return Math.pow(1 + returnRate, periods) - 1
 }
 
-log.info(`args: ${JSON.stringify(process.argv)}`)
-const optionDefinitions = [
-  {
-    name: "stock",
-    type: String,
-    multiple: true,
-    defaultValue: undefined,
-    description: "A list of stock symbols"
-  },
-  {
-    name: "years",
-    type: Number,
-    defaultValue: undefined,
-    description: "Interval in years"
+function mixedToString(a: mixed): string {
+  if (typeof a === "string") {
+    return (a: string)
+  } else {
+    throw new Error(`Cannot convert mixed to string`)
   }
-]
-
-const options = commandLineArgs(optionDefinitions, { stopAtFirstUnknown: true })
-
-const uknownArgs: ?Array<string> = options["_unknown"]
-if (uknownArgs != null) {
-  const uknownArgsStr: string = uknownArgs.reduce((z: string, a: string) => z + ", " + a)
-  log.warn(`Uknown command line arguments: ${uknownArgsStr}`)
 }
 
-log.info(`options: ${JSON.stringify(options)}`)
+function mixedToNumber(a: mixed): number {
+  if (typeof a === "number") {
+    return (a: number)
+  } else {
+    throw new Error(`Cannot convert mixed to number`)
+  }
+}
 
-const stocks: Array<string> = options["stock"]
-if (stocks === undefined || stocks.length == 0) {
-  log.error("At least one --stock=<SYMBOL> argument is required")
-  process.exit(1)
-}
-const years: number = options["years"]
-if (years === undefined || years <= 0) {
-  log.error("Number of years (> 0) have to be specified with --years=<INTEGER> argument")
-  process.exit(2)
-}
+log.info(`args: ${JSON.stringify(process.argv)}`)
+
+const options = yargs
+  .usage("$0 [options]")
+  .help("help")
+  .options({
+    stocks: {
+      description: "A comma-separated list of stock symbols, example: --stocks=IBM,MSFT",
+      requiresArg: true,
+      demandOption: true,
+      type: "string"
+    },
+    years: {
+      description: "Interval in years, example: --years=3",
+      requiresArg: true,
+      demandOption: true,
+      type: "number"
+    }
+  }).argv
+
+const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
+const years: number = mixedToNumber(options["years"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`years: ${JSON.stringify(years)}`)

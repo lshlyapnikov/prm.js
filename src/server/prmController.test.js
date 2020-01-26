@@ -74,7 +74,7 @@ describe("PrmController", () => {
 
     test().then((result: [Input, Output]) => {
       const output = result[1]
-      log.info(`output:\n${prettyPrint(output)}`)
+      log.debug(`output:\n${prettyPrint(output)}`)
       done()
     })
   })
