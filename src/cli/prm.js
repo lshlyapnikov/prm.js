@@ -7,19 +7,20 @@ import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { subYears } from "date-fns"
 
-// import { alphavantage } from "../../test-config.js"
-const alphavantage: { apiKey: string } = {
-  apiKey: "S2A8UKWLTKUMVG88"
-}
 const log = logger("cli/prm.js")
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
+function loadStockHistoryFromAlphavantage(
+  apiKey: string,
+  symbol: string,
+  minDate: Date,
+  maxDate: Date
+): Observable<number> {
   sleep(5000)
-  return dailyAdjustedStockPrices(alphavantage.apiKey, symbol, minDate, maxDate, AscendingDates)
+  return dailyAdjustedStockPrices(apiKey, symbol, minDate, maxDate, AscendingDates)
 }
 
 function cumulativeReturnRate(returnRate: number, periods: number): number {
@@ -42,39 +43,52 @@ function mixedToNumber(a: mixed): number {
   }
 }
 
-log.info(`args: ${JSON.stringify(process.argv)}`)
+// log.info(`args: ${JSON.stringify(process.argv)}`)
 
 const options = yargs
   .usage("$0 [options]")
   .help("help")
+  .example(
+    "$0 --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key>",
+    "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
+  )
   .options({
     stocks: {
-      description: "A comma-separated list of stock symbols, example: --stocks=IBM,MSFT",
+      description: "A comma-separated list of stock symbols",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     years: {
-      description: "Interval in years, example: --years=3",
+      description: "Stock price history interval, years",
       requiresArg: true,
       demandOption: true,
       type: "number"
+    },
+    "api-key": {
+      description: "Alphavantage API key",
+      requiresArg: true,
+      demandOption: true,
+      type: "string"
     }
   }).argv
 
 const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const years: number = mixedToNumber(options["years"])
+const apiKey: string = mixedToString(options["api-key"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`years: ${JSON.stringify(years)}`)
+log.info(`api-key: ${JSON.stringify(apiKey)}`)
 
 const maxDate = new Date()
 const minDate = subYears(maxDate, years)
 const riskFreeRate: number = 0.01 / 10
 
-log.info(`minDate: ${minDate.toString()}, maxDate: ${maxDate.toString()}`)
+log.info(`minDate: ${minDate.toString()}`)
+log.info(`maxDate: ${maxDate.toString()}`)
 
-const controller = new PrmController(loadStockHistoryFromAlphavantage)
+const controller = new PrmController((a, b, c) => loadStockHistoryFromAlphavantage(apiKey, a, b, c))
 controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, riskFreeRate).then(
   (analysisResult: [Input, Output]) => {
     const output: Output = analysisResult[1]
