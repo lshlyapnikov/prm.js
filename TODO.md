@@ -21,8 +21,9 @@
     [ ] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
         src/server/prmController.js:87
     [ ] allow specifying risk free daily interest rate, currently hardcoded.
+    [ ] risk free interest rate, is it daily or annual in the formula???
     [ ] validate the output from the CLI
-    [ ] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
+    [x] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
 14. [x] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
     ```
     warning "react-scripts > pnp-webpack-plugin > ts-pnp@1.0.0" has unmet peer dependency "typescript@*".

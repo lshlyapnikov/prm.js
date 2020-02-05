@@ -76,6 +76,7 @@ log.info(`delay-millis: ${JSON.stringify(delayMillis)}`)
 
 const maxDate = new Date()
 const minDate = subYears(maxDate, years)
+// TODO pass riskFreeRate
 const riskFreeRate: number = 0.01 / 10
 
 log.info(`minDate: ${minDate.toString()}`)
