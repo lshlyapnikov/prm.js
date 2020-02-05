@@ -36,12 +36,12 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "3.3.0",
-    "rxjs": "6",
+    "rxjs": "^6.5.4",
     "yargs": "^15.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start-ui": "react-scripts start",
+    "build-ui": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "clean": "rimraf build/ build-cli/ coverage/",
     "eject": "react-scripts eject",

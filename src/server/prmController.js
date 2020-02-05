@@ -1,5 +1,5 @@
 // @flow strict
-import { from, Observable } from "rxjs"
+import { from, Observable, Scheduler } from "rxjs"
 import { map, flatMap, toArray } from "rxjs/operators"
 import { type Matrix } from "./linearAlgebra"
 import {
@@ -72,17 +72,18 @@ export class PrmController {
    * @param startDate  Specifies the start of the interval, inclusive
    * @param endDate    Specifies the end of the interval, inclusive
    * @param riskFreeRr Risk Free Return Rate
+   * @param scheduler  optional RxJs scheduler
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
-
   analyzeUsingPortfolioHistoricalPrices(
     symbols: Array<string>,
     startDate: Date,
     endDate: Date,
-    riskFreeRr: number
+    riskFreeRr: number,
+    scheduler: ?Scheduler
   ): Promise<[Input, Output]> {
-    // TODO: would be nice if `loadHistoricalPrices` can be run in parallel
-    return from(symbols)
+    const symbolsObservable: Observable<string> = scheduler != null ? from(symbols, scheduler) : from(symbols)
+    return symbolsObservable
       .pipe(
         flatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),

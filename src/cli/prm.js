@@ -1,27 +1,14 @@
 // @flow strict
 import * as yargs from "yargs"
-import { Observable } from "rxjs"
 import { prettyPrint } from "numeric"
+import { asyncScheduler } from "rxjs"
+// import { queueScheduler } from "rxjs"
 import { logger } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { subYears } from "date-fns"
 
 const log = logger("cli/prm.js")
-
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-function loadStockHistoryFromAlphavantage(
-  apiKey: string,
-  symbol: string,
-  minDate: Date,
-  maxDate: Date
-): Observable<number> {
-  sleep(5000)
-  return dailyAdjustedStockPrices(apiKey, symbol, minDate, maxDate, AscendingDates)
-}
 
 function cumulativeReturnRate(returnRate: number, periods: number): number {
   return Math.pow(1 + returnRate, periods) - 1
@@ -88,8 +75,10 @@ const riskFreeRate: number = 0.01 / 10
 log.info(`minDate: ${minDate.toString()}`)
 log.info(`maxDate: ${maxDate.toString()}`)
 
-const controller = new PrmController((a, b, c) => loadStockHistoryFromAlphavantage(apiKey, a, b, c))
-controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, riskFreeRate).then(
+const controller = new PrmController((symbol, minDate, maxDate) =>
+  dailyAdjustedStockPrices(apiKey, symbol, minDate, maxDate, AscendingDates)
+)
+controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, riskFreeRate, asyncScheduler).then(
   (analysisResult: [Input, Output]) => {
     const output: Output = analysisResult[1]
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)

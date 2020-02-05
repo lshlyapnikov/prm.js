@@ -18,7 +18,11 @@
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
 13. [x] implement prm.js CLI before the GUI
+    [ ] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
+        src/server/prmController.js:87
+    [ ] allow specifying risk free daily interest rate, currently hardcoded.
     [ ] validate the output from the CLI
+    [ ] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
 14. [x] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
     ```
     warning "react-scripts > pnp-webpack-plugin > ts-pnp@1.0.0" has unmet peer dependency "typescript@*".
