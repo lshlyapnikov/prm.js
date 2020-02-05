@@ -45,7 +45,7 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics", done => {
     const controller = new PrmController(loadMockStockHistory)
     controller
-      .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)
+      .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0, 0)
       .then(
         (analysisResult: [Input, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult)
@@ -68,7 +68,8 @@ describe("PrmController", () => {
         symbols,
         new Date("2014/03/07"),
         new Date("2019/03/07"),
-        1.0
+        1.0,
+        0
       )
     }
 

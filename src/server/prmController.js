@@ -1,6 +1,6 @@
 // @flow strict
-import { from, Observable, Scheduler } from "rxjs"
-import { map, flatMap, toArray } from "rxjs/operators"
+import { from, Observable, Scheduler, timer } from "rxjs"
+import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { type Matrix } from "./linearAlgebra"
 import {
   efficientPortfolioFrontier,
@@ -72,6 +72,7 @@ export class PrmController {
    * @param startDate  Specifies the start of the interval, inclusive
    * @param endDate    Specifies the end of the interval, inclusive
    * @param riskFreeRr Risk Free Return Rate
+   * @param delayMillis Delay between requests to market data provider, millis
    * @param scheduler  optional RxJs scheduler
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
@@ -80,12 +81,14 @@ export class PrmController {
     startDate: Date,
     endDate: Date,
     riskFreeRr: number,
+    delayMillis: number,
     scheduler: ?Scheduler
   ): Promise<[Input, Output]> {
     const symbolsObservable: Observable<string> = scheduler != null ? from(symbols, scheduler) : from(symbols)
     return symbolsObservable
       .pipe(
-        flatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
+        concatMap(value => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
+        concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
         map((arr: Array<Prices>) => {
           const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
