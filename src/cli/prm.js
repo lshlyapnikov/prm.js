@@ -34,7 +34,8 @@ const options = yargs
   .usage("$0 [options]")
   .help("help")
   .example(
-    "$0 --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key> --delay-millis=0",
+    "$0 --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key> --delay-millis=0 " +
+      "--annual-risk-free-return-rate=0.01",
     "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
   )
   .options({
@@ -61,6 +62,12 @@ const options = yargs
       requiresArg: true,
       demandOption: true,
       type: "number"
+    },
+    "annual-risk-free-return-rate": {
+      description: "Annual risk free return rate, ratio (P1/P0 - 1)",
+      requiresArg: true,
+      demandOption: true,
+      type: "number"
     }
   }).argv
 
@@ -68,27 +75,30 @@ const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const years: number = mixedToNumber(options["years"])
 const apiKey: string = mixedToString(options["api-key"])
 const delayMillis: number = mixedToNumber(options["delay-millis"])
+const annualRiskFreeReturnRate: number = mixedToNumber(options["annual-risk-free-return-rate"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
-log.info(`years: ${JSON.stringify(years)}`)
-log.info(`api-key: ${JSON.stringify(apiKey)}`)
-log.info(`delay-millis: ${JSON.stringify(delayMillis)}`)
+log.info(`years: ${years}`)
+log.info(`api-key: ${apiKey}`)
+log.info(`delay-millis: ${delayMillis}`)
+log.info(`annual-risk-free-return-rate: ${annualRiskFreeReturnRate}`)
 
 const maxDate = new Date()
 const minDate = subYears(maxDate, years)
-// TODO pass riskFreeRate
-const riskFreeRate: number = 0.01 / 10
+const dailyRiskFreeReturnRate: number = Math.pow(annualRiskFreeReturnRate + 1.0, 1.0 / 365) - 1
 
 log.info(`minDate: ${minDate.toString()}`)
 log.info(`maxDate: ${maxDate.toString()}`)
+log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 
 const controller = new PrmController((symbol, minDate, maxDate) => {
   log.info(`loading symbol: ${symbol}`)
   return dailyAdjustedStockPrices(apiKey, symbol, minDate, maxDate, AscendingDates)
 })
-controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, riskFreeRate, delayMillis).then(
+controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, dailyRiskFreeReturnRate, delayMillis).then(
   (analysisResult: [Input, Output]) => {
     const output: Output = analysisResult[1]
+    log.info(`stocks: ${JSON.stringify(stocks)}`)
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
     log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
     log.info(

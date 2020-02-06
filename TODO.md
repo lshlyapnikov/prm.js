@@ -20,8 +20,8 @@
 13. [x] implement prm.js CLI before the GUI
     [ ] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
         src/server/prmController.js:87
-    [ ] allow specifying risk free daily interest rate, currently hardcoded.
-    [ ] risk free interest rate, is it daily or annual in the formula???
+    [x] allow specifying risk free daily interest rate, currently hardcoded.
+    [x] risk free interest rate, is it daily or annual in the formula??? Has to be daily, daily prices, daily return rates
     [ ] validate the output from the CLI
     [x] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
 14. [x] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
@@ -34,6 +34,7 @@
     ```
 15. riskFreeRate should be a ratio not percents, 1.0 in the below looks wrong:
     `analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0)`
+    also it is daily risk free return rate, not annual
 16. [ ] [UI] Give an option to load stock prices in Yahoo CSV format
 17. [ ] [UI] Give an option to load stock prices in Google Finance CSV format
 18. [ ] [UI] Give an option to load stock prices in Alphavantage CSV format
