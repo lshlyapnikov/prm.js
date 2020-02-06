@@ -35,7 +35,7 @@ const options = yargs
   .help("help")
   .example(
     "$0 --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key> --delay-millis=0 " +
-      "--annual-risk-free-return-rate=0.01",
+      "--annual-risk-free-interest-rate=1.0",
     "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
   )
   .options({
@@ -63,8 +63,8 @@ const options = yargs
       demandOption: true,
       type: "number"
     },
-    "annual-risk-free-return-rate": {
-      description: "Annual risk free return rate, ratio (P1/P0 - 1)",
+    "annual-risk-free-interest-rate": {
+      description: "Annual risk free interest rate, %",
       requiresArg: true,
       demandOption: true,
       type: "number"
@@ -75,17 +75,17 @@ const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const years: number = mixedToNumber(options["years"])
 const apiKey: string = mixedToString(options["api-key"])
 const delayMillis: number = mixedToNumber(options["delay-millis"])
-const annualRiskFreeReturnRate: number = mixedToNumber(options["annual-risk-free-return-rate"])
+const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`years: ${years}`)
 log.info(`api-key: ${apiKey}`)
 log.info(`delay-millis: ${delayMillis}`)
-log.info(`annual-risk-free-return-rate: ${annualRiskFreeReturnRate}`)
+log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
 
 const maxDate = new Date()
 const minDate = subYears(maxDate, years)
-const dailyRiskFreeReturnRate: number = Math.pow(annualRiskFreeReturnRate + 1.0, 1.0 / 365) - 1
+const dailyRiskFreeReturnRate: number = Math.pow(annualRiskFreeInterestRate / 100.0 + 1.0, 1.0 / 365) - 1
 
 log.info(`minDate: ${minDate.toString()}`)
 log.info(`maxDate: ${maxDate.toString()}`)
@@ -102,10 +102,11 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, daily
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
     log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
     log.info(
-      `tangencyAnnualInterest, %: ${cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) * 100}`
+      `tangency annual interest rate, %: ${cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) *
+        100}`
     )
     log.info(
-      `minVarianceAnnualInterest, %: ${cumulativeReturnRate(
+      `min variance annual interest rate, %: ${cumulativeReturnRate(
         output.globalMinVarianceEfficientPortfolio.expectedReturnRate,
         365
       ) * 100}`

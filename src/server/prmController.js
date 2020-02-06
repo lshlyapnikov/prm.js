@@ -71,7 +71,7 @@ export class PrmController {
    * @param symbols  The stock symbols you are interested in
    * @param startDate  Specifies the start of the interval, inclusive
    * @param endDate    Specifies the end of the interval, inclusive
-   * @param riskFreeRr Risk Free Return Rate
+   * @param riskFreeRr Risk Free Return Rate, ratio
    * @param delayMillis Delay between requests to market data provider, millis
    * @param scheduler  optional RxJs scheduler
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
