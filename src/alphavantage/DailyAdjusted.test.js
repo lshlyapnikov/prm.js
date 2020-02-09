@@ -1,6 +1,7 @@
 // @flow strict
 import assert from "assert"
 import { toArray } from "rxjs/operators"
+import { endOfDay } from "date-fns"
 import csv from "csv-parser"
 import stream from "stream"
 import fs from "fs"
@@ -19,7 +20,12 @@ const log = logger("DailyAdjusted.test.js")
 describe("DailyAdjusted", () => {
   test("should parse and return adjusted closing prices with ascending date order", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), AscendingDates)
+    dailyAdjustedStockPricesFromStream(
+      rawStream,
+      endOfDay(new Date("2018-08-21")),
+      endOfDay(new Date("2018-08-22")),
+      AscendingDates
+    )
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98, 107.06]),
@@ -30,7 +36,12 @@ describe("DailyAdjusted", () => {
 
   test("should parse and return adjusted closing prices with descending date order", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-22"), DescendingDates)
+    dailyAdjustedStockPricesFromStream(
+      rawStream,
+      endOfDay(new Date("2018-08-21")),
+      endOfDay(new Date("2018-08-22")),
+      DescendingDates
+    )
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [107.06, 105.98]),
@@ -41,7 +52,12 @@ describe("DailyAdjusted", () => {
 
   test("should parse and return one adjusted closing price value", done => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
+    dailyAdjustedStockPricesFromStream(
+      rawStream,
+      endOfDay(new Date("2018-08-21")),
+      endOfDay(new Date("2018-08-21")),
+      AscendingDates
+    )
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98]),

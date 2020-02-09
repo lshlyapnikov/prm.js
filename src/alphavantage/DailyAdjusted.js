@@ -3,6 +3,7 @@ import csv from "csv-parser"
 import request from "request"
 import { Observable, Subscriber, from } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
+import { endOfDay } from "date-fns"
 import stream from "stream"
 
 type DateOrder = "AscendingDates" | "DescendingDates"
@@ -50,7 +51,7 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
       .on("error", (error: Error) => observer.error(error))
       .on("data", (data: { [string]: string }) => {
         const dateStr: string = data["timestamp"]
-        const date = new Date(dateStr)
+        const date: Date = endOfDay(new Date(dateStr))
         if (Number.isNaN(date.getTime())) {
           observer.error(`Cannot parse date from '${dateStr}'. CSV line: ${JSON.stringify(data)}`)
           return

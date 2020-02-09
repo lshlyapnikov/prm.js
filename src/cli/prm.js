@@ -4,7 +4,8 @@ import { prettyPrint } from "numeric"
 import { logger } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
-import { subYears } from "date-fns"
+import { endOfToday, subYears } from "date-fns"
+// import fs from "fs"
 
 const log = logger("cli/prm.js")
 
@@ -83,7 +84,7 @@ log.info(`api-key: ${apiKey}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
 
-const maxDate = new Date()
+const maxDate = endOfToday()
 const minDate = subYears(maxDate, years)
 const dailyRiskFreeReturnRate: number = Math.pow(annualRiskFreeInterestRate / 100.0 + 1.0, 1.0 / 365) - 1
 

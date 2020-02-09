@@ -58,8 +58,8 @@ export class PrmController {
 
   loadHistoricalPrices: (string, Date, Date) => Observable<number>
 
-  loadHistoricalPricesAsArray(symbol: string, minDate: Date, maxDate: Date): Observable<Prices> {
-    return this.loadHistoricalPrices(symbol, minDate, maxDate).pipe(
+  loadHistoricalPricesAsArray(symbol: string, startDate: Date, maxDate: Date): Observable<Prices> {
+    return this.loadHistoricalPrices(symbol, startDate, maxDate).pipe(
       toArray(),
       map(prices => new Prices(symbol, prices))
     )
