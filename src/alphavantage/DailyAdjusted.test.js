@@ -7,15 +7,14 @@ import stream from "stream"
 import fs from "fs"
 import stringToStream from "string-to-stream"
 import {
-  dailyAdjustedStockPrices,
+  // dailyAdjustedStockPrices,
   dailyAdjustedStockPricesFromStream,
   AscendingDates,
   DescendingDates
 } from "./DailyAdjusted"
-import { alphavantage } from "../../test-config.js"
-import { logger } from "../server/utils"
-
-const log = logger("DailyAdjusted.test.js")
+// import { alphavantage } from "../../test-config.js"
+// import { logger } from "../server/utils"
+// const log = logger("DailyAdjusted.test.js")
 
 describe("DailyAdjusted", () => {
   test("should parse and return adjusted closing prices with ascending date order", done => {
@@ -78,22 +77,22 @@ describe("DailyAdjusted", () => {
   })
 
   // TODO: run integration tests separately
-  test.skip("should parse and return adjusted closing prices requested from alphavantage", done => {
-    log.info(`apiKey: ${alphavantage.apiKey}`)
-    dailyAdjustedStockPrices(
-      alphavantage.apiKey,
-      "MSFT",
-      new Date("2018-08-20"),
-      new Date("2018-08-22"),
-      AscendingDates
-    )
-      .pipe(toArray())
-      .subscribe(
-        (array: Array<number>) => assert.deepStrictEqual(array, [104.845, 103.9718, 105.0314]),
-        error => done.fail(error),
-        () => done()
-      )
-  })
+  // test.skip("should parse and return adjusted closing prices requested from alphavantage", done => {
+  //   log.info(`apiKey: ${alphavantage.apiKey}`)
+  //   dailyAdjustedStockPrices(
+  //     alphavantage.apiKey,
+  //     "MSFT",
+  //     new Date("2018-08-20"),
+  //     new Date("2018-08-22"),
+  //     AscendingDates
+  //   )
+  //     .pipe(toArray())
+  //     .subscribe(
+  //       (array: Array<number>) => assert.deepStrictEqual(array, [104.845, 103.9718, 105.0314]),
+  //       error => done.fail(error),
+  //       () => done()
+  //     )
+  // })
   test("should return error when CSV stream errors out", done => {
     function testShouldReturnError(rawStream: stream.Readable, expectedError: string) {
       dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)

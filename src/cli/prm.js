@@ -13,6 +13,10 @@ function cumulativeReturnRate(returnRate: number, periods: number): number {
   return Math.pow(1 + returnRate, periods) - 1
 }
 
+function periodReturnRate(returnRate: number, periods: number): number {
+  return Math.pow(returnRate + 1.0, 1.0 / periods) - 1
+}
+
 function mixedToString(a: mixed): string {
   if (typeof a === "string") {
     return (a: string)
@@ -86,7 +90,7 @@ log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
 
 const maxDate = endOfToday()
 const minDate = subYears(maxDate, years)
-const dailyRiskFreeReturnRate: number = Math.pow(annualRiskFreeInterestRate / 100.0 + 1.0, 1.0 / 365) - 1
+const dailyRiskFreeReturnRate: number = periodReturnRate(annualRiskFreeInterestRate / 100.0, 365)
 
 log.info(`minDate: ${minDate.toString()}`)
 log.info(`maxDate: ${maxDate.toString()}`)
