@@ -38,3 +38,15 @@
 16. [ ] [UI] Give an option to load stock prices in Yahoo CSV format
 17. [ ] [UI] Give an option to load stock prices in Google Finance CSV format
 18. [ ] [UI] Give an option to load stock prices in Alphavantage CSV format
+19. [ ] Set up GCP App Engine, use free tier.
+    - https://cloud.google.com/free/docs/gcp-free-tier
+    - https://cloud.google.com/appengine/docs/standard/python3/config/appref#automatic_scaling
+    app.yaml setting:
+    ```
+    runtime: nodejs10
+    instance_class: F1
+    automatic_scaling:
+        min_instances: 0
+        max_instances: 1
+        max_concurrent_requests: 50
+    ```
