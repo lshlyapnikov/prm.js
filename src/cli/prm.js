@@ -48,8 +48,7 @@ const options = yargs
   .help("help")
   .example(
     "$0 --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1.0 " +
-    "--output-file=./output.json --api-key=<Alphavantage API key>"
-    ,
+      "--output-file=./output.json --api-key=<Alphavantage API key>",
     "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
   )
   .options({
