@@ -9,13 +9,25 @@
 
 Save Alpha Vantage API key in `test-config.js` in project directory, see `test-config.js.sample`.
 
+## Yarn
+
 ```shell
+$ yarn install
 $ yarn global add flow-typed
 $ flow-typed update
 $ yarn test-all
 $ yarn build-all
 $ yarn start-cli --help
-$ yarn start-cli --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key>
+$ yarn start-cli --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1 --api-key=<Alphavantage API key>
+```
+
+## NPM
+```
+$ npm install
+$ npm run test-all
+$ npm run build-all
+$ node --experimental-modules ./build-cli/cli/prm.js --help
+$ node --experimental-modules ./build-cli/cli/prm.js --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1 --api-key=<Alphavantage API key>
 ```
 
 # Running Tests
