@@ -5,7 +5,7 @@ import { logger } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { endOfToday, subYears } from "date-fns"
-// import fs from "fs"
+import fs from "fs"
 
 const log = logger("cli/prm.js")
 
@@ -25,6 +25,14 @@ function mixedToString(a: mixed): string {
   }
 }
 
+function mixedToOptionalString(a: mixed): ?string {
+  if (typeof a === "string") {
+    return (a: string)
+  } else {
+    return null
+  }
+}
+
 function mixedToNumber(a: mixed): number {
   if (typeof a === "number") {
     return (a: number)
@@ -39,8 +47,9 @@ const options = yargs
   .usage("$0 [options]")
   .help("help")
   .example(
-    "$0 --stocks=IBM,MSFT --years=3 --api-key=<Alphavantage API key> --delay-millis=0 " +
-      "--annual-risk-free-interest-rate=1.0",
+    "$0 --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1.0 " +
+    "--output-file=./output.json --api-key=<Alphavantage API key>"
+    ,
     "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
   )
   .options({
@@ -73,6 +82,12 @@ const options = yargs
       requiresArg: true,
       demandOption: true,
       type: "number"
+    },
+    "output-file": {
+      description: "File where to write calculated portfolios",
+      requiresArg: true,
+      demandOption: false,
+      type: "string"
     }
   }).argv
 
@@ -81,12 +96,16 @@ const years: number = mixedToNumber(options["years"])
 const apiKey: string = mixedToString(options["api-key"])
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
+const outputFile: ?string = mixedToOptionalString(options["output-file"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`years: ${years}`)
 log.info(`api-key: ${apiKey}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
+if (null != outputFile) {
+  log.info(`output-file: ${outputFile}`)
+}
 
 const maxDate = endOfToday()
 const minDate = subYears(maxDate, years)
@@ -116,6 +135,10 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, daily
         365
       ) * 100}`
     )
+    if (null != outputFile) {
+      log.info(`writing output into file: ${outputFile}`)
+      fs.writeFileSync(outputFile, JSON.stringify(output))
+    }
   },
   error => log.error(error)
 )
