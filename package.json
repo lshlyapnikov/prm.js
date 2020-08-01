@@ -53,7 +53,7 @@
     "start-cli": "node --experimental-modules build-cli/cli/prm.js",
     "test-no-watch": "react-scripts test --env=jsdom --watchAll=false",
     "test-all": "run-s --print-name prettier-check eslint flow test-no-watch",
-    "build-all": "run-s --print-name prettier-check eslint flow build-cli"
+    "build-all": "run-s --print-name build-cli build-ui"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.3",

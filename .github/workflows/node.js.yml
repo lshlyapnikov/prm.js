@@ -27,9 +27,6 @@ jobs:
     - run: npm install
     - run: npm run test-all
     - run: npm run build-all
-#    - run: npm ci
-#    - run: npm run build --if-present
-#    - run: npm test
 
   build-windows:
 
@@ -46,5 +43,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm run test-all
-    - run: npm run build-all
+    - run: npm run prettier-check 
+    - run: npm run eslint
+    - run: test-no-watch
+    - run: flow
+    - run: build-cli
+    - run: build-ui
