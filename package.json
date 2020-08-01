@@ -48,9 +48,9 @@
     "flow": "flow",
     "prettier-check": "prettier --check \"src/**/*.js\"",
     "prettier-write": "prettier --write \"src/**/*.js\"",
-    "eslint": "eslint ./src",
-    "build-cli": "babel ./src --out-dir ./build-cli --ignore './src/ui','./src/index.js','./src/App.js','./src/App.test.js'",
-    "start-cli": "node --experimental-modules ./build-cli/cli/prm.js",
+    "eslint": "eslint src",
+    "build-cli": "babel src --out-dir build-cli --ignore \"src/ui\",\"src/index.js\",\"src/App.js\",\"src/App.test.js\"",
+    "start-cli": "node --experimental-modules build-cli/cli/prm.js",
     "test-no-watch": "react-scripts test --env=jsdom --watchAll=false",
     "test-all": "run-s --print-name prettier-check eslint flow test-no-watch",
     "build-all": "run-s --print-name prettier-check eslint flow build-cli"
