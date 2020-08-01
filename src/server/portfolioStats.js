@@ -176,7 +176,7 @@ export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matri
 }
 
 export function loadPriceMatrix(
-  loadHistoricalPricesFn: string => Array<number>,
+  loadHistoricalPricesFn: (string) => Array<number>,
   symbols: Array<string>
 ): Matrix<number> {
   if (0 === symbols.length) {

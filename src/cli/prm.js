@@ -125,19 +125,19 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, daily
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
     log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
     log.info(
-      `tangency annual interest rate, %: ${cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) *
-        100}`
+      `tangency annual interest rate, %: ${
+        cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) * 100
+      }`
     )
     log.info(
-      `min variance annual interest rate, %: ${cumulativeReturnRate(
-        output.globalMinVarianceEfficientPortfolio.expectedReturnRate,
-        365
-      ) * 100}`
+      `min variance annual interest rate, %: ${
+        cumulativeReturnRate(output.globalMinVarianceEfficientPortfolio.expectedReturnRate, 365) * 100
+      }`
     )
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile}`)
       fs.writeFileSync(outputFile, JSON.stringify(output))
     }
   },
-  error => log.error(error)
+  (error) => log.error(error)
 )

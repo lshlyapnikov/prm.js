@@ -38,11 +38,11 @@ function verifyPortfolioAnalysisResult(r: [Input, Output]): void {
   verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
   verifyPortfolioStatsObjects(output.tangencyPortfolio)
   assert.equal(output.efficientPortfolioFrontier.length, 21)
-  output.efficientPortfolioFrontier.forEach(p => verifyPortfolioStatsObjects(p))
+  output.efficientPortfolioFrontier.forEach((p) => verifyPortfolioStatsObjects(p))
 }
 
 describe("PrmController", () => {
-  it("should calculate portfolio statistics", done => {
+  it("should calculate portfolio statistics", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
       .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0, 0)
@@ -57,10 +57,10 @@ describe("PrmController", () => {
           assert.deepStrictEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
           done()
         },
-        error => done.fail(error)
+        (error) => done.fail(error)
       )
   })
-  it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", done => {
+  it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]

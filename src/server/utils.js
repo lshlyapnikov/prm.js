@@ -9,13 +9,13 @@ export function logger(category: string): log4js.Logger {
   return logger
 }
 
-function updateArrayElements<A>(arr: Array<A>, convertOneElement: A => A): void {
+function updateArrayElements<A>(arr: Array<A>, convertOneElement: (A) => A): void {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = convertOneElement(arr[i])
   }
 }
 
-function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: A => A): void {
+function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: (A) => A): void {
   const m = matrix.length
   const n = matrix[0].length
   for (let i = 0; i < m; i++) {

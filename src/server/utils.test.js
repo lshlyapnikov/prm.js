@@ -4,7 +4,7 @@ import { toFixedNumber, generateRandomWeightsMatrix } from "./utils"
 import assert from "assert"
 import numeric from "numeric"
 
-describe("utils", function() {
+describe("utils", function () {
   describe("#toFixedNumber", () => {
     it("should round up", () => {
       assert.equal(12.35, toFixedNumber(12.3456, 2))
@@ -17,8 +17,8 @@ describe("utils", function() {
       assert.equal(123, toFixedNumber(123.456, 0))
     })
   })
-  describe("#generateRandomWeightsMatrix", function() {
-    it("should generate a matrix of random weights", function() {
+  describe("#generateRandomWeightsMatrix", function () {
+    it("should generate a matrix of random weights", function () {
       // GIVEN
       var rowNum = 30
       var colNum = 10
@@ -28,7 +28,7 @@ describe("utils", function() {
       var sum = numeric.sum(weights)
       assert.equal(rowNum, sum)
     })
-    it("should generate a new weights matrix if called consequently", function() {
+    it("should generate a new weights matrix if called consequently", function () {
       // GIVEN
       var rowNum = 30
       var colNum = 10
@@ -45,7 +45,7 @@ describe("utils", function() {
         assert.notDeepEqual(weights0[i], weights1[i])
       }
     })
-    it("should throw up when invalid arguments passed", function() {
+    it("should throw up when invalid arguments passed", function () {
       // GIVEN
       // Valid arguments: rowNum > 0 and colNum > 1
       const invalidArguments: Array<Array<number>> = [

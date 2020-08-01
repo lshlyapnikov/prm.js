@@ -61,7 +61,7 @@ export class PrmController {
   loadHistoricalPricesAsArray(symbol: string, startDate: Date, maxDate: Date): Observable<Prices> {
     return this.loadHistoricalPrices(symbol, startDate, maxDate).pipe(
       toArray(),
-      map(prices => new Prices(symbol, prices))
+      map((prices) => new Prices(symbol, prices))
     )
   }
 
@@ -87,7 +87,7 @@ export class PrmController {
     const symbolsObservable: Observable<string> = scheduler != null ? from(symbols, scheduler) : from(symbols)
     return symbolsObservable
       .pipe(
-        concatMap(value => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
+        concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
         map((arr: Array<Prices>) => {

@@ -145,7 +145,7 @@ export class EfficientPortfolioFrontier {
     rrCovarianceNxN: Matrix<number>,
     maxNum: number = 21
   ): Array<PortfolioStats> {
-    const arr: Array<number> = expectedRrNx1.map(row => row[0])
+    const arr: Array<number> = expectedRrNx1.map((row) => row[0])
     const maxExpectedRr: number = Math.max(...arr)
 
     const globalMinVarianceEp = createPortfolioStats(
@@ -178,8 +178,8 @@ export class EfficientPortfolioFrontier {
     maxReturnEpWeightsN: Array<number>,
     alpha: number
   ) {
-    const x = globalMinVarianceEpWeigthsN.map(n => alpha * n)
-    const y = maxReturnEpWeightsN.map(n => (1 - alpha) * n)
+    const x = globalMinVarianceEpWeigthsN.map((n) => alpha * n)
+    const y = maxReturnEpWeightsN.map((n) => (1 - alpha) * n)
     return numeric.add(x, y)
   }
 }

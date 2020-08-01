@@ -28,7 +28,7 @@ export default class FileUpload extends React.Component<FileUploadProps> {
         />
         <div className="mdl-button mdl-button--primary mdl-button--icon mdl-button--file">
           <i className="material-icons">attach_file</i>
-          <input type="file" onChange={e => this.onChange(e.target.files[0])} />
+          <input type="file" onChange={(e) => this.onChange(e.target.files[0])} />
         </div>
       </div>
     )

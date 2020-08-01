@@ -17,7 +17,7 @@ app.use(express.static(staticFolder))
 
 app.get("/analyze", (req, res) => {
   log.info("query: " + JSON.stringify(req.query))
-  const symbols = Immutable.List(req.query.symbols.split(",").map(s => s.trim()))
+  const symbols = Immutable.List(req.query.symbols.split(",").map((s) => s.trim()))
   const startDate = new Date(req.query.startDate)
   const endDate = new Date(req.query.endDate)
   const riskFreeRr = Number(req.query.riskFreeRr)

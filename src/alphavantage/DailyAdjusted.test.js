@@ -17,7 +17,7 @@ import {
 // const log = logger("DailyAdjusted.test.js")
 
 describe("DailyAdjusted", () => {
-  test("should parse and return adjusted closing prices with ascending date order", done => {
+  test("should parse and return adjusted closing prices with ascending date order", (done) => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(
       rawStream,
@@ -28,12 +28,12 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98, 107.06]),
-        error => done.fail(error),
+        (error) => done.fail(error),
         () => done()
       )
   })
 
-  test("should parse and return adjusted closing prices with descending date order", done => {
+  test("should parse and return adjusted closing prices with descending date order", (done) => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(
       rawStream,
@@ -44,12 +44,12 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [107.06, 105.98]),
-        error => done.fail(error),
+        (error) => done.fail(error),
         () => done()
       )
   })
 
-  test("should parse and return one adjusted closing price value", done => {
+  test("should parse and return one adjusted closing price value", (done) => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(
       rawStream,
@@ -60,18 +60,18 @@ describe("DailyAdjusted", () => {
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98]),
-        error => done.fail(error),
+        (error) => done.fail(error),
         () => done()
       )
   })
 
-  test("should return empty array when date it out of range", done => {
+  test("should return empty array when date it out of range", (done) => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
     dailyAdjustedStockPricesFromStream(rawStream, new Date("1970-01-01"), new Date("1970-01-01"), AscendingDates)
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, []),
-        error => done.fail(error),
+        (error) => done.fail(error),
         () => done()
       )
   })
@@ -93,7 +93,7 @@ describe("DailyAdjusted", () => {
   //       () => done()
   //     )
   // })
-  test("should return error when CSV stream errors out", done => {
+  test("should return error when CSV stream errors out", (done) => {
     function testShouldReturnError(rawStream: stream.Readable, expectedError: string) {
       dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
         .pipe(toArray())
@@ -101,7 +101,7 @@ describe("DailyAdjusted", () => {
           (array: Array<number>) => {
             done.fail(new Error(`Expected error, but got: ${JSON.stringify(array)}`))
           },
-          error => {
+          (error) => {
             if (typeof error === "string" && error.startsWith(expectedError)) {
               done()
             } else {

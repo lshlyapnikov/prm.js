@@ -97,7 +97,7 @@ class App extends Component<AppProps, AppState> implements CommonProps {
                   <Route path="/help" render={() => <Help {...this} />} />
                   <Route path="/contact" render={() => <Contact {...this} />} />
                   {/* eslint-disable-next-line no-unused-vars*/}
-                  <Route path="/legal-info" render={props => <LegalInfo {...this} />} />
+                  <Route path="/legal-info" render={(props) => <LegalInfo {...this} />} />
                   <Route path="/news" render={() => <News {...this} />} />
                 </Switch>
               </div>
