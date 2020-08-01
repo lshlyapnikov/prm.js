@@ -45,7 +45,7 @@ jobs:
     - run: npm install
     - run: npm run prettier-check 
     - run: npm run eslint
-    - run: npm test
     - run: npm run flow
+    - run: npm test
     - run: npm run build-cli
     - run: npm run build-ui
