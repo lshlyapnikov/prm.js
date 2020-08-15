@@ -1,5 +1,5 @@
-// flow-typed signature: 0bc486c8fc04d0bb37efa138223e4f67
-// flow-typed version: c6154227d1/react-router-dom_v4.x.x/flow_>=v0.104.x
+// flow-typed signature: dbfdca89f81f28c1d71558ee705077f9
+// flow-typed version: c4f47bdda4/react-router-dom_v4.x.x/flow_>=v0.104.x
 
 declare module "react-router-dom" {
   declare export var BrowserRouter: React$ComponentType<{|
@@ -18,23 +18,23 @@ declare module "react-router-dom" {
   |}>
 
   declare export var Link: React$ComponentType<{
-    className?: string,
-    to: string | LocationShape,
-    replace?: boolean,
-    children?: React$Node,
+    +className?: string,
+    +to: string | LocationShape,
+    +replace?: boolean,
+    +children?: React$Node,
     ...
   }>
 
   declare export var NavLink: React$ComponentType<{
-    to: string | LocationShape,
-    activeClassName?: string,
-    className?: string,
-    activeStyle?: Object,
-    style?: Object,
-    isActive?: (match: Match, location: Location) => boolean,
-    children?: React$Node,
-    exact?: boolean,
-    strict?: boolean,
+    +to: string | LocationShape,
+    +activeClassName?: string,
+    +className?: string,
+    +activeStyle?: Object,
+    +style?: Object,
+    +isActive?: (match: Match, location: Location) => boolean,
+    +children?: React$Node,
+    +exact?: boolean,
+    +strict?: boolean,
     ...
   }>
 

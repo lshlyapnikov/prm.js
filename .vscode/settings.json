@@ -1,6 +1,6 @@
 // prm.js VSCode settings
 {
-  "my.terminal.re-run.cmd": "clear; yarn build-all",
+  "my.terminal.re-run.cmd": "clear; yarn build-cli",
   "my.terminal.re-run.cmd2": "clear; yarn test-all",
   "files.exclude": {
     // "node_modules/": true,

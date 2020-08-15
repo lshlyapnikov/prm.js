@@ -1,5 +1,5 @@
-// flow-typed signature: 897ed3e9605c83da8358c310173c84e9
-// flow-typed version: 9facc3c967/@testing-library/react_v9.x.x/flow_>=v0.104.x
+// flow-typed signature: 38ccc5bbcbb54d21f37adca5cc3ed7a1
+// flow-typed version: 0b0eb4afe9/@testing-library/react_v9.x.x/flow_>=v0.104.x
 
 declare module '@testing-library/react' {
   // This type comes from
@@ -118,16 +118,8 @@ declare module '@testing-library/react' {
     eventProperties?: TInit
   ) => boolean;
 
-  declare type RenderResult<Queries = GetsAndQueries> = {|
-    container: HTMLDivElement,
-    unmount: () => void,
-    baseElement: HTMLElement,
-    asFragment: () => DocumentFragment,
-    debug: (baseElement?: HTMLElement) => void,
-    rerender: (ui: React$Element<*>) => void,
-  |} & Queries;
-  declare type RenderResultWithCustomQueries<CustomQueries> = {
-    ...CustomQueries,
+  declare type RenderResult<Queries = GetsAndQueries> = {
+    ...Queries,
     container: HTMLDivElement,
     unmount: () => void,
     baseElement: HTMLElement,
@@ -163,7 +155,7 @@ declare module '@testing-library/react' {
   >(
     ui: React.ReactElement<any>,
     options: RenderOptionsWithCustomQueries<CustomQueries>
-  ): RenderResultWithCustomQueries<CustomQueries>;
+  ): RenderResult<CustomQueries>;
 
   declare export var act: ReactDOMTestUtilsAct;
   declare export function cleanup(): void;

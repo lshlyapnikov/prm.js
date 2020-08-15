@@ -89,3 +89,7 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
 export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
+
+export function formatDate(d: Date): string {
+  return `${String(d.getFullYear())}-${String(d.getMonth())}-${String(d.getDate())}`
+}
