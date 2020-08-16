@@ -20,6 +20,8 @@
 13. [x] implement prm.js CLI before the GUI
     [ ] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
         src/server/prmController.js:87
+        memoize the raw closing prices, the entire stream
+    [x] Change `--years` to `--start-date` and `--end-date`
     [x] allow specifying risk free daily interest rate, currently hardcoded.
     [x] risk free interest rate, is it daily or annual in the formula??? Has to be daily, daily prices, daily return rates
     [ ] validate the output from the CLI

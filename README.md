@@ -18,7 +18,7 @@ $ flow-typed update
 $ yarn test-all
 $ yarn build-all
 $ yarn start-cli --help
-$ yarn start-cli --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1 --api-key=<Alphavantage API key>
+$ yarn start-cli --stocks=IBM,MSFT --start-date=2020-01-01 --end-date=2020-03-01 --delay-millis=0 --annual-risk-free-interest-rate=1 --api-key=<Alphavantage API key>
 ```
 
 ## NPM

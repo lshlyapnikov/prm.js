@@ -7,7 +7,7 @@ import { prettyPrint } from "numeric"
 import { logger, formatDate } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
-import { endOfToday, subYears } from "date-fns"
+import { parseISO } from "date-fns"
 
 const log = logger("cli/prm.js")
 
@@ -103,9 +103,9 @@ const options = yargs
   .usage("$0 [options]")
   .help("help")
   .example(
-    "$0 --stocks=IBM,MSFT --years=3 --delay-millis=0 --annual-risk-free-interest-rate=1.0 " +
-      "--output-file=./output.json --api-key=<Alphavantage API key>",
-    "Calculate statistics for stock portfolio consisting of: IBM, MSFT; using Alphavantage historical stock prices for the last 3 years."
+    "$0 --stocks=IBM,MSFT --start-date=2020-01-01 --end-date=2020-03-01 " +
+      "--delay-millis=0 --annual-risk-free-interest-rate=1.0 " +
+      "--output-file=./output.json --api-key=<Alphavantage API key>"
   )
   .options({
     stocks: {
@@ -114,11 +114,17 @@ const options = yargs
       demandOption: true,
       type: "string"
     },
-    years: {
-      description: "Stock price history interval, years",
+    "start-date": {
+      description: "Stock price history start date in the YYYY-MM-dd format",
       requiresArg: true,
       demandOption: true,
-      type: "number"
+      type: "string"
+    },
+    "end-date": {
+      description: "Stock price history end date in the YYYY-MM-dd format",
+      requiresArg: true,
+      demandOption: true,
+      type: "string"
     },
     "api-key": {
       description: "Alphavantage API key",
@@ -147,14 +153,14 @@ const options = yargs
   }).argv
 
 const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
-const years: number = mixedToNumber(options["years"])
+const startDate: Date = parseISO(mixedToString(options["start-date"]))
+const endDate: Date = parseISO(mixedToString(options["end-date"]))
 const apiKey: string = mixedToString(options["api-key"])
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 const outputFile: ?string = mixedToOptionalString(options["output-file"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
-log.info(`years: ${years}`)
 log.info(`api-key: ${apiKey}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
@@ -162,19 +168,17 @@ if (null != outputFile) {
   log.info(`output-file: ${outputFile}`)
 }
 
-const maxDate = endOfToday()
-const minDate = subYears(maxDate, years)
 const dailyRiskFreeReturnRate: number = periodReturnRate(annualRiskFreeInterestRate / 100.0, 365)
 
-log.info(`minDate: ${formatDate(minDate)}`)
-log.info(`maxDate: ${formatDate(maxDate)}`)
+log.info(`startDate: ${formatDate(startDate)}`)
+log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 
 const controller = new PrmController((symbol: string, minDate: Date, maxDate: Date) => {
   return loadDailyAdjustedStockPrices("./.cache", apiKey, symbol, minDate, maxDate)
 })
 
-controller.analyzeUsingPortfolioHistoricalPrices(stocks, minDate, maxDate, dailyRiskFreeReturnRate, delayMillis).then(
+controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dailyRiskFreeReturnRate, delayMillis).then(
   (analysisResult: [Input, Output]) => {
     const output: Output = analysisResult[1]
     log.info(`stocks: ${JSON.stringify(stocks)}`)

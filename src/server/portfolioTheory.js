@@ -1,9 +1,13 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licencsed
 // @flow strict
+const numeric = require("numeric")
+
 import { type Matrix, matrix, dim, multiplyMatrices, transpose, copyMatrixInto } from "./linearAlgebra"
 import { type PortfolioStats, createPortfolioStats } from "./portfolioStats"
-const numeric = require("numeric")
+import { logger } from "./utils"
+
+const log = logger("portfolioTheory.js")
 
 export class GlobalMinimumVarianceEfficientPortfolio {
   calculate(expectedRrNx1: Matrix<number>, rrCovarianceNxN: Matrix<number>): PortfolioStats {
@@ -60,6 +64,7 @@ export class TangencyPortfolio {
     returnRatesCovarianceNxN: Matrix<number>,
     riskFreeReturnRate: number
   ): Array<number> {
+    log.info(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
     const n = dim(returnRatesCovarianceNxN)[0]
     const returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN)
     const riskFreeReturnRateNx1 = matrix(n, 1, riskFreeReturnRate)
