@@ -2,7 +2,7 @@
 /// LGPL Licencsed
 // @flow strict
 import log4js from "log4js"
-import { formatISO, parseISO } from "date-fns"
+import { formatISO, parseISO, endOfDay } from "date-fns"
 
 export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
@@ -92,7 +92,7 @@ export function newArrayWithScale(arr: Array<number>, scale: number): Array<numb
 }
 
 export function parseDate(str: string): Date {
-  return parseISO(str)
+  return endOfDay(parseISO(str))
 }
 
 export function formatDate(date: Date): string {
