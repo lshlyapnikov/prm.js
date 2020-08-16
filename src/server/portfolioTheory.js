@@ -64,7 +64,7 @@ export class TangencyPortfolio {
     returnRatesCovarianceNxN: Matrix<number>,
     riskFreeReturnRate: number
   ): Array<number> {
-    log.info(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
+    log.debug(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
     const n = dim(returnRatesCovarianceNxN)[0]
     const returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN)
     const riskFreeReturnRateNx1 = matrix(n, 1, riskFreeReturnRate)

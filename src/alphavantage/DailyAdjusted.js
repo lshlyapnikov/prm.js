@@ -1,10 +1,12 @@
 // @flow strict
 import csv from "csv-parser"
 import request from "request"
-import { Observable, Subscriber, from } from "rxjs"
+import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
-import { endOfDay } from "date-fns"
+import { endOfDay, compareAsc } from "date-fns"
 import stream from "stream"
+
+import { formatDate } from "../server/utils.js"
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 
@@ -46,6 +48,9 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   minDate: Date,
   maxDate: Date
 ): Observable<number> {
+  if (compareAsc(maxDate, minDate) < 0) {
+    return throwError(`Invalid date range: [${formatDate(minDate)}, ${formatDate(maxDate)}]`)
+  }
   return Observable.create((observer: Subscriber<number>) => {
     stream
       .on("error", (error: Error) => observer.error(error))

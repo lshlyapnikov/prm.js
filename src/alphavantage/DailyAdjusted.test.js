@@ -12,6 +12,7 @@ import {
   AscendingDates,
   DescendingDates
 } from "./DailyAdjusted"
+import { parseDate } from "../server/utils.js"
 // import { alphavantage } from "../../test-config.js"
 // import { logger } from "../server/utils"
 // const log = logger("DailyAdjusted.test.js")
@@ -61,6 +62,28 @@ describe("DailyAdjusted", () => {
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, [105.98]),
         (error) => done.fail(error),
+        () => done()
+      )
+  })
+
+  test("should return error when invalid date range passed", (done) => {
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
+    const d1 = "2018-08-22"
+    const d2 = "2018-08-21"
+    const expectedError = `Invalid date range: [${d1}, ${d2}]`
+    dailyAdjustedStockPricesFromStream(rawStream, parseDate(d1), parseDate(d2), AscendingDates)
+      .pipe(toArray())
+      .subscribe(
+        (array: Array<number>) => {
+          done.fail(new Error(`Expected error, but got: ${JSON.stringify(array)}`))
+        },
+        (error) => {
+          if (typeof error === "string" && error.startsWith(expectedError)) {
+            done()
+          } else {
+            done.fail(new Error(`Expected error message that starts with: ${expectedError}, but got: ${error}`))
+          }
+        },
         () => done()
       )
   })

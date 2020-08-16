@@ -4,10 +4,9 @@ import fs from "fs"
 import es from "event-stream"
 import { Observable, Subscriber } from "rxjs"
 import { prettyPrint } from "numeric"
-import { logger, formatDate } from "../server/utils"
+import { logger, formatDate, parseDate } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
-import { parseISO } from "date-fns"
 
 const log = logger("cli/prm.js")
 
@@ -153,8 +152,8 @@ const options = yargs
   }).argv
 
 const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
-const startDate: Date = parseISO(mixedToString(options["start-date"]))
-const endDate: Date = parseISO(mixedToString(options["end-date"]))
+const startDate: Date = parseDate(mixedToString(options["start-date"]))
+const endDate: Date = parseDate(mixedToString(options["end-date"]))
 const apiKey: string = mixedToString(options["api-key"])
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])

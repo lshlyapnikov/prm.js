@@ -2,6 +2,7 @@
 /// LGPL Licencsed
 // @flow strict
 import log4js from "log4js"
+import { formatISO, parseISO } from "date-fns"
 
 export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
@@ -90,6 +91,10 @@ export function newArrayWithScale(arr: Array<number>, scale: number): Array<numb
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
-export function formatDate(d: Date): string {
-  return `${String(d.getFullYear())}-${String(d.getMonth())}-${String(d.getDate())}`
+export function parseDate(str: string): Date {
+  return parseISO(str)
+}
+
+export function formatDate(date: Date): string {
+  return formatISO(date, { representation: "date" })
 }
