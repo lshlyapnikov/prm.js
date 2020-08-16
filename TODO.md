@@ -52,3 +52,5 @@
         max_instances: 1
         max_concurrent_requests: 50
     ```
+20. [ ] Add a check that all symbols have the same number of prices in the price matrix
+        e.g. if there is not enough market data some symbols might have wrong number of rows (closing prices)
