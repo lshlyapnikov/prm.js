@@ -1,6 +1,6 @@
 // @flow strict
-import { from, Observable, Scheduler, timer } from "rxjs"
-import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
+import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
+import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { type Matrix } from "./linearAlgebra"
 import {
   efficientPortfolioFrontier,
@@ -90,14 +90,29 @@ export class PrmController {
         concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
-        map((arr: Array<Prices>) => {
+        flatMap((arr: Array<Prices>) => {
+          const maxLength: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
+          const invalidPrices: Array<Prices> = findInvalidPriceArray(arr, maxLength)
+          if (maxLength == 0) {
+            const badSymbols: Array<string> = arr.map((p) => p.symbol)
+            return throwError(
+              `Cannot build a price matrix. No prices loaded for all provided symbols: ${JSON.stringify(badSymbols)}.`
+            )
+          }
+          if (invalidPrices.length > 0) {
+            const badSymbols: Array<string> = invalidPrices.map((p) => p.symbol)
+            return throwError(
+              `Cannot build a price matrix. Invalid number of prices for symbols: ${JSON.stringify(badSymbols)}. ` +
+                `All symbols must have the same number of price entries: ${maxLength}.`
+            )
+          }
           const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
           const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN)
           const expectedRrNx1 = mean(rrKxN)
           const rrCovarianceNxN = covariance(rrKxN, false)
           const input = new Input(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
           const output = this.analyzeUsingPortfolioStatistics(input)
-          return [input, output]
+          return of([input, output])
         })
       )
       .toPromise()
@@ -110,4 +125,19 @@ export class PrmController {
       efficientPortfolioFrontier.calculate(input.expectedRrNx1, input.rrCovarianceNxN)
     )
   }
+}
+
+// returns Array of invalid Prices or empty Array
+function findInvalidPriceArray(array: Array<Prices>, expectedLength: number): Array<Prices> {
+  function collectInvalidPrices(z: Array<Prices>, p: Prices): Array<Prices> {
+    if (p.prices.length != expectedLength) {
+      return z.concat(p)
+    } else {
+      return z
+    }
+  }
+
+  const invalidPrices: Array<Prices> = array.reduce(collectInvalidPrices, [])
+
+  return invalidPrices
 }

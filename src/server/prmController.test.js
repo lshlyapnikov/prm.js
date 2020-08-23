@@ -63,7 +63,7 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
+      const symbols = ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         parseDate("2014-03-07"),
@@ -78,5 +78,33 @@ describe("PrmController", () => {
       log.debug(`output:\n${prettyPrint(output)}`)
       done()
     })
+  })
+  it("should fail when a symbol does not have enough price entries", (done) => {
+    function test(): Promise<[Input, Output]> {
+      const controller = new PrmController(loadStockHistoryFromAlphavantage)
+      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
+      return controller.analyzeUsingPortfolioHistoricalPrices(
+        symbols,
+        parseDate("2014-03-07"),
+        parseDate("2019-03-07"),
+        1.0,
+        0
+      )
+    }
+
+    test().then(
+      (result: [Input, Output]) => {
+        const output = result[1]
+        done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(output)}`))
+      },
+      (error) => {
+        const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA"]'
+        if (typeof error === "string" && error.startsWith(startsWith)) {
+          done()
+        } else {
+          done.fail(new Error(`Expected error message that starts with: ${startsWith}, but got: ${error}`))
+        }
+      }
+    )
   })
 })
