@@ -82,7 +82,7 @@ describe("PrmController", () => {
   it("should fail when a symbol does not have enough price entries", (done) => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
+      const symbols = ["AA", "XOM"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         parseDate("2014-03-07"),
