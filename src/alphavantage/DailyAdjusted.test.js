@@ -74,7 +74,7 @@ describe("DailyAdjusted", () => {
 
   test("should return empty array when date it out of range", (done) => {
     const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(csv())
-    dailyAdjustedStockPricesFromStream(rawStream, new Date("1970-01-01"), new Date("1970-01-01"), AscendingDates)
+    dailyAdjustedStockPricesFromStream(rawStream, parseDate("1970-01-01"), parseDate("1970-01-01"), AscendingDates)
       .pipe(toArray())
       .subscribe(
         (array: Array<number>) => assert.deepStrictEqual(array, []),
@@ -89,8 +89,8 @@ describe("DailyAdjusted", () => {
   //   dailyAdjustedStockPrices(
   //     alphavantage.apiKey,
   //     "MSFT",
-  //     new Date("2018-08-20"),
-  //     new Date("2018-08-22"),
+  //     parseDate("2018-08-20"),
+  //     parseDate("2018-08-22"),
   //     AscendingDates
   //   )
   //     .pipe(toArray())
@@ -102,7 +102,7 @@ describe("DailyAdjusted", () => {
   // })
   test("should return error when CSV stream errors out", (done) => {
     function testShouldReturnError(rawStream: stream.Readable, expectedError: string) {
-      dailyAdjustedStockPricesFromStream(rawStream, new Date("2018-08-21"), new Date("2018-08-21"), AscendingDates)
+      dailyAdjustedStockPricesFromStream(rawStream, parseDate("2018-08-21"), parseDate("2018-08-21"), AscendingDates)
         .pipe(toArray())
         .subscribe(
           (array: Array<number>) => {

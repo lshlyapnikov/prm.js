@@ -10,7 +10,7 @@ import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale } from "./utils"
 import * as testData from "./testData"
-import { logger } from "./utils"
+import { logger, parseDate } from "./utils"
 
 const log = logger("prmController.test.js")
 
@@ -45,7 +45,7 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
-      .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], new Date("1111/11/11"), new Date("1111/11/11"), 1.0, 0)
+      .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], parseDate("1111-11-11"), parseDate("1111-11-11"), 1.0, 0)
       .then(
         (analysisResult: [Input, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult)
@@ -66,8 +66,8 @@ describe("PrmController", () => {
       const symbols = ["AA", "XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
-        new Date("2014/03/07"),
-        new Date("2019/03/07"),
+        parseDate("2014-03-07"),
+        parseDate("2019-03-07"),
         1.0,
         0
       )
