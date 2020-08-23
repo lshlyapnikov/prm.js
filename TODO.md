@@ -52,5 +52,18 @@
         max_instances: 1
         max_concurrent_requests: 50
     ```
-20. [ ] Add a check that all symbols have the same number of prices in the price matrix
+20. [x] Add a check that all symbols have the same number of prices in the price matrix
         e.g. if there is not enough market data some symbols might have wrong number of rows (closing prices)
+21. [ ] Fix the blinking test
+    ```
+    FAIL src/server/utils.test.js
+    utils › #generateRandomWeightsMatrix › should generate a matrix of random weights
+
+    assert.equal(received, expected)
+
+    Expected value to be equal to:
+      30.000000000000004
+    Received:
+      30
+    ```
+    it is opposite, expected: 30 but actual is a double
