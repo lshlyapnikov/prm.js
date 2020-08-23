@@ -1,10 +1,10 @@
 // @flow strict
 
-import { toFixedNumber, generateRandomWeightsMatrix } from "./utils"
+import { toFixedNumber, generateRandomWeightsMatrix, parseDate, formatDate, isValidDate } from "./utils"
 import assert from "assert"
 import numeric from "numeric"
 
-describe("utils", function () {
+describe("utils", () => {
   describe("#toFixedNumber", () => {
     it("should round up", () => {
       assert.equal(12.35, toFixedNumber(12.3456, 2))
@@ -73,6 +73,32 @@ describe("utils", function () {
       for (var i = 0; i < invalidArguments.length; i++) {
         test(invalidArguments[i][0], invalidArguments[i][1])
       }
+    })
+  })
+  describe("#isValidDate", () => {
+    it("should return true for a valid date", () => {
+      assert.equal(true, isValidDate(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))))
+      assert.equal(true, isValidDate(new Date()))
+    })
+    it("should return false for an invalid date", () => {
+      assert.equal(false, isValidDate(new Date(Number.NaN)))
+    })
+  })
+  describe("#parseDate", () => {
+    it("should return UTC date with time 0:0:0.0", () => {
+      assert.equal(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0)).getTime(), parseDate("2018-08-24").getTime())
+      assert.equal(new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0)).getTime(), parseDate("2018-8-4").getTime())
+      assert.equal(new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0)).getTime(), parseDate("2019-03-07").getTime())
+    })
+  })
+  describe("#formatDate", () => {
+    it("format parsed date back to original string", () => {
+      function testRoundtrip(str: string) {
+        assert.equal(str, formatDate(parseDate(str)))
+      }
+      testRoundtrip("2018-08-24")
+      testRoundtrip("2018-12-01")
+      testRoundtrip("1900-01-01")
     })
   })
 })

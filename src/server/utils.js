@@ -2,7 +2,6 @@
 /// LGPL Licencsed
 // @flow strict
 import log4js from "log4js"
-import { formatISO, parseISO, endOfDay } from "date-fns"
 
 export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
@@ -91,10 +90,28 @@ export function newArrayWithScale(arr: Array<number>, scale: number): Array<numb
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
+const InvalidDate: Date = new Date(Number.NaN)
+
 export function parseDate(str: string): Date {
-  return endOfDay(parseISO(str))
+  const arr: Array<number> = str.split("-").map((x) => strToNumber(x))
+  if (arr.length != 3) {
+    return InvalidDate
+  } else {
+    return new Date(Date.UTC(arr[0], arr[1] - 1, arr[2]))
+  }
+}
+
+export function isValidDate(date: Date): boolean {
+  return !Number.isNaN(date.getTime())
 }
 
 export function formatDate(date: Date): string {
-  return formatISO(date, { representation: "date" })
+  function pad(x: number): string {
+    if (x < 10 && x > 0) {
+      return `0${x}`
+    } else {
+      return x.toString(10)
+    }
+  }
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
 }

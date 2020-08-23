@@ -3,7 +3,7 @@ import csv from "csv-parser"
 import request from "request"
 import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
-import { endOfDay, compareAsc } from "date-fns"
+import { parseDate, isValidDate } from "../server/utils"
 import stream from "stream"
 
 import { formatDate } from "../server/utils.js"
@@ -48,7 +48,7 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   minDate: Date,
   maxDate: Date
 ): Observable<number> {
-  if (compareAsc(maxDate, minDate) < 0) {
+  if (maxDate < minDate) {
     return throwError(`Invalid date range: [${formatDate(minDate)}, ${formatDate(maxDate)}]`)
   }
   return Observable.create((observer: Subscriber<number>) => {
@@ -56,8 +56,8 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
       .on("error", (error: Error) => observer.error(error))
       .on("data", (data: { [string]: string }) => {
         const dateStr: string = data["timestamp"]
-        const date: Date = endOfDay(new Date(dateStr))
-        if (Number.isNaN(date.getTime())) {
+        const date: Date = parseDate(dateStr)
+        if (!isValidDate(date)) {
           observer.error(`Cannot parse date from '${dateStr}'. CSV line: ${JSON.stringify(data)}`)
           return
         }
