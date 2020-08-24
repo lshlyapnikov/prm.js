@@ -3,25 +3,43 @@ import csv from "csv-parser"
 import request from "request"
 import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
-import { parseDate, isValidDate } from "../server/utils"
+import { parseDate, isValidDate, formatDate } from "../server/utils"
 import stream from "stream"
-
-import { formatDate } from "../server/utils.js"
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 
 export const AscendingDates = "AscendingDates"
 export const DescendingDates = "DescendingDates"
 
+const csvHeaders: Array<string> = [
+  "timestamp",
+  "open",
+  "high",
+  "low",
+  "close",
+  "adjusted_close",
+  "volume",
+  "dividend_amount",
+  "split_coefficient"
+]
+
+const csvOptions = {
+  separator: ",",
+  headers: csvHeaders,
+  strict: true
+}
+
 export function dailyAdjustedStockPrices(
   apiKey: string,
   symbol: string,
   minDate: Date,
   maxDate: Date,
+
   dateOrder: DateOrder
 ): Observable<number> {
   const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
-  const rawStream: stream.Readable = request(url).pipe(csv())
+
+  const rawStream: stream.Readable = request(url).pipe(csv(csvOptions))
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
 }
 
@@ -61,6 +79,7 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
           observer.error(`Cannot parse date from '${dateStr}'. CSV line: ${JSON.stringify(data)}`)
           return
         }
+
         const adjustedCloseStr: string = data["adjusted_close"]
         const adjustedClose: number = Number.parseFloat(adjustedCloseStr)
         if (Number.isNaN(adjustedClose)) {

@@ -115,3 +115,11 @@ export function formatDate(date: Date): string {
   }
   return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
 }
+
+export function cumulativeReturnRate(returnRate: number, periods: number): number {
+  return Math.pow(1 + returnRate, periods) - 1
+}
+
+export function periodReturnRate(returnRate: number, periods: number): number {
+  return Math.pow(returnRate + 1.0, 1.0 / periods) - 1
+}

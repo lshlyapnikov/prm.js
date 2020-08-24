@@ -89,6 +89,8 @@ describe("utils", () => {
       assert.equal(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0)).getTime(), parseDate("2018-08-24").getTime())
       assert.equal(new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0)).getTime(), parseDate("2018-8-4").getTime())
       assert.equal(new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0)).getTime(), parseDate("2019-03-07").getTime())
+      assert.equal(false, isValidDate(parseDate("")))
+      assert.equal(false, isValidDate(parseDate(" ")))
     })
   })
   describe("#formatDate", () => {

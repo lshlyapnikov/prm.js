@@ -4,19 +4,11 @@ import fs from "fs"
 import es from "event-stream"
 import { Observable, Subscriber } from "rxjs"
 import { prettyPrint } from "numeric"
-import { logger, formatDate, parseDate } from "../server/utils"
+import { logger, formatDate, parseDate, periodReturnRate } from "../server/utils"
 import { PrmController, Input, Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
 
 const log = logger("cli/prm.js")
-
-function cumulativeReturnRate(returnRate: number, periods: number): number {
-  return Math.pow(1 + returnRate, periods) - 1
-}
-
-function periodReturnRate(returnRate: number, periods: number): number {
-  return Math.pow(returnRate + 1.0, 1.0 / periods) - 1
-}
 
 function mixedToString(a: mixed): string {
   if (typeof a === "string") {
@@ -183,15 +175,9 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dai
     log.info(`stocks: ${JSON.stringify(stocks)}`)
     log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
     log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
+    log.info(`tangency daily interest rate, %: ${output.tangencyPortfolio.expectedReturnRate * 100}`)
     log.info(
-      `tangency annual interest rate, %: ${
-        cumulativeReturnRate(output.tangencyPortfolio.expectedReturnRate, 365) * 100
-      }`
-    )
-    log.info(
-      `min variance annual interest rate, %: ${
-        cumulativeReturnRate(output.globalMinVarianceEfficientPortfolio.expectedReturnRate, 365) * 100
-      }`
+      `min variance daily interest rate, %: ${output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
     )
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile}`)
