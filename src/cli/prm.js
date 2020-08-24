@@ -78,7 +78,11 @@ function loadDailyAdjustedStockPrices(
           ws.write("\n")
           subscriber.next(num)
         },
-        (error) => subscriber.error(error),
+        (error) => {
+          log.error(`Deleting cached prices: ${file}`)
+          fs.unlinkSync(file)
+          subscriber.error(error)
+        },
         () => {
           ws.close()
           subscriber.complete()
