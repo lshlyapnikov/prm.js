@@ -67,3 +67,8 @@
       30
     ```
     it is opposite, expected: 30 but actual is a double
+22. [ ] For better Alphavantage error handling implement `stream.Transform` which returns error
+    if Alphavantage replied back with JSON containing an error instead of the CSV.
+    Use `transform.destroy([error])` to report errors.
+    Pass this implementation into `stream.pipe()` when loading closing prices.
+    See `.pipe(es.split())` or `.pipe(csv())` for references.
