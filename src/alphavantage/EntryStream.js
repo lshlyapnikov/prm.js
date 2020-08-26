@@ -22,7 +22,6 @@ export function entryStream(): EntryStream {
   return new EntryStream()
 }
 
-// TODO: report errors if `{ "Error Message": ".... " }` is in the response
 class EntryStream extends Transform {
   // $FlowIgnore[unclear-type]
   constructor(options?: any) {

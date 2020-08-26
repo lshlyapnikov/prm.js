@@ -11,6 +11,7 @@ describe("EntryStream", () => {
     // entryStream.
 
     // TODO test with chunks of different size QuickCheck style???
+    // TODO: check that errors reproted when `{"Error Message": ".... " }` is in the response
     assert.equal(1, 1)
     done()
   })
