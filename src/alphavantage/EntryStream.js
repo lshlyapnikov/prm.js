@@ -29,10 +29,12 @@ class EntryStream extends Transform {
     super(options)
     this.count = 0
     this.line = ""
+    this.error = null
   }
 
   count: number
   line: string
+  error: ?string
 
   // eslint-disable-next-line no-unused-vars
   // $FlowIgnore[incompatible-extend]
@@ -57,13 +59,28 @@ class EntryStream extends Transform {
 
   // $FlowIgnore[incompatible-extend]
   _final(callback: Callback): void {
-    callback(null, this.getLine())
+    const line: ?string = this.getLine()
+    if (null != this.error) {
+      callback(new Error(this.error), null)
+    } else {
+      callback(null, line)
+    }
   }
 
   getLine(): ?string {
-    if (this.line.length == 0) {
+    if (null != this.error) {
+      this.error += this.line.trim()
+      this.line = ""
+      this.count += 1
+      return null
+    } else if (this.line.length == 0) {
       return null
     } else if (this.count == 0 && this.line.startsWith("timestamp,")) {
+      this.line = ""
+      this.count += 1
+      return null
+    } else if (this.count == 0 && this.line.startsWith("{")) {
+      this.error = this.line.trim()
       this.line = ""
       this.count += 1
       return null
