@@ -1,6 +1,5 @@
 // @flow strict
 import assert from "assert"
-import csv from "csv-parser"
 import fs from "fs"
 import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
@@ -8,6 +7,7 @@ import { validateMatrix } from "./linearAlgebra"
 import { PrmController, Input, Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
+import { entryStream } from "../alphavantage/EntryStream"
 import { toFixedNumber, newArrayWithScale } from "./utils"
 import * as testData from "./testData"
 import { logger, parseDate } from "./utils"
@@ -22,7 +22,7 @@ function loadMockStockHistory(symbol: string, dummy0: Date, dummy1: Date): Obser
 }
 
 function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
-  const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`).pipe(csv())
+  const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`).pipe(entryStream())
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 }
 

@@ -24,7 +24,6 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "csv-parser": "^2.2.0",
     "event-stream": "^4.0.1",
     "immutable": "^4.0.0-rc.12",
     "log4js": "^4.0.2",

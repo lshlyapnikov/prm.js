@@ -1,33 +1,16 @@
 // @flow strict
-import csv from "csv-parser"
 import request from "request"
 import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
-import { parseDate, isValidDate, formatDate } from "../server/utils"
+import { formatDate } from "../server/utils"
+import type { Result } from "../server/utils"
 import stream from "stream"
+import { entryStream, Entry, parseEntry } from "./EntryStream"
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 
 export const AscendingDates = "AscendingDates"
 export const DescendingDates = "DescendingDates"
-
-const csvHeaders: Array<string> = [
-  "timestamp",
-  "open",
-  "high",
-  "low",
-  "close",
-  "adjusted_close",
-  "volume",
-  "dividend_amount",
-  "split_coefficient"
-]
-
-const csvOptions = {
-  separator: ",",
-  headers: csvHeaders,
-  strict: true
-}
 
 export function dailyAdjustedStockPrices(
   apiKey: string,
@@ -39,7 +22,7 @@ export function dailyAdjustedStockPrices(
 ): Observable<number> {
   const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
 
-  const rawStream: stream.Readable = request(url).pipe(csv(csvOptions))
+  const rawStream: stream.Readable = request(url).pipe(entryStream())
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
 }
 
@@ -71,29 +54,20 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   }
   return Observable.create((observer: Subscriber<number>) => {
     stream
-      .on("error", (error: Error) => observer.error(error))
-      .on("data", (data: { [string]: string }) => {
-        const dateStr: string = data["timestamp"]
-        const date: Date = parseDate(dateStr)
-        if (!isValidDate(date)) {
-          observer.error(`Cannot parse date from '${dateStr}'. CSV line: ${JSON.stringify(data)}`)
-          return
-        }
-
-        const adjustedCloseStr: string = data["adjusted_close"]
-        const adjustedClose: number = Number.parseFloat(adjustedCloseStr)
-        if (Number.isNaN(adjustedClose)) {
-          observer.error(
-            `Cannot parse adjusted close price from '${adjustedCloseStr}'. CSV line: ${JSON.stringify(data)}`
-          )
-          return
-        }
-        if (minDate <= date && date <= maxDate) {
-          observer.next(adjustedClose)
-        } else if (date > minDate) {
-          // skip it
+      .on("error", (error: Error) => observer.error(error.message))
+      .on("data", (line: string | Buffer) => {
+        const result: Result<Entry> = parseEntry(line.toString())
+        if (result.success) {
+          const entry: Entry = result.value
+          if (minDate <= entry.timestamp && entry.timestamp <= maxDate) {
+            observer.next(entry.adjustedClose)
+          } else if (entry.timestamp > minDate) {
+            // skip it
+          } else {
+            observer.complete()
+          }
         } else {
-          observer.complete()
+          observer.error(result.error.message)
         }
       })
       .on("end", () => {
