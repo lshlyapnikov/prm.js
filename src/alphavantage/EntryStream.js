@@ -1,6 +1,5 @@
 // @flow strict
-import { parseDate, isValidDate } from "../server/utils"
-import { type Result, logger } from "../server/utils"
+import { type Result, logger, parseDate, isValidDate } from "../server/utils"
 import { Transform } from "stream"
 
 const log = logger("alphavantage/EntryStream.js")

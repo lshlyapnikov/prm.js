@@ -2,8 +2,7 @@
 import request from "request"
 import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
-import { formatDate } from "../server/utils"
-import type { Result } from "../server/utils"
+import { type Result, formatDate } from "../server/utils"
 import stream from "stream"
 import { entryStream, Entry, parseEntry } from "./EntryStream"
 
