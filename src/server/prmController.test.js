@@ -22,7 +22,7 @@ function loadMockStockHistory(symbol: string, dummy0: Date, dummy1: Date): Obser
 }
 
 function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
-  const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`).pipe(entryStream())
+  const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`).pipe(entryStream(true))
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 }
 

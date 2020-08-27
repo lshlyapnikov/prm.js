@@ -22,7 +22,7 @@ export function dailyAdjustedStockPrices(
 ): Observable<number> {
   const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
 
-  const rawStream: stream.Readable = request(url).pipe(entryStream())
+  const rawStream: stream.Readable = request(url).pipe(entryStream(true))
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
 }
 
@@ -55,8 +55,8 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   return Observable.create((observer: Subscriber<number>) => {
     stream
       .on("error", (error: Error) => observer.error(error.message))
-      .on("data", (line: string | Buffer) => {
-        const result: Result<Entry> = parseEntry(line.toString())
+      .on("data", (line: string) => {
+        const result: Result<Entry> = parseEntry(line)
         if (result.success) {
           const entry: Entry = result.value
           if (minDate <= entry.timestamp && entry.timestamp <= maxDate) {

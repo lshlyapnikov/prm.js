@@ -1,7 +1,6 @@
 // @flow strict
 import { parseDate, isValidDate } from "../server/utils"
-import { logger } from "../server/utils"
-import type { Result } from "../server/utils"
+import { type Result, logger } from "../server/utils"
 import { Transform } from "stream"
 
 const log = logger("alphavantage/EntryStream.js")
@@ -18,24 +17,25 @@ export class Entry {
 
 type Callback = (error: ?Error, entry: ?string) => void
 
-export function entryStream(): EntryStream {
-  return new EntryStream()
+export function entryStream(skipHeader: boolean): EntryStream {
+  return new EntryStream(skipHeader)
 }
 
 class EntryStream extends Transform {
   // $FlowIgnore[unclear-type]
-  constructor(options?: any) {
-    super(options)
+  constructor(skipHeader: boolean) {
+    super({ encoding: "utf8" })
+    this.skipHeader = skipHeader
     this.count = 0
     this.line = ""
     this.error = null
   }
 
+  skipHeader: boolean
   count: number
   line: string
   error: ?string
 
-  // eslint-disable-next-line no-unused-vars
   // $FlowIgnore[incompatible-extend]
   _transform(chunk: Buffer | string, encoding: string, callback: Callback): void {
     const data: string = typeof chunk === "string" ? chunk : chunk.toString()
@@ -62,7 +62,10 @@ class EntryStream extends Transform {
     if (null != this.error) {
       callback(new Error(this.error), null)
     } else {
-      callback(null, line)
+      if (null != line) {
+        this.push(line)
+      }
+      callback(null, null)
     }
   }
 
@@ -74,12 +77,12 @@ class EntryStream extends Transform {
       return null
     } else if (this.line.length == 0) {
       return null
-    } else if (this.count == 0 && this.line.startsWith("timestamp,")) {
+    } else if (this.count == 0 && this.line.startsWith("{")) {
+      this.error = this.line.trim()
       this.line = ""
       this.count += 1
       return null
-    } else if (this.count == 0 && this.line.startsWith("{")) {
-      this.error = this.line.trim()
+    } else if (this.count == 0 && this.skipHeader) {
       this.line = ""
       this.count += 1
       return null
