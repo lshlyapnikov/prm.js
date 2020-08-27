@@ -2,6 +2,30 @@
 import { Readable } from "stream"
 import { entryStream } from "./EntryStream"
 
+type JestDoneFn = {|
+  (): void,
+  fail: (error: Error) => void
+|}
+
+function entryStreamTest(readable: Readable, expected: Array<string>, done: JestDoneFn) {
+  const lines: Array<string> = []
+  readable.on("data", (line: string) => {
+    lines.push(line)
+  })
+  readable.on("error", (error) => {
+    done.fail(error)
+  })
+  readable.on("finish", () => {
+    const actualStr: string = JSON.stringify(lines)
+    const expectedStr: string = JSON.stringify(expected)
+    if (actualStr == expectedStr) {
+      done()
+    } else {
+      done.fail(new Error(`actual: ${actualStr} is not equal to expected: ${expectedStr}`))
+    }
+  })
+}
+
 describe("EntryStream", () => {
   test("should return all lines", (done) => {
     async function* generate() {
@@ -12,24 +36,8 @@ describe("EntryStream", () => {
     }
     const expected: Array<string> = ["1", "23", "45", "6", "7", "8", "9"]
 
-    const lines: Array<string> = []
     // $FlowIgnore[prop-missing]
-    const readable: Readable = Readable.from(generate()).pipe(entryStream(false))
-    readable.on("data", (line: string) => {
-      lines.push(line)
-    })
-    readable.on("error", (error) => {
-      done.fail(error)
-    })
-    readable.on("finish", () => {
-      const actualStr: string = JSON.stringify(lines)
-      const expectedStr: string = JSON.stringify(expected)
-      if (actualStr == expectedStr) {
-        done()
-      } else {
-        done.fail(new Error(`actual: ${actualStr} is not equal to expected: ${expectedStr}`))
-      }
-    })
+    entryStreamTest(Readable.from(generate()).pipe(entryStream(false)), expected, done)
   })
   test("should return all lines including the last one if it does not end with <new-line> char", (done) => {
     async function* generate() {
@@ -40,24 +48,8 @@ describe("EntryStream", () => {
     }
     const expected: Array<string> = ["1", "23", "45", "6", "7", "8", "9"]
 
-    const lines: Array<string> = []
     // $FlowIgnore[prop-missing]
-    const readable: Readable = Readable.from(generate()).pipe(entryStream(false))
-    readable.on("data", (line: string) => {
-      lines.push(line)
-    })
-    readable.on("error", (error) => {
-      done.fail(error)
-    })
-    readable.on("finish", () => {
-      const actualStr: string = JSON.stringify(lines)
-      const expectedStr: string = JSON.stringify(expected)
-      if (actualStr == expectedStr) {
-        done()
-      } else {
-        done.fail(new Error(`actual: ${actualStr} is not equal to expected: ${expectedStr}`))
-      }
-    })
+    entryStreamTest(Readable.from(generate()).pipe(entryStream(false)), expected, done)
   })
   test("should return all lines except the header when skipHeader = true", (done) => {
     async function* generate() {
@@ -67,24 +59,8 @@ describe("EntryStream", () => {
     }
     const expected: Array<string> = ["1", "2"]
 
-    const lines: Array<string> = []
     // $FlowIgnore[prop-missing]
-    const readable: Readable = Readable.from(generate()).pipe(entryStream(true))
-    readable.on("data", (line: string) => {
-      lines.push(line)
-    })
-    readable.on("error", (error) => {
-      done.fail(error)
-    })
-    readable.on("finish", () => {
-      const actualStr: string = JSON.stringify(lines)
-      const expectedStr: string = JSON.stringify(expected)
-      if (actualStr == expectedStr) {
-        done()
-      } else {
-        done.fail(new Error(`actual: ${actualStr} is not equal to expected: ${expectedStr}`))
-      }
-    })
+    entryStreamTest(Readable.from(generate()).pipe(entryStream(true)), expected, done)
   })
 
   //TODO test error is reported
