@@ -3,8 +3,8 @@
 // @flow strict
 import log4js from "log4js"
 
-type Success<A> = { success: true, value: A }
-type Failure = { success: false, error: Error }
+type Success<A> = {| success: true, value: A |}
+type Failure = {| success: false, error: Error |}
 export type Result<A> = Failure | Success<A>
 
 export type JestDoneFn = {|
