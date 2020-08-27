@@ -7,6 +7,11 @@ type Success<A> = { success: true, value: A }
 type Failure = { success: false, error: Error }
 export type Result<A> = Failure | Success<A>
 
+export type JestDoneFn = {|
+  (): void,
+  fail: (error: Error) => void
+|}
+
 export function logger(category: string): log4js.Logger {
   const logger: log4js.Logger = log4js.getLogger(category)
   logger.level = log4js.levels.INFO

@@ -1,11 +1,8 @@
 // @flow strict
+import assert from "assert"
 import { Readable } from "stream"
 import { entryStream } from "./EntryStream"
-
-type JestDoneFn = {|
-  (): void,
-  fail: (error: Error) => void
-|}
+import { type JestDoneFn } from "../server/utils"
 
 function entryStreamTest(readable: Readable, expected: Array<string>, done: JestDoneFn) {
   const lines: Array<string> = []
@@ -62,6 +59,22 @@ describe("EntryStream", () => {
     // $FlowIgnore[prop-missing]
     entryStreamTest(Readable.from(generate()).pipe(entryStream(true)), expected, done)
   })
+  test("should return an error", (done) => {
+    async function* generate() {
+      yield "{ \n"
+      yield '"error": "anything that starts with a curly brace is an error" \n'
+      yield "}"
+    }
 
-  //TODO test error is reported
+    // $FlowIgnore[prop-missing]
+    const readable: Readable = Readable.from(generate()).pipe(entryStream(true))
+
+    readable.on("data", (line: string) => {
+      done.fail(new Error(`Expected error but got line: ${line}`))
+    })
+    readable.on("error", (error) => {
+      assert.deepEqual(error, new Error('{"error": "anything that starts with a curly brace is an error"}'))
+      done()
+    })
+  })
 })
