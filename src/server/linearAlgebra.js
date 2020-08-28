@@ -138,5 +138,11 @@ export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>
 }
 
 export function inverseMatrix(mXn: Matrix<number>): Matrix<number> {
+  validateMatrix(mXn)
   return numeric.inv(mXn)
+}
+
+export function isInvertableMatrix(nXn: Matrix<number>): boolean {
+  const [m, n] = dim(nXn)
+  return m == n && numeric.det(nXn) != 0
 }

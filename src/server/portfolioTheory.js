@@ -3,7 +3,15 @@
 // @flow strict
 const numeric = require("numeric")
 
-import { type Matrix, matrix, dim, multiplyMatrices, transpose, copyMatrixInto } from "./linearAlgebra"
+import {
+  type Matrix,
+  matrix,
+  dim,
+  multiplyMatrices,
+  transpose,
+  copyMatrixInto,
+  isInvertableMatrix
+} from "./linearAlgebra"
 import { type PortfolioStats, createPortfolioStats } from "./portfolioStats"
 import { logger } from "./utils"
 
@@ -65,6 +73,12 @@ export class TangencyPortfolio {
     riskFreeReturnRate: number
   ): Array<number> {
     log.debug(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
+    if (!isInvertableMatrix(returnRatesCovarianceNxN)) {
+      throw new Error(
+        "Return rate covariance matrix (returnRatesCovarianceNxN) is NOT invertible. " +
+          "Use numeric methods to calculate optimal portfolio."
+      )
+    }
     const n = dim(returnRatesCovarianceNxN)[0]
     const returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN)
     const riskFreeReturnRateNx1 = matrix(n, 1, riskFreeReturnRate)

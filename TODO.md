@@ -72,3 +72,4 @@
     Use `transform.destroy([error])` to report errors.
     Pass this implementation into `stream.pipe()` when loading closing prices.
     See `.pipe(es.split())` or `.pipe(csv())` for references.
+23. [ ] Figure out what to do when `returnRatesCovarianceNxN` is NOT invertible. Numeric methods?
