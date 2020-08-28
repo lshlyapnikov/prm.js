@@ -93,5 +93,6 @@ export function mvefFromHistoricalReturnRates(
   // N x N
   const covarianceNxN = covariance(returnRatesKxN)
 
+  // TODO: this could return Observable<PortfolioStats> instead of Array<PortfolioStats>
   return weightsMxN.map((weightsN: Array<number>) => createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN))
 }

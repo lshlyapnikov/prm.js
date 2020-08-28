@@ -73,3 +73,6 @@
     Pass this implementation into `stream.pipe()` when loading closing prices.
     See `.pipe(es.split())` or `.pipe(csv())` for references.
 23. [ ] Figure out what to do when `returnRatesCovarianceNxN` is NOT invertible. Numeric methods?
+    see `mvef#mvefFromHistoricalReturnRates` and `mvef#mvefFromHistoricalReturnRates`
+24. [ ] validate that min variance portolio is (almost) the same when using random weights and the formula that requires
+    matrix inversion.    
