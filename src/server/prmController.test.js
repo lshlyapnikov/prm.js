@@ -4,11 +4,11 @@ import fs from "fs"
 import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { validateMatrix } from "./linearAlgebra"
-import { PrmController, Input, Output } from "./prmController"
+import { PrmController, Input, type Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { entryStream } from "../alphavantage/EntryStream"
-import { toFixedNumber, newArrayWithScale } from "./utils"
+import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
 import * as testData from "./testData"
 import { logger, parseDate } from "./utils"
 
@@ -30,15 +30,19 @@ function verifyPortfolioStatsObjects(o: PortfolioStats) {
   assert.ok(o !== null)
 }
 
-function verifyPortfolioAnalysisResult(r: [Input, Output]): void {
+function verifyPortfolioAnalysisResult(r: [Input, Output], done: JestDoneFn): void {
   const [input, output] = r
   validateMatrix(input.rrKxN)
   validateMatrix(input.expectedRrNx1)
   validateMatrix(input.rrCovarianceNxN)
-  verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
-  verifyPortfolioStatsObjects(output.tangencyPortfolio)
-  assert.equal(output.efficientPortfolioFrontier.length, 21)
-  output.efficientPortfolioFrontier.forEach((p) => verifyPortfolioStatsObjects(p))
+  if (output.Calculated) {
+    verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
+    assert.equal(output.efficientPortfolioFrontier.length, 21)
+    output.efficientPortfolioFrontier.forEach((p) => verifyPortfolioStatsObjects(p))
+    verifyPortfolioStatsObjects(output.tangencyPortfolio)
+  } else {
+    done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(output)}`))
+  }
 }
 
 describe("PrmController", () => {
@@ -48,14 +52,21 @@ describe("PrmController", () => {
       .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], parseDate("1111-11-11"), parseDate("1111-11-11"), 1.0, 0)
       .then(
         (analysisResult: [Input, Output]) => {
-          verifyPortfolioAnalysisResult(analysisResult)
+          verifyPortfolioAnalysisResult(analysisResult, done)
           const [input, output] = analysisResult
           assert.ok(input !== null)
           // numbers are from the lecture, I think
-          assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
-          assert.strictEqual(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
-          assert.deepStrictEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [0.11, 0.89])
-          done()
+          if (output.Calculated) {
+            assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
+            assert.strictEqual(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
+            assert.deepStrictEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [
+              0.11,
+              0.89
+            ])
+            done()
+          } else {
+            done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(output)}`))
+          }
         },
         (error) => done.fail(error)
       )

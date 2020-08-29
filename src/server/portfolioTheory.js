@@ -75,7 +75,8 @@ export class TangencyPortfolio {
     log.debug(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
     if (!isInvertableMatrix(returnRatesCovarianceNxN)) {
       throw new Error(
-        "Return rate covariance matrix (returnRatesCovarianceNxN) is NOT invertible. " +
+        "Cannot calculate Tangency Portfolio. " +
+          "Return rate covariance matrix (returnRatesCovarianceNxN) is NOT invertible. " +
           "Use numeric methods to calculate optimal portfolio."
       )
     }

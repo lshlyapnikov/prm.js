@@ -1,7 +1,7 @@
 // @flow strict
 import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
-import { type Matrix } from "./linearAlgebra"
+import { type Matrix, isInvertableMatrix } from "./linearAlgebra"
 import {
   efficientPortfolioFrontier,
   tangencyPortfolio,
@@ -36,20 +36,25 @@ export class Input {
   riskFreeRr: number
 }
 
-export class Output {
-  constructor(
-    globalMinVarianceEfficientPortfolio: PortfolioStats,
-    tangencyPortfolio: PortfolioStats,
-    efficientPortfolioFrontier: Array<PortfolioStats>
-  ) {
-    this.globalMinVarianceEfficientPortfolio = globalMinVarianceEfficientPortfolio
-    this.tangencyPortfolio = tangencyPortfolio
-    this.efficientPortfolioFrontier = efficientPortfolioFrontier
-  }
-  globalMinVarianceEfficientPortfolio: PortfolioStats
-  tangencyPortfolio: PortfolioStats
+export type Output = Calculated | CannotCalculate | Simulated
+
+export type Calculated = {|
+  Calculated: true,
+  globalMinVarianceEfficientPortfolio: PortfolioStats,
+  tangencyPortfolio: PortfolioStats,
   efficientPortfolioFrontier: Array<PortfolioStats>
-}
+|}
+
+export type CannotCalculate = {|
+  CannotCalculate: true,
+  message: string
+|}
+
+export type Simulated = {|
+  Simulated: true,
+  globalMinVarianceEfficientPortfolio: PortfolioStats,
+  simulations: Array<PortfolioStats>
+|}
 
 export class PrmController {
   constructor(loadHistoricalPrices: (string, Date, Date) => Observable<number>) {
@@ -118,12 +123,25 @@ export class PrmController {
       .toPromise()
   }
 
-  analyzeUsingPortfolioStatistics(input: Input): Output {
-    return new Output(
-      globalMinimumVarianceEfficientPortfolio.calculate(input.expectedRrNx1, input.rrCovarianceNxN),
-      tangencyPortfolio.calculate(input.expectedRrNx1, input.rrCovarianceNxN, input.riskFreeRr),
-      efficientPortfolioFrontier.calculate(input.expectedRrNx1, input.rrCovarianceNxN)
-    )
+  analyzeUsingPortfolioStatistics(input: Input): Calculated | CannotCalculate {
+    if (isInvertableMatrix(input.rrCovarianceNxN)) {
+      return {
+        Calculated: true,
+        globalMinVarianceEfficientPortfolio: globalMinimumVarianceEfficientPortfolio.calculate(
+          input.expectedRrNx1,
+          input.rrCovarianceNxN
+        ),
+        tangencyPortfolio: tangencyPortfolio.calculate(input.expectedRrNx1, input.rrCovarianceNxN, input.riskFreeRr),
+        efficientPortfolioFrontier: efficientPortfolioFrontier.calculate(input.expectedRrNx1, input.rrCovarianceNxN)
+      }
+    } else {
+      return {
+        CannotCalculate: true,
+        message:
+          "Cannot calculate efficient portfolios: GlobalMinVarianceEfficientPortfolio and TangencyPortfolio. " +
+          "Return rate covariance matrix (returnRatesCovarianceNxN) is NOT invertible. Use portfolio simulations."
+      }
+    }
   }
 }
 

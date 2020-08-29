@@ -5,7 +5,7 @@ import es from "event-stream"
 import { Observable, Subscriber } from "rxjs"
 import { prettyPrint } from "numeric"
 import { logger, formatDate, parseDate, periodReturnRate } from "../server/utils"
-import { PrmController, Input, Output } from "../server/prmController"
+import { PrmController, Input, type Output } from "../server/prmController"
 import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
 
 const log = logger("cli/prm.js")
@@ -176,13 +176,7 @@ const controller = new PrmController((symbol: string, minDate: Date, maxDate: Da
 controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dailyRiskFreeReturnRate, delayMillis).then(
   (analysisResult: [Input, Output]) => {
     const output: Output = analysisResult[1]
-    log.info(`stocks: ${JSON.stringify(stocks)}`)
-    log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
-    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
-    log.info(`tangency daily interest rate, %: ${output.tangencyPortfolio.expectedReturnRate * 100}`)
-    log.info(
-      `min variance daily interest rate, %: ${output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
-    )
+    printResults(stocks, output)
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile}`)
       fs.writeFileSync(outputFile, JSON.stringify(output))
@@ -190,3 +184,19 @@ controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dai
   },
   (error) => log.error(error)
 )
+
+function printResults(stocks: Array<string>, output: Output) {
+  log.info(`stocks: ${JSON.stringify(stocks)}`)
+  if (output.Calculated) {
+    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
+    log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
+    log.info(
+      `min variance daily interest rate, %: ${output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
+    )
+    log.info(`tangency daily interest rate, %: ${output.tangencyPortfolio.expectedReturnRate * 100}`)
+  } else if (output.CannotCalculate) {
+    log.warn(output.message)
+  } else {
+    log.error(`Expected Calculated output, got: ${JSON.stringify(output)}`)
+  }
+}
