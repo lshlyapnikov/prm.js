@@ -76,3 +76,6 @@
     see `mvef#mvefFromHistoricalReturnRates` and `mvef#mvefFromHistoricalReturnRates`
 24. [ ] validate that min variance portolio is (almost) the same when using random weights and the formula that requires
     matrix inversion.    
+25. [ ] Use Listing & Delisting Status service to validate the stock symbols. Cache the output.
+        https://www.alphavantage.co/documentation/#listing-status
+        `state=active` and `date`
