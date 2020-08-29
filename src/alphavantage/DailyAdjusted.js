@@ -4,7 +4,8 @@ import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
 import { type Result, formatDate } from "../server/utils"
 import stream from "stream"
-import { entryStream, Entry, parseEntry } from "./EntryStream"
+import { entryStream } from "./EntryStream"
+import { type Entry, parseEntry } from "./Entry"
 
 type DateOrder = "AscendingDates" | "DescendingDates"
 
@@ -58,9 +59,9 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
         const result: Result<Entry> = parseEntry(line)
         if (result.success) {
           const entry: Entry = result.value
-          if (minDate <= entry.timestamp && entry.timestamp <= maxDate) {
+          if (minDate <= entry.date && entry.date <= maxDate) {
             observer.next(entry.adjustedClose)
-          } else if (entry.timestamp > minDate) {
+          } else if (entry.date > minDate) {
             // skip it
           } else {
             observer.complete()
