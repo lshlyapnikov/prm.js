@@ -1,12 +1,16 @@
 // @flow strict
 import * as yargs from "yargs"
 import fs from "fs"
-import es from "event-stream"
-import { Observable, Subscriber } from "rxjs"
+import stream from "stream"
 import { prettyPrint } from "numeric"
-import { logger, formatDate, parseDate, periodReturnRate } from "../server/utils"
+import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { PrmController, Input, type Output } from "../server/prmController"
-import { dailyAdjustedStockPrices, AscendingDates } from "../alphavantage/DailyAdjusted"
+import {
+  dailyAdjustedStockPricesFromStream,
+  dailyAdjustedStockPricesRawStream,
+  AscendingDates
+} from "../alphavantage/DailyAdjusted"
+import { dailyAdjustedStockPricesRawStreamFromCache, type CacheSettings } from "../alphavantage/DailyAdjustedCache"
 
 const log = logger("cli/prm.js")
 
@@ -31,64 +35,6 @@ function mixedToNumber(a: mixed): number {
     return (a: number)
   } else {
     throw new Error(`Cannot convert mixed to number`)
-  }
-}
-
-function readPrices(file: string): Observable<number> {
-  return Observable.create((subscriber: Subscriber<number>) => {
-    fs.createReadStream(file)
-      .pipe(es.split())
-      .on("data", (line: string) => {
-        if (line.length > 0) {
-          subscriber.next(Number.parseFloat(line))
-        }
-      })
-      .on("error", (err) => {
-        subscriber.error(`Error while reading file: ${JSON.stringify(err)}`)
-      })
-      .on("end", () => {
-        subscriber.complete()
-      })
-  })
-}
-
-function loadDailyAdjustedStockPrices(
-  cacheDir: string,
-  apiKey: string,
-  symbol: string,
-  minDate: Date,
-  maxDate: Date
-): Observable<number> {
-  log.info(`loading symbol: ${symbol}`)
-  let file = `${cacheDir}/${symbol}-${formatDate(minDate)}-${formatDate(maxDate)}.txt`
-  if (fs.existsSync(file)) {
-    log.info(`Symbol cache found: ${file}`)
-    return readPrices(file)
-  } else {
-    log.info(`Symbol cache not found: ${file}`)
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true })
-    }
-    let ws = fs.createWriteStream(file, { flags: "w" })
-    return Observable.create((subscriber: Subscriber<number>) => {
-      ws.on("error", (error) => subscriber.error(error))
-      dailyAdjustedStockPrices(apiKey, symbol, minDate, maxDate, AscendingDates).subscribe(
-        (num: number) => {
-          ws.write(String(num))
-          ws.write("\n")
-          subscriber.next(num)
-        },
-        (error) => {
-          log.error(`Deleting cached prices: ${file}`)
-          fs.unlinkSync(file)
-          subscriber.error(error)
-        },
-        () => {
-          ws.close()
-          subscriber.complete()
-        }
-      )
-    })
   }
 }
 
@@ -169,8 +115,17 @@ log.info(`startDate: ${formatDate(startDate)}`)
 log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 
+const cache: CacheSettings = { directory: "./.cache", date: today() }
+log.info(`cache: ${JSON.stringify(cache)}`)
+
 const controller = new PrmController((symbol: string, minDate: Date, maxDate: Date) => {
-  return loadDailyAdjustedStockPrices("./.cache", apiKey, symbol, minDate, maxDate)
+  const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(
+    cache,
+    apiKey,
+    symbol,
+    dailyAdjustedStockPricesRawStream
+  )
+  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })
 
 controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dailyRiskFreeReturnRate, delayMillis).then(

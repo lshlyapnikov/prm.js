@@ -12,7 +12,7 @@ type DateOrder = "AscendingDates" | "DescendingDates"
 export const AscendingDates = "AscendingDates"
 export const DescendingDates = "DescendingDates"
 
-function dailyAdjustedStockPricesRawStream(apiKey: string, symbol: string): stream.Readable {
+export function dailyAdjustedStockPricesRawStream(apiKey: string, symbol: string): stream.Readable {
   const url: string = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${symbol}&apikey=${apiKey}&datatype=csv&outputsize=full`
   return request(url)
 }
@@ -22,14 +22,12 @@ export function dailyAdjustedStockPrices(
   symbol: string,
   minDate: Date,
   maxDate: Date,
-  dateOrder: DateOrder
+  dateOrder: DateOrder,
+  rawStreamFn: ?(string, string) => stream.Readable
 ): Observable<number> {
-  return dailyAdjustedStockPricesFromStream(
-    dailyAdjustedStockPricesRawStream(apiKey, symbol),
-    minDate,
-    maxDate,
-    dateOrder
-  )
+  const rawStream =
+    rawStreamFn != null ? rawStreamFn(apiKey, symbol) : dailyAdjustedStockPricesRawStream(apiKey, symbol)
+  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
 }
 
 export function dailyAdjustedStockPricesFromStream(
