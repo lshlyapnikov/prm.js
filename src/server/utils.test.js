@@ -20,13 +20,14 @@ describe("utils", () => {
   describe("#generateRandomWeightsMatrix", function () {
     it("should generate a matrix of random weights", function () {
       // GIVEN
-      var rowNum = 30
-      var colNum = 10
+      const rowNum = 30
+      const colNum = 10
       // WHEN
-      var weights = generateRandomWeightsMatrix(rowNum, colNum)
-      // THEN
-      var sum = numeric.sum(weights)
-      assert.equal(rowNum, sum)
+      const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum)
+      // THEN sum == rowNum, every column summs to 1
+      const sum = numeric.sum(weights)
+      const error = Math.abs(sum - rowNum)
+      assert.ok(error < 0.00001)
     })
     it("should generate a new weights matrix if called consequently", function () {
       // GIVEN
