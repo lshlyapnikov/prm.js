@@ -6,6 +6,7 @@ import { prettyPrint } from "numeric"
 import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { PrmController, Input, type Output } from "../server/prmController"
 import {
+  ApiKey,
   dailyAdjustedStockPricesFromStream,
   dailyAdjustedStockPricesRawStream,
   AscendingDates
@@ -96,13 +97,12 @@ const options = yargs
 const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const startDate: Date = parseDate(mixedToString(options["start-date"]))
 const endDate: Date = parseDate(mixedToString(options["end-date"]))
-const apiKey: string = mixedToString(options["api-key"])
+const apiKey = new ApiKey(mixedToString(options["api-key"]))
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 const outputFile: ?string = mixedToOptionalString(options["output-file"])
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
-log.info(`api-key: ${apiKey}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
 if (null != outputFile) {
@@ -119,11 +119,8 @@ const cache: CacheSettings = { directory: "./.cache", date: today() }
 log.info(`cache: ${JSON.stringify(cache)}`)
 
 const controller = new PrmController((symbol: string, minDate: Date, maxDate: Date) => {
-  const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(
-    cache,
-    apiKey,
-    symbol,
-    dailyAdjustedStockPricesRawStream
+  const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
+    dailyAdjustedStockPricesRawStream(apiKey, x)
   )
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })

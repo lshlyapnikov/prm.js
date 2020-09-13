@@ -9,9 +9,8 @@ export type CacheSettings = { directory: string, date: Date }
 
 export function dailyAdjustedStockPricesRawStreamFromCache(
   cache: CacheSettings,
-  apiKey: string,
   symbol: string,
-  loadFn: (string, string) => stream.Readable
+  loadFn: (string) => stream.Readable
 ): stream.Readable {
   log.info(`loading symbol: ${symbol}`)
   const file = symbolCacheFileName(cache.directory, cache.date, symbol)
@@ -23,7 +22,7 @@ export function dailyAdjustedStockPricesRawStreamFromCache(
     if (!fs.existsSync(cache.directory)) {
       fs.mkdirSync(cache.directory, { recursive: true })
     }
-    const rawStream = loadFn(apiKey, symbol)
+    const rawStream = loadFn(symbol)
     rawStream.pipe(fs.createWriteStream(file))
     const passThrough = new stream.PassThrough()
     rawStream.pipe(passThrough)
