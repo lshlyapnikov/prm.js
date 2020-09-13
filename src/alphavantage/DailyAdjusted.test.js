@@ -10,7 +10,6 @@ import {
   AscendingDates,
   DescendingDates
 } from "./DailyAdjusted"
-import { entryStream } from "./EntryStream"
 import { parseDate } from "../server/utils.js"
 // import { alphavantage } from "../../test-config.js"
 // import { logger } from "../server/utils"
@@ -18,7 +17,7 @@ import { parseDate } from "../server/utils.js"
 
 describe("DailyAdjusted", () => {
   test("should parse and return adjusted closing prices with ascending date order", (done) => {
-    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(entryStream(true))
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv")
     dailyAdjustedStockPricesFromStream(rawStream, parseDate("2018-08-21"), parseDate("2018-08-22"), AscendingDates)
       .pipe(toArray())
       .subscribe(
@@ -29,7 +28,7 @@ describe("DailyAdjusted", () => {
   })
 
   test("should parse and return adjusted closing prices with descending date order", (done) => {
-    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(entryStream(true))
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv")
     dailyAdjustedStockPricesFromStream(rawStream, parseDate("2018-08-21"), parseDate("2018-08-22"), DescendingDates)
       .pipe(toArray())
       .subscribe(
@@ -40,7 +39,7 @@ describe("DailyAdjusted", () => {
   })
 
   test("should parse and return one adjusted closing price value", (done) => {
-    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(entryStream(true))
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv")
     dailyAdjustedStockPricesFromStream(rawStream, parseDate("2018-08-21"), parseDate("2018-08-21"), AscendingDates)
       .pipe(toArray())
       .subscribe(
@@ -51,7 +50,7 @@ describe("DailyAdjusted", () => {
   })
 
   test("should return error when invalid date range passed", (done) => {
-    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(entryStream(true))
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv")
     const d1 = "2018-08-22"
     const d2 = "2018-08-21"
     const expectedError = `Invalid date range: [${d1}, ${d2}]`
@@ -73,7 +72,7 @@ describe("DailyAdjusted", () => {
   })
 
   test("should return empty array when date it out of range", (done) => {
-    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv").pipe(entryStream(true))
+    const rawStream = fs.createReadStream("./src/alphavantage/daily_adjusted_MSFT.test.csv")
     dailyAdjustedStockPricesFromStream(rawStream, parseDate("1970-01-01"), parseDate("1970-01-01"), AscendingDates)
       .pipe(toArray())
       .subscribe(
@@ -123,7 +122,7 @@ describe("DailyAdjusted", () => {
       stringToStream(
         "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient\n" +
           "aaa2018-08-24,107.6700,108.5600,107.5600,108.4000,108.4000,17232126,0.0000,1.0000\n"
-      ).pipe(entryStream(true)),
+      ),
       "Cannot parse date from 'aaa2018-08-24'"
     )
 
@@ -131,7 +130,7 @@ describe("DailyAdjusted", () => {
       stringToStream(
         "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient\n" +
           "2018-08-24,107.6700,108.5600,107.5600,108.4000,aaa108.4000,17232126,0.0000,1.0000\n"
-      ).pipe(entryStream(true)),
+      ),
       "Cannot parse adjusted close price from 'aaa108.4000"
     )
   })
