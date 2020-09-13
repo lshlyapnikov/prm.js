@@ -24,19 +24,6 @@ export function dailyAdjustedStockPricesRawStream(apiKey: ApiKey, symbol: string
   return request(url)
 }
 
-export function dailyAdjustedStockPrices(
-  apiKey: ApiKey,
-  symbol: string,
-  minDate: Date,
-  maxDate: Date,
-  dateOrder: DateOrder,
-  rawStreamFn: ?(ApiKey, string) => stream.Readable
-): Observable<number> {
-  const rawStream =
-    rawStreamFn != null ? rawStreamFn(apiKey, symbol) : dailyAdjustedStockPricesRawStream(apiKey, symbol)
-  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, dateOrder)
-}
-
 export function dailyAdjustedStockPricesFromStream(
   input: stream.Readable,
   minDate: Date,
