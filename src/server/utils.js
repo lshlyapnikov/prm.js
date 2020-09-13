@@ -1,5 +1,5 @@
 /// Author: Leonid Shlyapnikov
-/// LGPL Licencsed
+/// LGPL Licensed
 // @flow strict
 import log4js from "log4js"
 

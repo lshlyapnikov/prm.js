@@ -1,5 +1,5 @@
 /// Author: Leonid Shlyapnikov
-/// LGPL Licencsed
+/// LGPL Licensed
 // @flow strict
 import { type Matrix, matrix, multiplyMatrices, dim, validateMatrix, transpose } from "./linearAlgebra"
 

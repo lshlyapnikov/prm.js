@@ -1,5 +1,5 @@
 /// Author: Leonid Shlyapnikov
-/// LGPL Licencsed
+/// LGPL Licensed
 // @flow strict
 
 // for some reason the current numeric.js implementation does not check matrix dimensions before multiplication.

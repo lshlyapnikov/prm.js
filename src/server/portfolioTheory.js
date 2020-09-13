@@ -1,5 +1,5 @@
 /// Author: Leonid Shlyapnikov
-/// LGPL Licencsed
+/// LGPL Licensed
 // @flow strict
 const numeric = require("numeric")
 
