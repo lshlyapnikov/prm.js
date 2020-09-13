@@ -9,7 +9,7 @@
 6.  [x] replace console.log with util.log
 7.  [x] add `// @flow` to the rest of the files
 8.  [x] fix `mvef.js` and add types
-9.  [ ] allow loading `Prices` directly in the `prmController`
+9.  [x] allow loading `Prices` directly in the `prmController`
 10. [x] add ESLint
     - https://www.npmjs.com/package/eslint-plugin-react
     - https://github.com/joarwilk/flowgen/blob/master/.eslintrc
@@ -18,7 +18,7 @@
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
 13. [x] implement prm.js CLI before the GUI
-    [ ] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
+    [x] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
         src/server/prmController.js:87
         memoize the raw closing prices, the entire stream
     [x] Change `--years` to `--start-date` and `--end-date`
