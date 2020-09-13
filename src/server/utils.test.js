@@ -27,7 +27,7 @@ describe("utils", () => {
       // THEN sum == rowNum, every column summs to 1
       const sum = numeric.sum(weights)
       const error = Math.abs(sum - rowNum)
-      assert.ok(error < 0.00001)
+      assert.ok(error < 0.0000000000001)
     })
     it("should generate a new weights matrix if called consequently", function () {
       // GIVEN

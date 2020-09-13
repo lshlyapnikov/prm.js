@@ -54,7 +54,7 @@
     ```
 20. [x] Add a check that all symbols have the same number of prices in the price matrix
         e.g. if there is not enough market data some symbols might have wrong number of rows (closing prices)
-21. [ ] Fix the blinking test
+21. [x] Fix the blinking test
     ```
     FAIL src/server/utils.test.js
     utils › #generateRandomWeightsMatrix › should generate a matrix of random weights
