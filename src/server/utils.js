@@ -110,6 +110,10 @@ export function parseDate(str: string): Date {
   }
 }
 
+export function isValidDateStr(str: string): boolean {
+  return isValidDate(parseDate(str))
+}
+
 export function isValidDate(date: Date): boolean {
   return !Number.isNaN(date.getTime())
 }

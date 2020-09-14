@@ -79,3 +79,4 @@
 25. [ ] Use Listing & Delisting Status service to validate the stock symbols. Cache the output.
         https://www.alphavantage.co/documentation/#listing-status
         `state=active` and `date`
+26. [x] Validated Dates in the prm.js command line args. Right now if invalid format passed, you end up with NaN.
