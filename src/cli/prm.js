@@ -52,6 +52,7 @@ function mixedToNumber(a: mixed): number {
 
 const options = yargs
   .usage("$0 [options]")
+  .wrap(null)
   .help("help")
   .example(
     "$0 --stocks=IBM,MSFT --start-date=2020-01-01 --end-date=2020-03-01 " +
@@ -60,43 +61,43 @@ const options = yargs
   )
   .options({
     stocks: {
-      description: "A comma-separated list of stock symbols",
+      description: "A comma-separated list of stock symbols.",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     "start-date": {
-      description: "Stock price history start date in the YYYY-MM-dd format",
+      description: "Stock price history start date in the YYYY-MM-dd format.",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     "end-date": {
-      description: "Stock price history end date in the YYYY-MM-dd format",
+      description: "Stock price history end date in the YYYY-MM-dd format.",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     "api-key": {
-      description: "Alphavantage API key",
+      description: "Alphavantage API key.",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     "delay-millis": {
-      description: "Delay between stock price history requests, millis",
+      description: "Delay between stock price history requests, millis.",
       requiresArg: true,
       demandOption: true,
       type: "number"
     },
     "annual-risk-free-interest-rate": {
-      description: "Annual risk free interest rate, %",
+      description: "Annual risk free interest rate, %.",
       requiresArg: true,
       demandOption: true,
       type: "number"
     },
     "output-file": {
-      description: "File where to write calculated portfolios",
+      description: "File where to write calculated portfolios.",
       requiresArg: true,
       demandOption: false,
       type: "string"
