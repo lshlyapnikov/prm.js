@@ -68,13 +68,13 @@ const options = yargs
       type: "string"
     },
     "start-date": {
-      description: "Stock price history start date in the YYYY-MM-dd format.",
+      description: "Stock price history start date in the yyyy-MM-dd format.",
       requiresArg: true,
       demandOption: true,
       type: "string"
     },
     "end-date": {
-      description: "Stock price history end date in the YYYY-MM-dd format.",
+      description: "Stock price history end date in the yyyy-MM-dd format.",
       requiresArg: true,
       demandOption: true,
       type: "string"
@@ -111,10 +111,10 @@ const options = yargs
       type: "string"
     },
     "cache-date": {
-      description: "Cache date override in the YYYY-MM-dd format.",
+      description: "Cache date override in the yyyy-MM-dd format.",
       requiresArg: true,
       demandOption: false,
-      defaultDescription: "today in local timezone",
+      defaultDescription: "today",
       type: "string"
     }
   }).argv
