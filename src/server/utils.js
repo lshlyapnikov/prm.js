@@ -110,6 +110,13 @@ export function parseDate(str: string): Date {
   }
 }
 
+export function parseDateSafe(str: string): Result<Date> {
+  const d = parseDate(str)
+  return isValidDate(d)
+    ? { success: true, value: d }
+    : { success: false, error: new Error(`Not a validate date: '${str}'`) }
+}
+
 export function isValidDateStr(str: string): boolean {
   return isValidDate(parseDate(str))
 }

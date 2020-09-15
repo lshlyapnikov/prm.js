@@ -1,20 +1,22 @@
 // @flow strict
 
-import { toFixedNumber, generateRandomWeightsMatrix, parseDate, formatDate, isValidDate } from "./utils"
+import { toFixedNumber, generateRandomWeightsMatrix, parseDate, parseDateSafe, formatDate, isValidDate } from "./utils"
 import assert from "assert"
 import numeric from "numeric"
+
+const maxError: number = 0.0000000000001
 
 describe("utils", () => {
   describe("#toFixedNumber", () => {
     it("should round up", () => {
-      assert.equal(12.35, toFixedNumber(12.3456, 2))
-      assert.equal(1.235, toFixedNumber(1.23456, 3))
-      assert.equal(1235, toFixedNumber(1234.5678, 0))
+      assert.equal(toFixedNumber(12.3456, 2), 12.35)
+      assert.equal(toFixedNumber(1.23456, 3), 1.235)
+      assert.equal(toFixedNumber(1234.5678, 0), 1235)
     })
     it("should round down", () => {
-      assert.equal(12.3, toFixedNumber(12.3456, 1))
-      assert.equal(1.23, toFixedNumber(1.23456, 2))
-      assert.equal(123, toFixedNumber(123.456, 0))
+      assert.equal(toFixedNumber(12.3456, 1), 12.3)
+      assert.equal(toFixedNumber(1.23456, 2), 1.23)
+      assert.equal(toFixedNumber(123.456, 0), 123)
     })
   })
   describe("#generateRandomWeightsMatrix", function () {
@@ -26,8 +28,7 @@ describe("utils", () => {
       const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum)
       // THEN sum == rowNum, every column summs to 1
       const sum = numeric.sum(weights)
-      const error = Math.abs(sum - rowNum)
-      assert.ok(error < 0.0000000000001)
+      assert.ok(Math.abs(sum - rowNum) < maxError)
     })
     it("should generate a new weights matrix if called consequently", function () {
       // GIVEN
@@ -39,8 +40,8 @@ describe("utils", () => {
       // THEN
       var sum0 = numeric.sum(weights0)
       var sum1 = numeric.sum(weights1)
-      assert.equal(rowNum, sum0)
-      assert.equal(rowNum, sum1)
+      assert.ok(Math.abs(sum0 - rowNum) < maxError)
+      assert.ok(Math.abs(sum1 - rowNum) < maxError)
       assert.notDeepEqual(weights0, weights1)
       for (var i = 0; i < rowNum; i++) {
         assert.notDeepEqual(weights0[i], weights1[i])
@@ -78,26 +79,44 @@ describe("utils", () => {
   })
   describe("#isValidDate", () => {
     it("should return true for a valid date", () => {
-      assert.equal(true, isValidDate(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))))
-      assert.equal(true, isValidDate(new Date()))
+      assert.equal(isValidDate(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))), true)
+      assert.equal(isValidDate(new Date()), true)
     })
     it("should return false for an invalid date", () => {
-      assert.equal(false, isValidDate(new Date(Number.NaN)))
+      assert.equal(isValidDate(new Date(Number.NaN)), false)
     })
   })
   describe("#parseDate", () => {
     it("should return UTC date with time 0:0:0.0", () => {
-      assert.equal(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0)).getTime(), parseDate("2018-08-24").getTime())
-      assert.equal(new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0)).getTime(), parseDate("2018-8-4").getTime())
-      assert.equal(new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0)).getTime(), parseDate("2019-03-07").getTime())
-      assert.equal(false, isValidDate(parseDate("")))
-      assert.equal(false, isValidDate(parseDate(" ")))
+      assert.deepEqual(parseDate("2018-08-24"), new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0)))
+      assert.deepEqual(parseDate("2018-8-4"), new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0)))
+      assert.deepEqual(parseDate("2019-03-07"), new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0)))
+      assert.equal(isValidDate(parseDate("")), false)
+      assert.equal(isValidDate(parseDate(" ")), false)
+    })
+  })
+  describe("#parseDateSafe", () => {
+    it("should return UTC date with time 0:0:0.0", () => {
+      assert.deepEqual(parseDateSafe("2018-08-24"), {
+        success: true,
+        value: new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))
+      })
+      assert.deepEqual(parseDateSafe("2018-8-4"), {
+        success: true,
+        value: new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0))
+      })
+      assert.deepEqual(parseDateSafe("2019-03-07"), {
+        success: true,
+        value: new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0))
+      })
+      assert.deepEqual(parseDateSafe(""), { success: false, error: new Error("Not a validate date: ''") })
+      assert.deepEqual(parseDateSafe(" "), { success: false, error: new Error("Not a validate date: ' '") })
     })
   })
   describe("#formatDate", () => {
     it("format parsed date back to original string", () => {
       function testRoundtrip(str: string) {
-        assert.equal(str, formatDate(parseDate(str)))
+        assert.equal(formatDate(parseDate(str)), str)
       }
       testRoundtrip("2018-08-24")
       testRoundtrip("2018-12-01")

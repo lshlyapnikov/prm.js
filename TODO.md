@@ -80,3 +80,4 @@
         https://www.alphavantage.co/documentation/#listing-status
         `state=active` and `date`
 26. [x] Validated Dates in the prm.js command line args. Right now if invalid format passed, you end up with NaN.
+27. [ ] Write `parseDate` property-based test using `fast-check`. BTW `2020-03-00` returns a valid date!
