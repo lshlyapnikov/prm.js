@@ -1,4 +1,4 @@
-// flow-typed signature: c8a58185041766088e014e254477a097
+// flow-typed signature: ba072d812dc0133aed0c7467570915ba
 // flow-typed version: <<STUB>>/@babel/core_v^7.8.3/flow_v0.130.0
 
 /**
@@ -99,6 +99,10 @@ declare module '@babel/core/lib/config/pattern-to-regex' {
 }
 
 declare module '@babel/core/lib/config/plugin' {
+  declare module.exports: any;
+}
+
+declare module '@babel/core/lib/config/printer' {
   declare module.exports: any;
 }
 
@@ -268,6 +272,9 @@ declare module '@babel/core/lib/config/pattern-to-regex.js' {
 }
 declare module '@babel/core/lib/config/plugin.js' {
   declare module.exports: $Exports<'@babel/core/lib/config/plugin'>;
+}
+declare module '@babel/core/lib/config/printer.js' {
+  declare module.exports: $Exports<'@babel/core/lib/config/printer'>;
 }
 declare module '@babel/core/lib/config/util.js' {
   declare module.exports: $Exports<'@babel/core/lib/config/util'>;
