@@ -3,6 +3,7 @@ import assert from "assert"
 import fs from "fs"
 import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
+import { LocalDate } from "@js-joda/core"
 import { validateMatrix } from "./linearAlgebra"
 import { PrmController, Input, type Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
@@ -14,13 +15,13 @@ import { logger, parseDate } from "./utils"
 const log = logger("prmController.test.js")
 
 // eslint-disable-next-line no-unused-vars
-function loadMockStockHistory(symbol: string, dummy0: Date, dummy1: Date): Observable<number> {
+function loadMockStockHistory(symbol: string, dummy0: LocalDate, dummy1: LocalDate): Observable<number> {
   if (symbol === "NYX") return from(testData.NYX)
   else if (symbol == "INTC") return from(testData.INTC)
   else return throwError(`Unsupported mock symbol: ${symbol}`)
 }
 
-function loadStockHistoryFromAlphavantage(symbol: string, minDate: Date, maxDate: Date): Observable<number> {
+function loadStockHistoryFromAlphavantage(symbol: string, minDate: LocalDate, maxDate: LocalDate): Observable<number> {
   const rawStream = fs.createReadStream(`./src/testResources/alphavantage/${symbol}.csv`)
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 }

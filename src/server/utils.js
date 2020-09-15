@@ -2,6 +2,7 @@
 /// LGPL Licensed
 // @flow strict
 import log4js from "log4js"
+import { LocalDate, DateTimeFormatter } from "@js-joda/core"
 
 type Success<A> = {| success: true, value: A |}
 type Failure = {| success: false, error: Error |}
@@ -99,45 +100,27 @@ export function newArrayWithScale(arr: Array<number>, scale: number): Array<numb
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
-const InvalidDate: Date = new Date(Number.NaN)
+export function parseDate(str: string): LocalDate {
+  return LocalDate.parse(str)
+}
 
-export function parseDate(str: string): Date {
-  const arr: Array<number> = str.split("-").map((x) => strToNumber(x))
-  if (arr.length != 3) {
-    return InvalidDate
-  } else {
-    return new Date(Date.UTC(arr[0], arr[1] - 1, arr[2]))
+export function parseDateSafe(str: string): Result<LocalDate> {
+  try {
+    const d = parseDate(str)
+    return { success: true, value: d }
+  } catch (e) {
+    return { success: false, error: e }
   }
 }
 
-export function parseDateSafe(str: string): Result<Date> {
-  const d = parseDate(str)
-  return isValidDate(d)
-    ? { success: true, value: d }
-    : { success: false, error: new Error(`Not a validate date: '${str}'`) }
+const formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+export function formatDate(date: LocalDate): string {
+  return date.format(formatter)
 }
 
-export function isValidDateStr(str: string): boolean {
-  return isValidDate(parseDate(str))
-}
-
-export function isValidDate(date: Date): boolean {
-  return !Number.isNaN(date.getTime())
-}
-
-export function formatDate(date: Date): string {
-  function pad(x: number): string {
-    if (x < 10 && x > 0) {
-      return `0${x}`
-    } else {
-      return x.toString(10)
-    }
-  }
-  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
-}
-
-export function today(): Date {
-  return parseDate(formatDate(new Date()))
+export function today(): LocalDate {
+  return LocalDate.now()
 }
 
 export function cumulativeReturnRate(returnRate: number, periods: number): number {

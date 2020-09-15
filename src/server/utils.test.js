@@ -1,6 +1,7 @@
 // @flow strict
 
-import { toFixedNumber, generateRandomWeightsMatrix, parseDate, parseDateSafe, formatDate, isValidDate } from "./utils"
+import { toFixedNumber, generateRandomWeightsMatrix, parseDate, parseDateSafe, formatDate } from "./utils"
+import { LocalDate } from "@js-joda/core"
 import assert from "assert"
 import numeric from "numeric"
 
@@ -77,40 +78,29 @@ describe("utils", () => {
       }
     })
   })
-  describe("#isValidDate", () => {
-    it("should return true for a valid date", () => {
-      assert.equal(isValidDate(new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))), true)
-      assert.equal(isValidDate(new Date()), true)
-    })
-    it("should return false for an invalid date", () => {
-      assert.equal(isValidDate(new Date(Number.NaN)), false)
-    })
-  })
   describe("#parseDate", () => {
-    it("should return UTC date with time 0:0:0.0", () => {
-      assert.deepEqual(parseDate("2018-08-24"), new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0)))
-      assert.deepEqual(parseDate("2018-8-4"), new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0)))
-      assert.deepEqual(parseDate("2019-03-07"), new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0)))
-      assert.equal(isValidDate(parseDate("")), false)
-      assert.equal(isValidDate(parseDate(" ")), false)
+    it("should return LocalDate", () => {
+      assert.deepEqual(parseDate("2018-08-24"), LocalDate.of(2018, 8, 24))
+      assert.deepEqual(parseDate("2019-03-07"), LocalDate.of(2019, 3, 7))
+      assert.throws(() => parseDate("2018-8-4"), Error)
+      assert.throws(() => parseDate(""), Error)
+      assert.throws(() => parseDate(" "), Error)
     })
   })
   describe("#parseDateSafe", () => {
-    it("should return UTC date with time 0:0:0.0", () => {
+    it("should return LocalDate", () => {
       assert.deepEqual(parseDateSafe("2018-08-24"), {
         success: true,
-        value: new Date(Date.UTC(2018, 7, 24, 0, 0, 0, 0))
-      })
-      assert.deepEqual(parseDateSafe("2018-8-4"), {
-        success: true,
-        value: new Date(Date.UTC(2018, 7, 4, 0, 0, 0, 0))
+        value: LocalDate.of(2018, 8, 24)
       })
       assert.deepEqual(parseDateSafe("2019-03-07"), {
         success: true,
-        value: new Date(Date.UTC(2019, 2, 7, 0, 0, 0, 0))
+        value: LocalDate.of(2019, 3, 7)
       })
-      assert.deepEqual(parseDateSafe(""), { success: false, error: new Error("Not a validate date: ''") })
-      assert.deepEqual(parseDateSafe(" "), { success: false, error: new Error("Not a validate date: ' '") })
+      assert.equal(parseDateSafe("2018-8-4").success, false)
+      assert.equal(parseDateSafe("").success, false)
+      assert.equal(parseDateSafe(" ").success, false)
+      assert.equal(parseDateSafe("2020-03-00").success, false)
     })
   })
   describe("#formatDate", () => {

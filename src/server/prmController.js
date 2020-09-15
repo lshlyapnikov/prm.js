@@ -1,6 +1,7 @@
 // @flow strict
 import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
+import { LocalDate } from "@js-joda/core"
 import { type Matrix, isInvertableMatrix } from "./linearAlgebra"
 import {
   efficientPortfolioFrontier,
@@ -57,14 +58,14 @@ export type Simulated = {|
 |}
 
 export class PrmController {
-  constructor(loadHistoricalPrices: (string, Date, Date) => Observable<number>) {
+  constructor(loadHistoricalPrices: (string, LocalDate, LocalDate) => Observable<number>) {
     this.loadHistoricalPrices = loadHistoricalPrices
   }
 
-  loadHistoricalPrices: (string, Date, Date) => Observable<number>
+  loadHistoricalPrices: (string, LocalDate, LocalDate) => Observable<number>
 
-  loadHistoricalPricesAsArray(symbol: string, startDate: Date, maxDate: Date): Observable<Prices> {
-    return this.loadHistoricalPrices(symbol, startDate, maxDate).pipe(
+  loadHistoricalPricesAsArray(symbol: string, startDate: LocalDate, endDate: LocalDate): Observable<Prices> {
+    return this.loadHistoricalPrices(symbol, startDate, endDate).pipe(
       toArray(),
       map((prices) => new Prices(symbol, prices))
     )
@@ -83,8 +84,8 @@ export class PrmController {
    */
   analyzeUsingPortfolioHistoricalPrices(
     symbols: Array<string>,
-    startDate: Date,
-    endDate: Date,
+    startDate: LocalDate,
+    endDate: LocalDate,
     riskFreeRr: number,
     delayMillis: number,
     scheduler: ?Scheduler

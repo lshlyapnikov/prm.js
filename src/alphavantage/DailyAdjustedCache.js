@@ -1,11 +1,12 @@
 // @flow strict
 import fs from "fs"
 import stream from "stream"
+import { LocalDate } from "@js-joda/core"
 import { logger, formatDate } from "../server/utils"
 
 const log = logger("alphavantage/DailyAdjustedCache.js")
 
-export type CacheSettings = { directory: string, date: Date }
+export type CacheSettings = { directory: string, date: LocalDate }
 
 export function dailyAdjustedStockPricesRawStreamFromCache(
   cache: CacheSettings,
@@ -30,6 +31,6 @@ export function dailyAdjustedStockPricesRawStreamFromCache(
   }
 }
 
-function symbolCacheFileName(directory: string, date: Date, symbol: string): string {
+function symbolCacheFileName(directory: string, date: LocalDate, symbol: string): string {
   return `${directory}/${symbol}-${formatDate(date)}.csv`
 }

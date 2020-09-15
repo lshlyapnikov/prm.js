@@ -2,6 +2,7 @@
 import request from "request"
 import { Observable, Subscriber, from, throwError } from "rxjs"
 import { toArray, mergeMap } from "rxjs/operators"
+import { LocalDate } from "@js-joda/core"
 import { type Result, formatDate } from "../server/utils"
 import stream from "stream"
 import { entryStream } from "./EntryStream"
@@ -26,8 +27,8 @@ export function dailyAdjustedStockPricesRawStream(apiKey: ApiKey, symbol: string
 
 export function dailyAdjustedStockPricesFromStream(
   input: stream.Readable,
-  minDate: Date,
-  maxDate: Date,
+  minDate: LocalDate,
+  maxDate: LocalDate,
   dateOrder: DateOrder
 ): Observable<number> {
   const observable: Observable<number> = dailyAdjustedStockPricesFromStreamWithDescendingDates(input, minDate, maxDate)
@@ -44,10 +45,10 @@ function reverseObservable<T>(o: Observable<T>): Observable<T> {
 
 function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   input: stream.Readable,
-  minDate: Date,
-  maxDate: Date
+  minDate: LocalDate,
+  maxDate: LocalDate
 ): Observable<number> {
-  if (maxDate < minDate) {
+  if (maxDate.compareTo(minDate) < 0) {
     return throwError(`Invalid date range: [${formatDate(minDate)}, ${formatDate(maxDate)}]`)
   }
   return Observable.create((observer: Subscriber<number>) => {
@@ -58,9 +59,9 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
         const result: Result<Entry> = parseEntry(line)
         if (result.success) {
           const entry: Entry = result.value
-          if (minDate <= entry.date && entry.date <= maxDate) {
+          if (minDate.compareTo(entry.date) <= 0 && entry.date.compareTo(maxDate) <= 0) {
             observer.next(entry.adjustedClose)
-          } else if (entry.date > minDate) {
+          } else if (entry.date.compareTo(minDate) > 0) {
             // skip it
           } else {
             observer.complete()

@@ -1,5 +1,5 @@
-// flow-typed signature: f37d03f0feabf1757f268028793ee1c4
-// flow-typed version: 0c5d2ee298/yargs_v15.x.x/flow_>=v0.118.x
+// flow-typed signature: bdc5f9a88811506b3b19778d8e1c3966
+// flow-typed version: 913f18e781/yargs_v15.x.x/flow_>=v0.118.x
 
 declare module "yargs" {
   declare type Argv = {
@@ -153,6 +153,7 @@ declare module "yargs" {
 
     demandOption(key: string | Array<string>, msg?: string | boolean): this;
 
+    demandCommand(): this;
     demandCommand(min: number, minMsg?: string): this;
     demandCommand(
       min: number,

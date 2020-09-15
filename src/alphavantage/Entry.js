@@ -1,10 +1,11 @@
 // @flow strict
-import { type Result, logger, parseDate, isValidDate } from "../server/utils"
+import { type Result, logger, parseDateSafe } from "../server/utils"
+import { LocalDate } from "@js-joda/core"
 
 const log = logger("alphavantage/EntryStream.js")
 
 export type Entry = {|
-  date: Date,
+  date: LocalDate,
   adjustedClose: number
 |}
 
@@ -17,19 +18,23 @@ export function parseEntry(line: string): Result<Entry> {
   }
 
   const dateStr: string = fields[0] // timestamp
-  const date: Date = parseDate(dateStr)
-  if (!isValidDate(date)) {
-    return { success: false, error: new Error(`Cannot parse date from '${dateStr}'. CSV line: ${line}`) }
-  }
+  const dateR = parseDateSafe(dateStr)
 
-  const adjustedCloseStr: string = fields[5] // adjusted_close
-  const adjustedClose: number = Number.parseFloat(adjustedCloseStr)
-  if (Number.isNaN(adjustedClose)) {
+  if (dateR.success) {
+    const adjustedCloseStr: string = fields[5] // adjusted_close
+    const adjustedClose: number = Number.parseFloat(adjustedCloseStr)
+    if (Number.isNaN(adjustedClose)) {
+      return {
+        success: false,
+        error: new Error(`Cannot parse adjusted close price from '${adjustedCloseStr}'. CSV line: ${line}`)
+      }
+    } else {
+      return { success: true, value: { date: dateR.value, adjustedClose } }
+    }
+  } else {
     return {
       success: false,
-      error: new Error(`Cannot parse adjusted close price from '${adjustedCloseStr}'. CSV line: ${line}`)
+      error: new Error(`Cannot parse date from '${dateStr}'. CSV line: ${line}. Cause: ${dateR.error.toString()}`)
     }
   }
-
-  return { success: true, value: { date, adjustedClose } }
 }

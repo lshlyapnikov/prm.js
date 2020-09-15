@@ -2,8 +2,9 @@
 import * as yargs from "yargs"
 import fs from "fs"
 import stream from "stream"
+import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
-import { logger, formatDate, parseDate, isValidDate, today, periodReturnRate } from "../server/utils"
+import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { PrmController, Input, type Output } from "../server/prmController"
 import {
   ApiKey,
@@ -36,7 +37,7 @@ function mixedToStringWithDefault(a: mixed, defaultValue: string): string {
   return null != b ? b : defaultValue
 }
 
-function stringToDateWithDefault(a: ?string, defaultValue: Date): Date {
+function stringToDateWithDefault(a: ?string, defaultValue: LocalDate): LocalDate {
   return null != a ? parseDate(a) : defaultValue
 }
 
@@ -113,29 +114,20 @@ const options = yargs
       description: "Cache date override in the YYYY-MM-dd format.",
       requiresArg: true,
       demandOption: false,
-      defaultDescription: "today in the UTC timezone",
+      defaultDescription: "today in local timezone",
       type: "string"
     }
   }).argv
 
 const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
-const startDate: Date = parseDate(mixedToString(options["start-date"]))
-if (!isValidDate(startDate)) {
-  throw new Error(`Invalid 'start-date' format`)
-}
-const endDate: Date = parseDate(mixedToString(options["end-date"]))
-if (!isValidDate(endDate)) {
-  throw new Error(`Invalid 'end-date' format`)
-}
+const startDate: LocalDate = parseDate(mixedToString(options["start-date"]))
+const endDate: LocalDate = parseDate(mixedToString(options["end-date"]))
 const apiKey = new ApiKey(mixedToString(options["api-key"]))
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 const outputFile: ?string = mixedToOptionalString(options["output-file"])
 const cacheDir: string = mixedToStringWithDefault(options["cache-dir"], "./.cache")
-const cacheDate: Date = stringToDateWithDefault(options["cache-date"], today())
-if (!isValidDate(cacheDate)) {
-  throw new Error(`Invalid 'cache-date' format`)
-}
+const cacheDate: LocalDate = stringToDateWithDefault(options["cache-date"], today())
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`delay-millis: ${delayMillis}`)
@@ -153,7 +145,7 @@ log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 const cache: CacheSettings = { directory: cacheDir, date: cacheDate }
 log.info(`cache: ${JSON.stringify(cache)}`)
 
-const controller = new PrmController((symbol: string, minDate: Date, maxDate: Date) => {
+const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
   const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
     dailyAdjustedStockPricesRawStream(apiKey, x)
   )
