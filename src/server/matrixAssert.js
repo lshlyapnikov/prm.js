@@ -3,24 +3,28 @@ import { type Matrix, validateMatrix, copyMatrix } from "./linearAlgebra"
 import { setMatrixElementsScale } from "./utils"
 import assert from "assert"
 
-export function assertEqualMatrices(actualMatrix: Matrix<number>, expectedMatrix: Matrix<number>, scale: number): void {
+export function assertEqualMatrices<M: number, N: number>(
+  actualMatrix: Matrix<number, M, N>,
+  expectedMatrix: Matrix<number, M, N>,
+  scale: number
+): void {
   validateMatrix(actualMatrix)
   validateMatrix(expectedMatrix)
   assert.deepStrictEqual(
-    setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
+    setMatrixElementsScale(copyMatrix(actualMatrix).values, scale),
+    setMatrixElementsScale(copyMatrix(expectedMatrix).values, scale)
   )
 }
 
-export function assertNotEqualMatrices(
-  actualMatrix: Matrix<number>,
-  expectedMatrix: Matrix<number>,
+export function assertNotEqualMatrices<M: number, N: number>(
+  actualMatrix: Matrix<number, M, N>,
+  expectedMatrix: Matrix<number, M, N>,
   scale: number
 ): void {
   validateMatrix(actualMatrix)
   validateMatrix(expectedMatrix)
   assert.notDeepStrictEqual(
-    setMatrixElementsScale(copyMatrix(actualMatrix), scale),
-    setMatrixElementsScale(copyMatrix(expectedMatrix), scale)
+    setMatrixElementsScale(copyMatrix(actualMatrix).values, scale),
+    setMatrixElementsScale(copyMatrix(expectedMatrix).values, scale)
   )
 }

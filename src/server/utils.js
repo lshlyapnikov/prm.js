@@ -56,21 +56,28 @@ export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Arr
   const matrix: Array<Array<number>> = new Array(rowNum)
 
   for (let i = 0; i < rowNum; i++) {
-    const vector: Array<number> = new Array(colNum)
-    var sum: number = 0
-    // generate random numbers
-    for (let j = 0; j < colNum; j++) {
-      vector[j] = Math.random()
-      sum += vector[j]
-    }
-    // normalize all numbers, so vector sum equals 1
-    for (let j = 0; j < colNum; j++) {
-      vector[j] /= sum
-    }
-    matrix[i] = vector
+    matrix[i] = generateRandomWeights(colNum)
   }
 
   return matrix
+}
+
+export function generateRandomWeights(n: number): Array<number> {
+  const vector: Array<number> = new Array(n)
+  var sum: number = 0
+
+  // generate random numbers
+  for (let j = 0; j < n; j++) {
+    vector[j] = Math.random()
+    sum += vector[j]
+  }
+
+  // normalize all numbers, so vector sum equals 1
+  for (let j = 0; j < n; j++) {
+    vector[j] /= sum
+  }
+
+  return vector
 }
 
 export function strToNumber(str: string): number {

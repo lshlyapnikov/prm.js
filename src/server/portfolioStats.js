@@ -1,7 +1,7 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licensed
 // @flow strict
-import { type Matrix, matrix, multiplyMatrices, dim, validateMatrix, transpose } from "./linearAlgebra"
+import { type Matrix, matrix, multiplyMatrices, validateMatrix, transpose } from "./linearAlgebra"
 
 export class PortfolioStats {
   constructor(weights: Array<number>, stdDev: number, expectedReturnRate: number) {
@@ -37,31 +37,24 @@ export function meanValue(arr: Array<number>): number {
 /**
  * Calculates a vector of expected values (mean values).
  *
- * @param {Array} valuesMxN   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
+ * @param {Array} mXn   M x N matrix with data sets in columns. Each dataset contains M elemetns, N datasets total.
  * @returns {Array}   Returns a vector of N elements (N x 1 matrix). Each element is an expected value for the
  *                    corresponding column in the matrix argument.
  */
-export function mean(valuesMxN: Matrix<number>): Matrix<number> {
-  if (0 === matrix.length) {
-    throw new Error("InvalidArgument: matrix is empty")
-  }
+export function mean<M: number, N: number>(mXn: Matrix<number, M, N>): Matrix<number, N, 1> {
+  const mu: Matrix<number, N, 1> = matrix(mXn.n, 1, 0)
 
-  var [m, n] = dim(valuesMxN)
-
-  if (undefined === m || undefined === n) {
-    throw new Error("InvalidArgument: argument valuesMxN has to be a matrix (2-dimensional array)")
-  }
-
-  const mu: Matrix<number> = matrix(n, 1, 0)
+  const m = mXn.m
+  const n = mXn.n
 
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < n; j++) {
-      mu[j][0] += valuesMxN[i][j]
+      mu.values[j][0] += mXn.values[i][j]
     }
   }
 
   for (let j = 0; j < n; j++) {
-    mu[j][0] = mu[j][0] / m
+    mu.values[j][0] = mu.values[j][0] / m
   }
 
   return mu
@@ -84,35 +77,39 @@ export function variance(arr: Array<number>, isPopulation: ?boolean): number {
   }
 }
 
-export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean): Matrix<number> {
-  validateMatrix(valuesMxN)
+export function covariance<M: number, N: number>(
+  mXn: Matrix<number, M, N>,
+  isPopulation: ?boolean
+): Matrix<number, N, N> {
+  validateMatrix(mXn)
 
-  const [rowNum, colNum] = dim(valuesMxN)
+  const m = mXn.m
+  const n = mXn.n
 
   // create an empty result matrix (colNum x colNum)
-  const result: Matrix<number> = matrix(colNum, colNum, 0)
+  const result: Matrix<number, N, N> = matrix(n, n, 0)
 
   // calculate medians (Mx1 matrix)
-  const muMx1: Matrix<number> = mean(valuesMxN)
+  const muNx1: Matrix<number, N, 1> = mean(mXn)
 
   // calculate the covariance matrix
 
-  const divisor: number = true === isPopulation ? rowNum : rowNum - 1
+  const divisor: number = true === isPopulation ? m : m - 1
 
   // calculate the diagonal elements and the half that is below the diagonal
-  for (let j = 0; j < colNum; j++) {
+  for (let j = 0; j < n; j++) {
     for (let k = 0; k <= j; k++) {
-      for (let i = 0; i < rowNum; i++) {
-        result[j][k] += (valuesMxN[i][j] - muMx1[j][0]) * (valuesMxN[i][k] - muMx1[k][0])
+      for (let i = 0; i < m; i++) {
+        result.values[j][k] += (mXn.values[i][j] - muNx1.values[j][0]) * (mXn.values[i][k] - muNx1.values[k][0])
       }
-      result[j][k] = result[j][k] / divisor
+      result.values[j][k] = result.values[j][k] / divisor
     }
   }
 
   // copy the half from under the diagonal to the part that is above the diagonal
-  for (let j = 0; j < colNum; j++) {
+  for (let j = 0; j < n; j++) {
     for (let k = 0; k < j; k++) {
-      result[k][j] = result[j][k]
+      result.values[k][j] = result.values[j][k]
     }
   }
 
@@ -148,12 +145,16 @@ export function calculateReturnRatesFromPrices(prices: Array<number>): Array<num
  * @param {Array} priceMatrix   M x N matrix of prices. Stock prices in columns. N columns -- N stocks.
  * @returns {Array}  M-1 x N matrix of return rates.
  */
-export function calculateReturnRatesFromPriceMatrix(priceMatrix: Matrix<number>): Matrix<number> {
-  const [m, n] = dim(priceMatrix)
-  const result = matrix(m - 1, n)
+export function calculateReturnRatesFromPriceMatrix<M: number, N: number, K: number>(
+  priceMatrix: Matrix<number, M, N>
+): Matrix<number, K, N> {
+  const m = priceMatrix.m
+  const n = priceMatrix.n
+  const k = m - 1
+  const result: Matrix<number, K, N> = matrix(k, n)
   for (let i = 0; i < m - 1; i++) {
     for (let j = 0; j < n; j++) {
-      result[i][j] = priceMatrix[i + 1][j] / priceMatrix[i][j] - 1
+      result.values[i][j] = priceMatrix.values[i + 1][j] / priceMatrix.values[i][j] - 1
     }
   }
   return result

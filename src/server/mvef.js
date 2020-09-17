@@ -67,9 +67,12 @@ function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol:
  *                               N is the number of stocks in portfolio
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-export function mvefFromHistoricalPrices(weightsMxN: Matrix<number>, pricesKxN: Matrix<number>): Array<PortfolioStats> {
+export function mvefFromHistoricalPrices<M: number, N: number, K: number>(
+  weightsMxN: Matrix<number, M, N>,
+  pricesKxN: Matrix<number, K, N>
+): Array<PortfolioStats> {
   // K x N (actually K-1 x N)
-  const returnRatesKxN: Matrix<number> = calculateReturnRatesFromPriceMatrix(pricesKxN)
+  const returnRatesKxN: Matrix<number, K, N> = calculateReturnRatesFromPriceMatrix(pricesKxN)
   return mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN)
 }
 
@@ -96,3 +99,11 @@ export function mvefFromHistoricalReturnRates(
   // TODO: this could return Observable<PortfolioStats> instead of Array<PortfolioStats>
   return weightsMxN.map((weightsN: Array<number>) => createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN))
 }
+
+// export simulateMvef(
+//   simulationNumber: num,
+//   expReturnRatesNx1: Matrix<number>
+//   covarianceNxN: Matrix<number>
+// ) {
+
+// }

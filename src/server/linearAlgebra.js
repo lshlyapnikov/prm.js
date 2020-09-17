@@ -7,142 +7,133 @@
 // if vector is passed instead of matrix or if matrix dimensions do not allow multiplication.
 
 import numeric from "numeric"
-export type Matrix<T> = Array<Array<T>>
+// export type Matrix<T> = Array<Array<T>>
 
-export function dim(matrixMxN: Matrix<number>): [number, number] {
-  var m = matrixMxN.length
-  var n = matrixMxN[0].length
-  if (typeof n !== "number") {
-    throw new Error("InvalidArgument: argument matrix does not have columns")
+export class Matrix<T, M: number, N: number> {
+  constructor(m: M, n: N) {
+    if (m <= 0) {
+      throw new Error("InvalidArgument: invalid m: " + m)
+    }
+    if (n <= 0) {
+      throw new Error("InvalidArgument: invalid n: " + n)
+    }
+    this.m = m
+    this.n = n
+    this.values = new Array<Array<T>>(m)
+    for (let i = 0; i < m; i++) {
+      this.values[i] = new Array<T>(n)
+    }
   }
-  return [m, n]
+
+  set(xs: Array<Array<T>>): void {
+    this.values = xs
+    validateMatrix(this)
+  }
+
+  dim(): [M, N] {
+    return [this.m, this.n]
+  }
+
+  values: Array<Array<T>>
+  m: M // rows
+  n: N // columns
 }
 
-export function matrix(m: number, n: number, initialValue: ?number): Matrix<number> {
-  if (m <= 0) {
-    throw new Error("InvalidArgument: invalid m: " + m)
-  }
-  if (n <= 0) {
-    throw new Error("InvalidArgument: invalid n: " + n)
-  }
-
-  var result: Matrix<number> = new Array(m)
-
-  for (let i = 0; i < m; i++) {
-    result[i] = new Array(n)
-  }
-
+export function matrix<T, M: number, N: number>(m: M, n: N, initialValue: ?T): Matrix<T, M, N> {
+  const result: Matrix<T, M, N> = new Matrix(m, n)
   if (initialValue != null) {
     for (let i = 0; i < m; i++) {
       for (let j = 0; j < n; j++) {
-        result[i][j] = initialValue
+        result.values[i][j] = initialValue
       }
     }
   }
-
   return result
 }
 
-export function rowMatrix(vector: Array<number>): Matrix<number> {
-  return [vector]
+export function matrixFrom<A, M: number, N: number>(m: M, n: N, as: Array<Array<A>>): Matrix<A, M, N> {
+  const result: Matrix<A, M, N> = new Matrix(m, n)
+  result.set(as)
+  return result
 }
 
-export function columnMatrix(vector: Array<number>): Matrix<number> {
-  return transpose(rowMatrix(vector))
+export function rowMatrix<T, N: number>(n: N, vector: Array<T>): Matrix<T, 1, N> {
+  if (n != vector.length) {
+    throw new Error(`InvalidArgument: ${n} != ${vector.length} `)
+  }
+  const result: Matrix<T, 1, N> = new Matrix(1, n)
+  result.values[0] = vector
+  return result
 }
 
-// TODO(lshlyapnikov) will be slow, C++ Node plugin???
-export function transpose(matrixMxN: Matrix<number>): Matrix<number> {
-  var dimensions = dim(matrixMxN)
-  var m = dimensions[0]
-  var n = dimensions[1]
+export function columnMatrix<T, M: number>(m: M, vector: Array<T>): Matrix<T, M, 1> {
+  const result: Matrix<T, 1, M> = rowMatrix(m, vector)
+  return transpose(result)
+}
 
-  var resultNxM: Matrix<number> = matrix(n, m)
-  for (var i = 0; i < m; i++) {
-    for (var j = 0; j < n; j++) {
-      resultNxM[j][i] = matrixMxN[i][j]
+export function transpose<T, M: number, N: number>(matrixMxN: Matrix<T, M, N>): Matrix<T, N, M> {
+  const resultNxM: Matrix<T, N, M> = new Matrix(matrixMxN.n, matrixMxN.m)
+  for (let i = 0; i < matrixMxN.m; i++) {
+    for (let j = 0; j < matrixMxN.n; j++) {
+      resultNxM.values[j][i] = matrixMxN.values[i][j]
     }
   }
-
   return resultNxM
 }
 
-// TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
-export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<number> {
-  var dim0: [number, number] = dim(mXn)
-  var dim1: [number, number] = dim(nXm)
-
-  if (dim0[1] !== dim1[0]) {
-    throw new Error(
-      "InvalidArgument: Invalid matrix dimensions. Cannot multiply " +
-        JSON.stringify(dim0) +
-        " matrix by " +
-        JSON.stringify(dim1)
-    )
-  }
-
-  return numeric.dot(mXn, nXm)
+export function multiplyMatrices<M: number, N: number>(
+  mXn: Matrix<number, M, N>,
+  nXm: Matrix<number, N, M>
+): Matrix<number, M, M> {
+  return numeric.dot(mXn.values, nXm.values)
 }
 
-export function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
-  var d0: number = v0.length
-  var d1: number = v1.length
-  if (d0 !== d1) {
-    throw new Error("InvalidArgument: vectors have different dimensions: " + d0 + " and " + d1)
-  }
-  return numeric.dotVV(v0, v1)
-}
-
-export function validateMatrix(mXn: Matrix<number>): void {
-  const [m, n] = dim(mXn)
-  if (m === 0) {
-    throw new Error("InvalidArgument: matrix has 0 rows")
-  }
-  if (n === 0) {
-    throw new Error("InvalidArgument: matrix has 0 columns")
+export function validateMatrix<T, M: number, N: number>(mXn: Matrix<T, M, N>): void {
+  const shouldBeM = mXn.values.length
+  if (shouldBeM != mXn.m) {
+    throw new Error(`Invalid matrix: expected ${mXn.m} rows, but got ${shouldBeM}`)
   }
 
-  for (let i = 1; i < m; i++) {
-    let shouldBeN = mXn[i].length
-    if (shouldBeN !== n) {
-      throw new Error("InvalidArgument: expected " + n + " elements in row: " + i)
+  for (let i = 1; i < mXn.m; i++) {
+    const shouldBeN = mXn.values[i].length
+    if (shouldBeN !== mXn.n) {
+      throw new Error(`Invalid matrix: expected ${mXn.n} elements/columns in row ${i}, but got ${shouldBeN}`)
     }
   }
 }
 
-export function copyMatrix(mXn: Matrix<number>): Matrix<number> {
-  validateMatrix(mXn)
-  var mn: [number, number] = dim(mXn)
-  var m = mn[0]
-  var n = mn[1]
-
-  var result: Matrix<number> = matrix(m, n, NaN)
-  for (let i = 0; i < m; i++) {
-    for (let j = 0; j < n; j++) {
-      result[i][j] = Number(mXn[i][j])
+export function copyMatrix<T, M: number, N: number>(mXn: Matrix<T, M, N>): Matrix<T, M, N> {
+  const result: Matrix<T, M, N> = new Matrix(mXn.m, mXn.n)
+  for (let i = 0; i < mXn.m; i++) {
+    for (let j = 0; j < mXn.n; j++) {
+      result.values[i][j] = mXn.values[i][j]
     }
   }
 
   return result
 }
 
-export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>): Matrix<number> {
-  validateMatrix(mXn)
-  const [m, n] = dim(mXn)
-  for (let i = 0; i < m; i++) {
-    for (let j = 0; j < n; j++) {
-      outputMatrix[i][j] = Number(mXn[i][j])
+export function copyMatrixInto<T, M: number, N: number>(
+  mXn: Matrix<T, M, N>,
+  outputMatrix: Matrix<T, M, N>
+): Matrix<T, M, N> {
+  for (let i = 0; i < mXn.m; i++) {
+    for (let j = 0; j < mXn.n; j++) {
+      outputMatrix.values[i][j] = mXn.values[i][j]
     }
   }
   return outputMatrix
 }
 
-export function inverseMatrix(mXn: Matrix<number>): Matrix<number> {
-  validateMatrix(mXn)
-  return numeric.inv(mXn)
+export function inverseMatrix<N: number>(nXn: Matrix<number, N, N>): Matrix<number, N, N> {
+  if (!isInvertableMatrix(nXn)) {
+    throw new Error(`Cannot inverse given matrix`)
+  }
+  const result: Matrix<number, N, N> = new Matrix(nXn.m, nXn.n)
+  result.set(numeric.inv(nXn.values))
+  return result
 }
 
-export function isInvertableMatrix(nXn: Matrix<number>): boolean {
-  const [m, n] = dim(nXn)
-  return m == n && numeric.det(nXn) != 0
+export function isInvertableMatrix<N: number>(nXn: Matrix<number, N, N>): boolean {
+  return nXn.m == nXn.n && numeric.det(nXn.values) != 0
 }

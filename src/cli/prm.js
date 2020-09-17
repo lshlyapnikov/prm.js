@@ -4,8 +4,15 @@ import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
-import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
+import {
+  logger,
+  formatDate,
+  parseDate,
+  today,
+  periodReturnRate /*, generateRandomWeightsMatrix */
+} from "../server/utils"
 import { PrmController, Input, type Output } from "../server/prmController"
+// import { mvefFromHistoricalReturnRates } from "../server/mvef"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -179,3 +186,8 @@ function printResults(stocks: Array<string>, output: Output) {
     log.error(`Expected Calculated output, got: ${JSON.stringify(output)}`)
   }
 }
+
+// function simulateMvef(randomWeightsNum: number, input: Input) {
+//   generateRandomWeightsMatrix(randomWeightsNum, )
+//   mvefFromHistoricalReturnRates(null, input)
+// }
