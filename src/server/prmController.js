@@ -1,41 +1,32 @@
 // @flow strict
 import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
-import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
+import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
 import { type Matrix, isInvertableMatrix } from "./linearAlgebra"
+import { type Vector } from "./vector"
 import {
-  efficientPortfolioFrontier,
-  tangencyPortfolio,
-  globalMinimumVarianceEfficientPortfolio
+  efficientPortfolioFrontier as efficientPortfolioFrontierCtl,
+  tangencyPortfolio as tangencyPortfolioCtl,
+  globalMinimumVarianceEfficientPortfolio as globalMinimumVarianceEfficientPortfolioCtl
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
-import { Prices, createPriceMatrix } from "./priceMatrix"
+import { type SymbolPrices, symbolPrices, createPriceMatrix, maxPriceArrayLength } from "./priceMatrix"
+import { logger } from "./utils"
 
-export class Input {
-  /**
-   * @param {Array.<Array.<Number>>} rrKxN             Return Rates Matrix
-   * @param {Array.<Array.<Number>>} expectedRrNx1     Expected Return Rates Matrix
-   * @param {Array.<Array.<Number>>} rrCovarianceNxN   Return Rates Covariance Matrix
-   * @param {Number}                 riskFreeRr        Risk Free Return Rate
-   */
+const log = logger("server/prmController.js")
 
-  constructor(
-    rrKxN: Matrix<number>,
-    expectedRrNx1: Matrix<number>,
-    rrCovarianceNxN: Matrix<number>,
-    riskFreeRr: number
-  ) {
-    this.rrKxN = rrKxN
-    this.expectedRrNx1 = expectedRrNx1
-    this.rrCovarianceNxN = rrCovarianceNxN
-    this.riskFreeRr = riskFreeRr
-  }
-
-  rrKxN: Matrix<number>
-  expectedRrNx1: Matrix<number>
-  rrCovarianceNxN: Matrix<number>
+/**
+ * rrKxN             Return Rates Matrix
+ * expectedRrNx1     Expected Return Rates Matrix
+ * rrCovarianceNxN   Return Rates Covariance Matrix
+ * riskFreeRr        Risk Free Return Rate
+ */
+export type Input<N: number> = {|
+  // rrKxN: Matrix<number, M, N>,
+  expectedRrNx1: Matrix<number, N, 1>,
+  rrCovarianceNxN: Matrix<number, N, N>,
   riskFreeRr: number
-}
+|}
 
 export type Output = Calculated | CannotCalculate | Simulated
 
@@ -64,10 +55,11 @@ export class PrmController {
 
   loadHistoricalPrices: (string, LocalDate, LocalDate) => Observable<number>
 
-  loadHistoricalPricesAsArray(symbol: string, startDate: LocalDate, endDate: LocalDate): Observable<Prices> {
+  loadHistoricalPricesAsArray(symbol: string, startDate: LocalDate, endDate: LocalDate): Observable<SymbolPrices> {
+    log.debug(`loadHistoricalPricesAsArray: ${symbol}, ${JSON.stringify(startDate)}, ${JSON.stringify(endDate)}`)
     return this.loadHistoricalPrices(symbol, startDate, endDate).pipe(
       toArray(),
-      map((prices) => new Prices(symbol, prices))
+      map((prices: Array<number>) => symbolPrices(symbol, prices))
     )
   }
 
@@ -82,59 +74,54 @@ export class PrmController {
    * @param scheduler  optional RxJs scheduler
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
-  analyzeUsingPortfolioHistoricalPrices(
-    symbols: Array<string>,
+  analyzeUsingPortfolioHistoricalPrices<N: number>(
+    symbols: Vector<string, N>,
     startDate: LocalDate,
     endDate: LocalDate,
     riskFreeRr: number,
     delayMillis: number,
     scheduler: ?Scheduler
-  ): Promise<[Input, Output]> {
-    const symbolsObservable: Observable<string> = scheduler != null ? from(symbols, scheduler) : from(symbols)
+  ): Promise<[Input<N>, Output]> {
+    const symbolsObservable: Observable<string> =
+      scheduler != null ? from(symbols.values, scheduler) : from(symbols.values)
     return symbolsObservable
       .pipe(
         concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
-        flatMap((arr: Array<Prices>) => {
-          const maxLength: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
-          const invalidPrices: Array<Prices> = findInvalidPriceArray(arr, maxLength)
-          if (maxLength == 0) {
-            const badSymbols: Array<string> = arr.map((p) => p.symbol)
-            return throwError(
-              `Cannot build a price matrix. No prices loaded for all provided symbols: ${JSON.stringify(badSymbols)}.`
-            )
+        concatMap((arr: Array<SymbolPrices>) => {
+          const pricesMxN = createPriceMatrix(symbols, arr, maxPriceArrayLength(arr))
+          if (pricesMxN.success) {
+            const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN.value, pricesMxN.value.m - 1)
+            const expectedRrNx1 = mean(rrKxN)
+            const rrCovarianceNxN = covariance(rrKxN, false)
+            const input: Input<N> = { expectedRrNx1, rrCovarianceNxN, riskFreeRr }
+            const output: Calculated | CannotCalculate = this.analyzeUsingPortfolioStatistics(input)
+            return of([input, output])
+          } else {
+            return throwError(pricesMxN.error)
           }
-          if (invalidPrices.length > 0) {
-            const badSymbols: Array<string> = invalidPrices.map((p) => p.symbol)
-            return throwError(
-              `Cannot build a price matrix. Invalid number of prices for symbols: ${JSON.stringify(badSymbols)}. ` +
-                `All symbols must have the same number of price entries: ${maxLength}.`
-            )
-          }
-          const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
-          const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN)
-          const expectedRrNx1 = mean(rrKxN)
-          const rrCovarianceNxN = covariance(rrKxN, false)
-          const input = new Input(rrKxN, expectedRrNx1, rrCovarianceNxN, riskFreeRr)
-          const output = this.analyzeUsingPortfolioStatistics(input)
-          return of([input, output])
         })
       )
       .toPromise()
   }
 
-  analyzeUsingPortfolioStatistics(input: Input): Calculated | CannotCalculate {
+  analyzeUsingPortfolioStatistics<N: number>(input: Input<N>): Calculated | CannotCalculate {
     if (isInvertableMatrix(input.rrCovarianceNxN)) {
-      return {
-        Calculated: true,
-        globalMinVarianceEfficientPortfolio: globalMinimumVarianceEfficientPortfolio.calculate(
-          input.expectedRrNx1,
-          input.rrCovarianceNxN
-        ),
-        tangencyPortfolio: tangencyPortfolio.calculate(input.expectedRrNx1, input.rrCovarianceNxN, input.riskFreeRr),
-        efficientPortfolioFrontier: efficientPortfolioFrontier.calculate(input.expectedRrNx1, input.rrCovarianceNxN)
-      }
+      const globalMinVarianceEfficientPortfolio: PortfolioStats = globalMinimumVarianceEfficientPortfolioCtl.calculate(
+        input.expectedRrNx1,
+        input.rrCovarianceNxN
+      )
+      const tangencyPortfolio = tangencyPortfolioCtl.calculate(
+        input.expectedRrNx1,
+        input.rrCovarianceNxN,
+        input.riskFreeRr
+      )
+      const efficientPortfolioFrontier = efficientPortfolioFrontierCtl.calculate(
+        input.expectedRrNx1,
+        input.rrCovarianceNxN
+      )
+      return { Calculated: true, globalMinVarianceEfficientPortfolio, tangencyPortfolio, efficientPortfolioFrontier }
     } else {
       return {
         CannotCalculate: true,
@@ -144,19 +131,4 @@ export class PrmController {
       }
     }
   }
-}
-
-// returns Array of invalid Prices or empty Array
-function findInvalidPriceArray(array: Array<Prices>, expectedLength: number): Array<Prices> {
-  function collectInvalidPrices(z: Array<Prices>, p: Prices): Array<Prices> {
-    if (p.prices.length != expectedLength) {
-      return z.concat(p)
-    } else {
-      return z
-    }
-  }
-
-  const invalidPrices: Array<Prices> = array.reduce(collectInvalidPrices, [])
-
-  return invalidPrices
 }

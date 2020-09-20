@@ -3,7 +3,7 @@
 import { toFixedNumber, generateRandomWeightsMatrix, parseDate, parseDateSafe, formatDate } from "./utils"
 import { LocalDate } from "@js-joda/core"
 import assert from "assert"
-import numeric from "numeric"
+import { type Matrix, sumMatrixElements } from "./linearAlgebra"
 
 const maxError: number = 0.0000000000001
 
@@ -26,26 +26,26 @@ describe("utils", () => {
       const rowNum = 30
       const colNum = 10
       // WHEN
-      const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum)
+      const weights: Matrix<number, 30, 10> = generateRandomWeightsMatrix(rowNum, colNum)
       // THEN sum == rowNum, every column summs to 1
-      const sum = numeric.sum(weights)
+      const sum = sumMatrixElements(weights)
       assert.ok(Math.abs(sum - rowNum) < maxError)
     })
     it("should generate a new weights matrix if called consequently", function () {
       // GIVEN
-      var rowNum = 30
-      var colNum = 10
+      const rowNum = 30
+      const colNum = 10
       // WHEN
-      var weights0 = generateRandomWeightsMatrix(rowNum, colNum)
-      var weights1 = generateRandomWeightsMatrix(rowNum, colNum)
+      const weights0 = generateRandomWeightsMatrix(rowNum, colNum)
+      const weights1 = generateRandomWeightsMatrix(rowNum, colNum)
       // THEN
-      var sum0 = numeric.sum(weights0)
-      var sum1 = numeric.sum(weights1)
+      const sum0 = sumMatrixElements(weights0)
+      const sum1 = sumMatrixElements(weights1)
       assert.ok(Math.abs(sum0 - rowNum) < maxError)
       assert.ok(Math.abs(sum1 - rowNum) < maxError)
       assert.notDeepEqual(weights0, weights1)
-      for (var i = 0; i < rowNum; i++) {
-        assert.notDeepEqual(weights0[i], weights1[i])
+      for (let i = 0; i < rowNum; i++) {
+        assert.notDeepEqual(weights0.values[i], weights1.values[i])
       }
     })
     it("should throw up when invalid arguments passed", function () {
@@ -73,7 +73,7 @@ describe("utils", () => {
         assert.notEqual(undefined, actualException, debugMsg)
       }
 
-      for (var i = 0; i < invalidArguments.length; i++) {
+      for (let i = 0; i < invalidArguments.length; i++) {
         test(invalidArguments[i][0], invalidArguments[i][1])
       }
     })

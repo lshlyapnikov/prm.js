@@ -11,7 +11,9 @@ import {
   today,
   periodReturnRate /*, generateRandomWeightsMatrix */
 } from "../server/utils"
-import { PrmController, Input, type Output } from "../server/prmController"
+import { vectorFrom } from "../server/vector"
+
+import { PrmController, type Output } from "../server/prmController"
 // import { mvefFromHistoricalReturnRates } from "../server/mvef"
 import {
   ApiKey,
@@ -159,17 +161,27 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })
 
-controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dailyRiskFreeReturnRate, delayMillis).then(
-  (analysisResult: [Input, Output]) => {
-    const output: Output = analysisResult[1]
-    printResults(stocks, output)
-    if (null != outputFile) {
-      log.info(`writing output into file: ${outputFile}`)
-      fs.writeFileSync(outputFile, JSON.stringify(output))
-    }
-  },
-  (error) => log.error(error)
-)
+const n = stocks.length
+
+controller
+  .analyzeUsingPortfolioHistoricalPrices(
+    vectorFrom(n, stocks),
+    startDate,
+    endDate,
+    dailyRiskFreeReturnRate,
+    delayMillis
+  )
+  .then(
+    (analysisResult) => {
+      const output: Output = analysisResult[1]
+      printResults(stocks, output)
+      if (null != outputFile) {
+        log.info(`writing output into file: ${outputFile}`)
+        fs.writeFileSync(outputFile, JSON.stringify(output))
+      }
+    },
+    (error) => log.error(error)
+  )
 
 function printResults(stocks: Array<string>, output: Output) {
   log.info(`stocks: ${JSON.stringify(stocks)}`)

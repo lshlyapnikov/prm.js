@@ -6,9 +6,29 @@
   "configurations": [
     {
       "type": "node",
-      "request": "attach",
-      "name": "Attach",
-      "port": 9229
+      "request": "launch",
+      "name": "Launch Program",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/src/server/prmController.js"
     },
+    {
+      "type": "node",
+      "name": "vscode-jest-tests",
+      "request": "launch",
+      "args": [
+        "test",
+        "--env=jsdom",
+        "--runInBand",
+        "--testPathPattern=src/server/prmController.test.js"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/react-scripts",
+      "protocol": "inspector"
+    }
   ]
 }

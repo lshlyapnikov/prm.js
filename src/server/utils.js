@@ -3,6 +3,7 @@
 // @flow strict
 import log4js from "log4js"
 import { LocalDate, DateTimeFormatter } from "@js-joda/core"
+import { type Matrix, matrixFromArray } from "./linearAlgebra"
 
 type Success<A> = {| success: true, value: A |}
 type Failure = {| success: false, error: Error |}
@@ -44,7 +45,7 @@ function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: (A)
  * @throws {Object} {name: "InvalidArgument", message: "description"}   when invalid argument passed.
  * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
-export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
+export function generateRandomWeightsMatrix<M: number, N: number>(rowNum: M, colNum: N): Matrix<number, M, N> {
   if (rowNum <= 0) {
     throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0")
   }
@@ -59,7 +60,7 @@ export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Arr
     matrix[i] = generateRandomWeights(colNum)
   }
 
-  return matrix
+  return matrixFromArray(rowNum, colNum, matrix)
 }
 
 export function generateRandomWeights(n: number): Array<number> {
@@ -136,4 +137,24 @@ export function cumulativeReturnRate(returnRate: number, periods: number): numbe
 
 export function periodReturnRate(returnRate: number, periods: number): number {
   return Math.pow(returnRate + 1.0, 1.0 / periods) - 1
+}
+
+export function assert(fn: () => boolean, message: () => string): void {
+  if (!fn()) {
+    throw new Error(message())
+  }
+}
+
+export function equalArrays<A>(as: Array<A>, bs: Array<A>): boolean {
+  if (as.length != bs.length) {
+    return false
+  }
+
+  for (let i = 0; i < as.length; i++) {
+    if (as[i] != bs[i]) {
+      return false
+    }
+  }
+
+  return true
 }

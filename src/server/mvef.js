@@ -10,24 +10,25 @@ import {
   PortfolioStats,
   createPortfolioStats
 } from "./portfolioStats"
-import { Observable, from } from "rxjs"
+import { Observable, from, of } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
-import { Prices, createPriceMatrix } from "./priceMatrix"
+import { type SymbolPrices, symbolPrices, createPriceMatrix, maxPriceArrayLength } from "./priceMatrix"
+import { type Vector } from "./vector"
 
-export function mvef(
+export function mvef<N: number, M: number>(
   loadHistoricalPrices: (string) => Observable<number>,
-  symbols: Array<string>,
-  numberOfRandomWeights: number
+  symbols: Vector<string, N>,
+  numberOfRandomWeights: M
 ): Promise<Array<PortfolioStats>> {
   return _mvef(loadHistoricalPrices, symbols, numberOfRandomWeights).toPromise()
 }
 
-function _mvef(
+function _mvef<N: number, M: number>(
   loadHistoricalPrices: (string) => Observable<number>,
-  symbols: Array<string>,
-  numberOfRandomWeights: number
+  symbols: Vector<string, N>,
+  numberOfRandomWeights: M
 ): Observable<Array<PortfolioStats>> {
-  if (0 === symbols.length) {
+  if (0 == symbols.n) {
     return Observable.throw(new Error("InvalidArgument: symbols array is empty"))
   }
 
@@ -35,24 +36,28 @@ function _mvef(
     return Observable.throw(new Error("InvalidArgument: numberOfRandomWeights is <= 0"))
   }
 
-  const m: number = numberOfRandomWeights
-  const n: number = symbols.length
+  const m: M = numberOfRandomWeights
+  const n: N = symbols.n
 
-  return from(symbols).pipe(
+  return from(symbols.values).pipe(
     flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
     toArray(),
-    map((arr: Array<Prices>) => {
-      const priceMatrix: Matrix<number> = createPriceMatrix(symbols, arr)
-      const weightsMatrix: Matrix<number> = generateRandomWeightsMatrix(m, n)
-      return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
+    flatMap((arr: Array<SymbolPrices>) => {
+      const priceMatrix = createPriceMatrix(symbols, arr, maxPriceArrayLength(arr))
+      if (priceMatrix.success) {
+        const weightsMatrix: Matrix<number, M, N> = generateRandomWeightsMatrix(m, n)
+        return of(mvefFromHistoricalPrices(weightsMatrix, priceMatrix.value))
+      } else {
+        return Observable.throw(priceMatrix.error)
+      }
     })
   )
 }
 
-function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<Prices> {
+function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<SymbolPrices> {
   return fn(symbol).pipe(
     toArray(),
-    map((prices: Array<number>) => new Prices(symbol, prices))
+    map((prices: Array<number>) => symbolPrices(symbol, prices))
   )
 }
 
@@ -72,7 +77,7 @@ export function mvefFromHistoricalPrices<M: number, N: number, K: number>(
   pricesKxN: Matrix<number, K, N>
 ): Array<PortfolioStats> {
   // K x N (actually K-1 x N)
-  const returnRatesKxN: Matrix<number, K, N> = calculateReturnRatesFromPriceMatrix(pricesKxN)
+  const returnRatesKxN = calculateReturnRatesFromPriceMatrix(pricesKxN, pricesKxN.m - 1)
   return mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN)
 }
 
@@ -87,23 +92,16 @@ export function mvefFromHistoricalPrices<M: number, N: number, K: number>(
  *                                 N is the number of stocks in portfolio
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-export function mvefFromHistoricalReturnRates(
-  weightsMxN: Matrix<number>,
-  returnRatesKxN: Matrix<number>
+export function mvefFromHistoricalReturnRates<M: number, N: number, K: number>(
+  weightsMxN: Matrix<number, M, N>,
+  returnRatesKxN: Matrix<number, K, N>
 ): Array<PortfolioStats> {
   // K x 1
   const expReturnRatesNx1 = mean(returnRatesKxN)
   // N x N
   const covarianceNxN = covariance(returnRatesKxN)
 
-  // TODO: this could return Observable<PortfolioStats> instead of Array<PortfolioStats>
-  return weightsMxN.map((weightsN: Array<number>) => createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN))
+  return weightsMxN.values.map((weightsN: Array<number>) =>
+    createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN)
+  )
 }
-
-// export simulateMvef(
-//   simulationNumber: num,
-//   expReturnRatesNx1: Matrix<number>
-//   covarianceNxN: Matrix<number>
-// ) {
-
-// }

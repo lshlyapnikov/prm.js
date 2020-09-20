@@ -1,7 +1,8 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licensed
 // @flow strict
-import { type Matrix, matrix, multiplyMatrices, validateMatrix, transpose } from "./linearAlgebra"
+import { type Matrix, matrix, rowMatrix, multiplyMatrices, validateMatrix, transpose } from "./linearAlgebra"
+import { assert } from "./utils"
 
 export class PortfolioStats {
   constructor(weights: Array<number>, stdDev: number, expectedReturnRate: number) {
@@ -14,22 +15,24 @@ export class PortfolioStats {
   expectedReturnRate: number
 }
 
-export function createPortfolioStats(
+export function createPortfolioStats<N: number>(
   weightsN: Array<number>,
-  meanRrNx1: Matrix<number>,
-  rrCovarianceNxN: Matrix<number>
+  meanRrNx1: Matrix<number, N, 1>,
+  rrCovarianceNxN: Matrix<number, N, N>
 ): PortfolioStats {
-  const weights1xN: Matrix<number> = [weightsN]
-  const expectedRr1x1: Matrix<number> = multiplyMatrices(weights1xN, meanRrNx1)
+  const n: N = meanRrNx1.m
+  const weights1xN: Matrix<number, 1, N> = rowMatrix(n, weightsN)
+  const expectedRr1x1: Matrix<number, 1, 1> = multiplyMatrices(weights1xN, meanRrNx1)
   const stdDev: number = portfolioStdDev(weights1xN, rrCovarianceNxN)
 
-  return new PortfolioStats(weightsN, stdDev, expectedRr1x1[0][0])
+  return new PortfolioStats(weightsN, stdDev, expectedRr1x1.values[0][0])
 }
 
 export function meanValue(arr: Array<number>): number {
-  if (0 === arr.length) {
-    throw new Error("InvalidArgument: Array arr is empty")
-  }
+  assert(
+    () => arr.length > 0,
+    () => "InvalidArgument: Array arr is empty"
+  )
   const sum: number = arr.reduce((acc, a) => acc + a, 0)
   return sum / arr.length
 }
@@ -146,12 +149,20 @@ export function calculateReturnRatesFromPrices(prices: Array<number>): Array<num
  * @returns {Array}  M-1 x N matrix of return rates.
  */
 export function calculateReturnRatesFromPriceMatrix<M: number, N: number, K: number>(
-  priceMatrix: Matrix<number, M, N>
+  priceMatrix: Matrix<number, M, N>,
+  k: K
 ): Matrix<number, K, N> {
   const m = priceMatrix.m
   const n = priceMatrix.n
-  const k = m - 1
-  const result: Matrix<number, K, N> = matrix(k, n)
+  assert(
+    () => m > 1,
+    () => `Not enough data points to calculate return rates, m: ${m}`
+  )
+  assert(
+    () => k == m - 1,
+    () => `IllegalArgument: expected k == (m - 1), got k: ${k}, m: ${m}`
+  )
+  const result = matrix(k, n)
   for (let i = 0; i < m - 1; i++) {
     for (let j = 0; j < n; j++) {
       result.values[i][j] = priceMatrix.values[i + 1][j] / priceMatrix.values[i][j] - 1
@@ -168,26 +179,13 @@ export function calculateReturnRatesFromPriceMatrix<M: number, N: number, K: num
  *
  * @return {Number}   Portfolio's Standard Deviation.
  */
-export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matrix<number>): number {
-  const transposedWeightsNx1 = transpose(weights1xN)
-  const tmp1xN = multiplyMatrices(weights1xN, covarianceNxN)
-  const tmp1x1 = multiplyMatrices(tmp1xN, transposedWeightsNx1)
-  const result: number = Math.sqrt(tmp1x1[0][0])
+export function portfolioStdDev<N: number>(
+  weights1xN: Matrix<number, 1, N>,
+  covarianceNxN: Matrix<number, N, N>
+): number {
+  const transposedWeightsNx1: Matrix<number, N, 1> = transpose(weights1xN)
+  const tmp1xN: Matrix<number, 1, N> = multiplyMatrices(weights1xN, covarianceNxN)
+  const tmp1x1: Matrix<number, 1, 1> = multiplyMatrices(tmp1xN, transposedWeightsNx1)
+  const result: number = Math.sqrt(tmp1x1.values[0][0])
   return result
-}
-
-export function loadPriceMatrix(
-  loadHistoricalPricesFn: (string) => Array<number>,
-  symbols: Array<string>
-): Matrix<number> {
-  if (0 === symbols.length) {
-    throw new Error("InvalidArgument: symbols array is empty")
-  }
-  const n = symbols.length
-  const transposedPriceMatrix: Matrix<number> = new Array(n)
-  for (let i = 0; i < n; i++) {
-    transposedPriceMatrix[i] = loadHistoricalPricesFn(symbols[i])
-  }
-
-  return transpose(transposedPriceMatrix)
 }

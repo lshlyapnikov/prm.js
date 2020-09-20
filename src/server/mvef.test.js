@@ -4,7 +4,8 @@ import { Observable, from } from "rxjs"
 import * as assert from "assert"
 
 import { mvef } from "./mvef"
-import { type Matrix, transpose } from "./linearAlgebra"
+import { matrixFromArray, transpose } from "./linearAlgebra"
+import { vectorFrom } from "./vector"
 import { assertEqualMatrices } from "./matrixAssert"
 import { toFixedNumber, setArrayElementsScale, logger } from "./utils"
 import { PortfolioStats, calculateReturnRatesFromPriceMatrix, mean, covariance } from "./portfolioStats"
@@ -15,7 +16,10 @@ const log = logger("mvefTest")
 describe("mvef", () => {
   describe("#mvef()", () => {
     it("step by step", () => {
-      const pricesMxN: Matrix<number> = transpose([testData.NYX, testData.INTC])
+      assert.equal(testData.NYX.length, testData.INTC.length)
+      const m = testData.NYX.length
+      const n = 2
+      const pricesMxN = transpose(matrixFromArray(n, m, [testData.NYX, testData.INTC]))
 
       // Return Rate Matrix Calculation
       const nyxR: Array<number> = [
@@ -218,21 +222,23 @@ describe("mvef", () => {
         -0.0873942811115586,
         -0.05207413945278
       ]
-      const expectedReturnRatesMatrix = transpose([nyxR, intcR])
-      const returnRatesMatrix = calculateReturnRatesFromPriceMatrix(pricesMxN)
+      assert.equal(nyxR.length, intcR.length)
+      const k = nyxR.length
+      const expectedReturnRatesMatrix = transpose(matrixFromArray(n, k, [nyxR, intcR]))
+      const returnRatesMatrix = calculateReturnRatesFromPriceMatrix(pricesMxN, pricesMxN.m - 1)
       assertEqualMatrices(returnRatesMatrix, expectedReturnRatesMatrix, 6)
       assertEqualMatrices(returnRatesMatrix, expectedReturnRatesMatrix, 6)
 
       // Mean Return Rate Calculation
-      const expectedMeanReturnRatesMatrix = [[0.01674256058568205], [0.00504504938397936]]
+      const expectedMeanReturnRatesMatrix = matrixFromArray(2, 1, [[0.01674256058568205], [0.00504504938397936]])
       const meanReturnRatesMatrix = mean(returnRatesMatrix)
       assertEqualMatrices(meanReturnRatesMatrix, expectedMeanReturnRatesMatrix, 6)
 
       // Covariance Matrix Calculation
-      const expectedReturnRatesCovariance: Matrix<number> = [
+      const expectedReturnRatesCovariance = matrixFromArray(2, 2, [
         [0.02268916431463616, 0.00324263433660444],
         [0.00324263433660444, 0.0057115697552338]
-      ]
+      ])
       const returnRatesCovariance = covariance(returnRatesMatrix)
       assertEqualMatrices(returnRatesCovariance, expectedReturnRatesCovariance, 6)
     })
@@ -249,37 +255,39 @@ describe("mvef", () => {
       }
 
       // WHEN
-      mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).then((array: Array<PortfolioStats>) => {
-        // THEN
-        assert.strictEqual(array.length, numOfRandomWeights)
+      mvef(mockHistoricalPricesProvider, vectorFrom(2, ["NYX", "INTC"]), numOfRandomWeights).then(
+        (array: Array<PortfolioStats>) => {
+          // THEN
+          assert.strictEqual(array.length, numOfRandomWeights)
 
-        const [minStdDev, minStdDevIndx]: [number, number] = array.reduce(
-          (state: [number, number], p: PortfolioStats, currentIndex: number) => {
-            if (p.stdDev < state[0]) {
-              return [p.stdDev, currentIndex]
-            } else {
-              return state
-            }
-          },
-          [Number.MAX_VALUE, -1]
-        )
+          const [minStdDev, minStdDevIndx]: [number, number] = array.reduce(
+            (state: [number, number], p: PortfolioStats, currentIndex: number) => {
+              if (p.stdDev < state[0]) {
+                return [p.stdDev, currentIndex]
+              } else {
+                return state
+              }
+            },
+            [Number.MAX_VALUE, -1]
+          )
 
-        assert.notStrictEqual(minStdDevIndx, -1)
+          assert.notStrictEqual(minStdDevIndx, -1)
 
-        const actualMinRisk = minStdDev * 100
-        const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
-        const actualWeights = array[minStdDevIndx].weights
+          const actualMinRisk = minStdDev * 100
+          const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
+          const actualWeights = array[minStdDevIndx].weights
 
-        log.debug("min StdDev, %: ", actualMinRisk)
-        log.debug("return rate, %: ", actualReturnRate)
-        log.debug("weights: ", prettyPrint(actualWeights))
+          log.debug("min StdDev, %: ", actualMinRisk)
+          log.debug("return rate, %: ", actualReturnRate)
+          log.debug("weights: ", prettyPrint(actualWeights))
 
-        assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
-        assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
-        assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
+          assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
+          assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
+          assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
 
-        done()
-      })
+          done()
+        }
+      )
     })
   })
 })
