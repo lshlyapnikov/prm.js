@@ -3,6 +3,7 @@
 // @flow strict
 import { generateRandomWeightsMatrix } from "./utils"
 import { type Matrix } from "./linearAlgebra"
+import { type Vector } from "./vector"
 import {
   calculateReturnRatesFromPriceMatrix,
   mean,
@@ -14,20 +15,20 @@ import { Observable, from } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
 import { Prices, createPriceMatrix } from "./priceMatrix"
 
-export function mvef(
+export function mvef<N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
-  symbols: Array<string>,
+  symbols: Vector<N, string>,
   numberOfRandomWeights: number
 ): Promise<Array<PortfolioStats>> {
   return _mvef(loadHistoricalPrices, symbols, numberOfRandomWeights).toPromise()
 }
 
-function _mvef(
+function _mvef<N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
-  symbols: Array<string>,
+  symbols: Vector<N, string>,
   numberOfRandomWeights: number
 ): Observable<Array<PortfolioStats>> {
-  if (0 === symbols.length) {
+  if (0 == symbols.n) {
     return Observable.throw(new Error("InvalidArgument: symbols array is empty"))
   }
 
@@ -36,9 +37,9 @@ function _mvef(
   }
 
   const m: number = numberOfRandomWeights
-  const n: number = symbols.length
+  const n: number = symbols.n
 
-  return from(symbols).pipe(
+  return from(symbols.values).pipe(
     flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
     toArray(),
     map((arr: Array<Prices>) => {

@@ -1,4 +1,5 @@
-// @flow strict
+// @--flow strict
+/* eslint-disable */
 import React, { Component } from "react"
 
 // import TextField from 'material-ui/TextField'

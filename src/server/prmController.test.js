@@ -5,6 +5,7 @@ import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
 import { validateMatrix } from "./linearAlgebra"
+import { vector } from "./vector"
 import { PrmController, Input, type Output } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
@@ -49,7 +50,13 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
-      .analyzeUsingPortfolioHistoricalPrices(["NYX", "INTC"], parseDate("1111-11-11"), parseDate("1111-11-11"), 1.0, 0)
+      .analyzeUsingPortfolioHistoricalPrices(
+        vector(2, ["NYX", "INTC"]),
+        parseDate("1111-11-11"),
+        parseDate("1111-11-11"),
+        1.0,
+        0
+      )
       .then(
         (analysisResult: [Input, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult, done)
@@ -74,7 +81,7 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"]
+      const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         parseDate("2014-03-07"),
@@ -93,7 +100,7 @@ describe("PrmController", () => {
   it("should fail when a symbol does not have enough price entries", (done) => {
     function test(): Promise<[Input, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
-      const symbols = ["AA", "XOM"]
+      const symbols = vector(2, ["AA", "XOM"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
         symbols,
         parseDate("2014-03-07"),

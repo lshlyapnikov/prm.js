@@ -78,12 +78,15 @@ describe("pTheory", () => {
       }
 
       it("should create 4x4 A matrix from 3x3 return rate covariance matrix", () => {
+        // $FlowIgnore[incompatible-call]
         testCreateMatrixA(numeric.random([3, 3]))
       })
       it("should create 5x5 A matrix from 4x4 return rate covariance matrix", () => {
+        // $FlowIgnore[incompatible-call]
         testCreateMatrixA(numeric.random([4, 4]))
       })
       it("should create 10x10 A matrix from 9x9 return rate covariance matrix", () => {
+        // $FlowIgnore[incompatible-call]
         testCreateMatrixA(numeric.random([9, 9]))
       })
     })

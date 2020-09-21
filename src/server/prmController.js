@@ -3,6 +3,7 @@ import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
 import { type Matrix, isInvertableMatrix } from "./linearAlgebra"
+import { type Vector } from "./vector"
 import {
   efficientPortfolioFrontier,
   tangencyPortfolio,
@@ -82,15 +83,16 @@ export class PrmController {
    * @param scheduler  optional RxJs scheduler
    * @returns {{globalMinVarianceEfficientPortfolio: *, tangencyPortfolio: *, efficientPortfolioFrontier: *}}
    */
-  analyzeUsingPortfolioHistoricalPrices(
-    symbols: Array<string>,
+  analyzeUsingPortfolioHistoricalPrices<N: number>(
+    symbols: Vector<N, string>,
     startDate: LocalDate,
     endDate: LocalDate,
     riskFreeRr: number,
     delayMillis: number,
     scheduler: ?Scheduler
   ): Promise<[Input, Output]> {
-    const symbolsObservable: Observable<string> = scheduler != null ? from(symbols, scheduler) : from(symbols)
+    const symbolsObservable: Observable<string> =
+      scheduler != null ? from(symbols.values, scheduler) : from(symbols.values)
     return symbolsObservable
       .pipe(
         concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),

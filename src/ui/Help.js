@@ -1,4 +1,5 @@
-// @flow strict
+// @--flow strict
+/* eslint-disable */
 import React, { Component } from "react"
 import { CommonProps } from "./CommonProps"
 

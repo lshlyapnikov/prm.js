@@ -5,6 +5,7 @@ import stream from "stream"
 import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
 import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
+import { vector } from "../server/vector"
 import { PrmController, Input, type Output } from "../server/prmController"
 import {
   ApiKey,
@@ -152,17 +153,25 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })
 
-controller.analyzeUsingPortfolioHistoricalPrices(stocks, startDate, endDate, dailyRiskFreeReturnRate, delayMillis).then(
-  (analysisResult: [Input, Output]) => {
-    const output: Output = analysisResult[1]
-    printResults(stocks, output)
-    if (null != outputFile) {
-      log.info(`writing output into file: ${outputFile}`)
-      fs.writeFileSync(outputFile, JSON.stringify(output))
-    }
-  },
-  (error) => log.error(error)
-)
+controller
+  .analyzeUsingPortfolioHistoricalPrices(
+    vector(stocks.length, stocks),
+    startDate,
+    endDate,
+    dailyRiskFreeReturnRate,
+    delayMillis
+  )
+  .then(
+    (analysisResult: [Input, Output]) => {
+      const output: Output = analysisResult[1]
+      printResults(stocks, output)
+      if (null != outputFile) {
+        log.info(`writing output into file: ${outputFile}`)
+        fs.writeFileSync(outputFile, JSON.stringify(output))
+      }
+    },
+    (error) => log.error(error)
+  )
 
 function printResults(stocks: Array<string>, output: Output) {
   log.info(`stocks: ${JSON.stringify(stocks)}`)

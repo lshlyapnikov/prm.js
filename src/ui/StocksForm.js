@@ -1,4 +1,5 @@
-// @flow strict
+// @--flow strict
+/* eslint-disable */
 import React from "react"
 import { Subject } from "rxjs"
 import autoBind from "react-autobind"

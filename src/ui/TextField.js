@@ -1,4 +1,5 @@
-// @flow strict
+// @--flow strict
+/* eslint-disable */
 /* global SyntheticEvent */
 import React, { Component } from "react"
 

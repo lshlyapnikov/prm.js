@@ -11,7 +11,7 @@
 
 [lints]
 all=error
-dynamic-export=off
+; dynamic-export=off
 deprecated-utility=warn
 
 [options]

@@ -80,8 +80,13 @@ export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matr
         JSON.stringify(dim1)
     )
   }
+  return castToMatrix(numeric.dot(mXn, nXm))
+}
 
-  return numeric.dot(mXn, nXm)
+function castToMatrix(a: Array<number> | Array<Array<number>> | number): Array<Array<number>> {
+  // $FlowIgnore[incompatible-type]
+  const matrix: Array<Array<number>> = a
+  return matrix
 }
 
 export function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<number> {
@@ -90,7 +95,7 @@ export function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<nu
   if (d0 !== d1) {
     throw new Error("InvalidArgument: vectors have different dimensions: " + d0 + " and " + d1)
   }
-  return numeric.dotVV(v0, v1)
+  return castToMatrix(numeric.dotVV(v0, v1))
 }
 
 export function validateMatrix(mXn: Matrix<number>): void {

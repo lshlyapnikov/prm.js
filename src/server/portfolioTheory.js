@@ -28,6 +28,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
     const b = n + 1
     const matrixA = this._createMatrixA(returnRatesCovarianceNxN)
     const matrixB = this._createMatrixB(b)
+    // $FlowIgnore[incompatible-call]
     const matrixZ = numeric.solve(matrixA, matrixB)
     return matrixZ.slice(0, b - 1)
   }
@@ -35,6 +36,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
   _createMatrixA(returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const a = n + 1
+    // $FlowIgnore[incompatible-call]
     const twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
     const matrixA = copyMatrixInto(twoBySigmaNxN, matrix(a, a, 0))
     for (let i = 0; i < a - 1; i++) {
@@ -51,7 +53,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
   }
 }
 
-export const globalMinimumVarianceEfficientPortfolio = new GlobalMinimumVarianceEfficientPortfolio()
+export const globalMinimumVarianceEfficientPortfolio: GlobalMinimumVarianceEfficientPortfolio = new GlobalMinimumVarianceEfficientPortfolio()
 
 export class TangencyPortfolio {
   calculate(
@@ -93,7 +95,7 @@ export class TangencyPortfolio {
   }
 }
 
-export const tangencyPortfolio = new TangencyPortfolio()
+export const tangencyPortfolio: TangencyPortfolio = new TangencyPortfolio()
 
 /**
  * See econ424/08.2 portfolioTheoryMatrix.pdf, p12, matrix formula 1.18.
@@ -122,6 +124,7 @@ export class TargetReturnEfficientPortfolio {
     const b = n + 2
     const matrixA = this._createMatrixA(expectedReturnRatesNx1, returnRatesCovarianceNxN)
     const matrixB = this._createMatrixB(b, targetReturnRate)
+    // $FlowIgnore[incompatible-call]
     const matrixZ = numeric.solve(matrixA, matrixB)
     const weightsN: Array<number> = matrixZ.slice(0, b - 2)
     return weightsN
@@ -130,6 +133,7 @@ export class TargetReturnEfficientPortfolio {
   _createMatrixA(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const a = n + 2
+    // $FlowIgnore[incompatible-call]
     const twoBySigmaNxN = numeric.mul(2, returnRatesCovarianceNxN)
     var matrixA = matrix(a, a, 0)
     matrixA = copyMatrixInto(twoBySigmaNxN, matrixA)
@@ -153,7 +157,7 @@ export class TargetReturnEfficientPortfolio {
   }
 }
 
-export const targetReturnEfficientPortfolio = new TargetReturnEfficientPortfolio()
+export const targetReturnEfficientPortfolio: TargetReturnEfficientPortfolio = new TargetReturnEfficientPortfolio()
 
 /**
  * econ424/08.2 portfolioTheoryMatrix.pdf, p.21
@@ -197,13 +201,13 @@ export class EfficientPortfolioFrontier {
     globalMinVarianceEpWeigthsN: Array<number>,
     maxReturnEpWeightsN: Array<number>,
     alpha: number
-  ) {
+  ): Array<number> {
     const x = globalMinVarianceEpWeigthsN.map((n) => alpha * n)
     const y = maxReturnEpWeightsN.map((n) => (1 - alpha) * n)
     return numeric.add(x, y)
   }
 }
 
-export const efficientPortfolioFrontier = new EfficientPortfolioFrontier()
+export const efficientPortfolioFrontier: EfficientPortfolioFrontier = new EfficientPortfolioFrontier()
 
 // TODO efficient portfolio frontier with no short sale: 09 portfoliotheorynoshortsalesslides.pdf, page 12
