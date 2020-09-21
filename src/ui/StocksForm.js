@@ -1,4 +1,4 @@
-// @flow strict
+// @--flow strict
 import React from "react"
 import { Subject } from "rxjs"
 import autoBind from "react-autobind"

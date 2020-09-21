@@ -1,4 +1,4 @@
-// @flow strict
+// @--flow strict
 import React from "react"
 
 type FileUploadProps = {

@@ -1,4 +1,4 @@
-// @flow strict
+// @--flow strict
 /* global SyntheticEvent */
 import React, { Component } from "react"
 

@@ -1,7 +1,7 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licensed
 // @flow strict
-import log4js from "log4js"
+import { Logger, getLogger } from "log4js"
 import { LocalDate, DateTimeFormatter } from "@js-joda/core"
 
 type Success<A> = {| success: true, value: A |}
@@ -13,9 +13,9 @@ export type JestDoneFn = {|
   fail: (error: Error) => void
 |}
 
-export function logger(category: string): log4js.Logger {
-  const logger: log4js.Logger = log4js.getLogger(category)
-  logger.level = log4js.levels.INFO
+export function logger(category: string): Logger {
+  const logger: Logger = getLogger(category)
+  logger.level = "INFO"
   return logger
 }
 
@@ -129,4 +129,24 @@ export function cumulativeReturnRate(returnRate: number, periods: number): numbe
 
 export function periodReturnRate(returnRate: number, periods: number): number {
   return Math.pow(returnRate + 1.0, 1.0 / periods) - 1
+}
+
+export function assert(fn: () => boolean, message: () => string): void {
+  if (!fn()) {
+    throw new Error(message())
+  }
+}
+
+export function equalArrays<A>(as: Array<A>, bs: Array<A>): boolean {
+  if (as.length != bs.length) {
+    return false
+  }
+
+  for (let i = 0; i < as.length; i++) {
+    if (as[i] != bs[i]) {
+      return false
+    }
+  }
+
+  return true
 }
