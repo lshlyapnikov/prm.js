@@ -1,4 +1,5 @@
 // @--flow strict
+/* eslint-disable */
 import React from "react"
 
 type FileUploadProps = {

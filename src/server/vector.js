@@ -4,10 +4,24 @@ import { assert } from "./utils"
 
 export type Vector<N: number, A> = {|
   +n: N,
-  +values: Array<A>
+  +values: $ReadOnlyArray<A>
 |}
 
-export function vector<N: number, A>(n: N, initValue: ?A): Vector<N, A> {
+export function vector<N: number, A>(n: N, value: ?A | $ReadOnlyArray<A>): Vector<N, A> {
+  if (value != null) {
+    if (Array.isArray(value)) {
+      const array: $ReadOnlyArray<A> = value
+      return vectorFromArray(n, array)
+    } else {
+      const a: A = value
+      return emptyVector(n, a)
+    }
+  } else {
+    return emptyVector(n, null)
+  }
+}
+
+function emptyVector<N: number, A>(n: N, initValue: ?A): Vector<N, A> {
   const values = new Array<A>(n)
   if (null != initValue) {
     for (let i = 0; i < n; i++) {
@@ -17,7 +31,7 @@ export function vector<N: number, A>(n: N, initValue: ?A): Vector<N, A> {
   return { n, values }
 }
 
-export function vectorFrom<N: number, A>(n: N, values: Array<A>): Vector<N, A> {
+function vectorFromArray<N: number, A>(n: N, values: $ReadOnlyArray<A>): Vector<N, A> {
   const result: Vector<N, A> = { n, values }
   validateVector(result)
   return result
