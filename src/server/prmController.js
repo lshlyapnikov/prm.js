@@ -3,7 +3,7 @@ import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, flatMap, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
 import { type Matrix, isInvertableMatrix } from "./linearAlgebra"
-import { type Vector } from "./vector"
+import { type Vector, vector } from "./vector"
 import {
   efficientPortfolioFrontier,
   tangencyPortfolio,
@@ -114,7 +114,7 @@ export class PrmController {
                 `All symbols must have the same number of price entries: ${maxLength}.`
             )
           }
-          const pricesMxN: Matrix<number> = createPriceMatrix(symbols, arr)
+          const pricesMxN: Matrix<number> = createPriceMatrix(symbols, vector(symbols.n, arr))
           const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN)
           const expectedRrNx1 = mean(rrKxN)
           const rrCovarianceNxN = covariance(rrKxN, false)

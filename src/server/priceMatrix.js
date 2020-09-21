@@ -11,8 +11,14 @@ export class Prices {
   prices: Array<number>
 }
 
-export function createPriceMatrix<N: number>(symbols: Vector<N, string>, arr: Array<Prices>): Matrix<number> {
-  const symbolToPricesMap: Map<string, Array<number>> = arr.reduce((map, p) => map.set(p.symbol, p.prices), new Map())
+export function createPriceMatrix<N: number>(
+  symbols: Vector<N, string>,
+  symbolPrices: Vector<N, Prices>
+): Matrix<number> {
+  const symbolToPricesMap: Map<string, Array<number>> = symbolPrices.values.reduce(
+    (map, p) => map.set(p.symbol, p.prices),
+    new Map()
+  )
 
   var nXm: Matrix<number> = new Array(symbols.n)
 

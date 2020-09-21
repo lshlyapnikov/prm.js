@@ -3,7 +3,7 @@
 // @flow strict
 import { generateRandomWeightsMatrix } from "./utils"
 import { type Matrix } from "./linearAlgebra"
-import { type Vector } from "./vector"
+import { type Vector, vector } from "./vector"
 import {
   calculateReturnRatesFromPriceMatrix,
   mean,
@@ -43,7 +43,7 @@ function _mvef<N: number>(
     flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
     toArray(),
     map((arr: Array<Prices>) => {
-      const priceMatrix: Matrix<number> = createPriceMatrix(symbols, arr)
+      const priceMatrix: Matrix<number> = createPriceMatrix(symbols, vector(symbols.n, arr))
       const weightsMatrix: Matrix<number> = generateRandomWeightsMatrix(m, n)
       return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
     })
