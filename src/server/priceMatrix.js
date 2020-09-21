@@ -2,21 +2,21 @@
 import { type Matrix, transpose } from "./linearAlgebra"
 import { type Vector } from "./vector"
 
-export class Prices {
-  constructor(symbol: string, prices: Array<number>) {
-    this.symbol = symbol
-    this.prices = prices
-  }
-  symbol: string
-  prices: Array<number>
+export type PriceArray = {|
+  symbol: string,
+  values: Array<number>
+|}
+
+export function priceArray(symbol: string, values: Array<number>): PriceArray {
+  return { symbol, values }
 }
 
 export function createPriceMatrix<N: number>(
   symbols: Vector<N, string>,
-  symbolPrices: Vector<N, Prices>
+  symbolPrices: Vector<N, PriceArray>
 ): Matrix<number> {
   const symbolToPricesMap: Map<string, Array<number>> = symbolPrices.values.reduce(
-    (map, p) => map.set(p.symbol, p.prices),
+    (map, p) => map.set(p.symbol, p.values),
     new Map()
   )
 

@@ -13,7 +13,7 @@ import {
 } from "./portfolioStats"
 import { Observable, from } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
-import { Prices, createPriceMatrix } from "./priceMatrix"
+import { type PriceArray, priceArray, createPriceMatrix } from "./priceMatrix"
 
 export function mvef<N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
@@ -42,7 +42,7 @@ function _mvef<N: number>(
   return from(symbols.values).pipe(
     flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
     toArray(),
-    map((arr: Array<Prices>) => {
+    map((arr: Array<PriceArray>) => {
       const priceMatrix: Matrix<number> = createPriceMatrix(symbols, vector(symbols.n, arr))
       const weightsMatrix: Matrix<number> = generateRandomWeightsMatrix(m, n)
       return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
@@ -50,10 +50,10 @@ function _mvef<N: number>(
   )
 }
 
-function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<Prices> {
+function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<PriceArray> {
   return fn(symbol).pipe(
     toArray(),
-    map((prices: Array<number>) => new Prices(symbol, prices))
+    map((prices: Array<number>) => priceArray(symbol, prices))
   )
 }
 

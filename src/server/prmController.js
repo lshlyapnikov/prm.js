@@ -10,7 +10,7 @@ import {
   globalMinimumVarianceEfficientPortfolio
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
-import { Prices, createPriceMatrix } from "./priceMatrix"
+import { type PriceArray, priceArray, createPriceMatrix } from "./priceMatrix"
 
 export class Input {
   /**
@@ -65,10 +65,10 @@ export class PrmController {
 
   loadHistoricalPrices: (string, LocalDate, LocalDate) => Observable<number>
 
-  loadHistoricalPricesAsArray(symbol: string, startDate: LocalDate, endDate: LocalDate): Observable<Prices> {
+  loadHistoricalPricesAsArray(symbol: string, startDate: LocalDate, endDate: LocalDate): Observable<PriceArray> {
     return this.loadHistoricalPrices(symbol, startDate, endDate).pipe(
       toArray(),
-      map((prices) => new Prices(symbol, prices))
+      map((prices) => priceArray(symbol, prices))
     )
   }
 
@@ -98,9 +98,9 @@ export class PrmController {
         concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
-        flatMap((arr: Array<Prices>) => {
-          const maxLength: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
-          const invalidPrices: Array<Prices> = findInvalidPriceArray(arr, maxLength)
+        flatMap((arr: Array<PriceArray>) => {
+          const maxLength: number = arr.reduce((z, ps) => Math.max(z, ps.values.length), 0)
+          const invalidPrices: Array<PriceArray> = findInvalidPriceArray(arr, maxLength)
           if (maxLength == 0) {
             const badSymbols: Array<string> = arr.map((p) => p.symbol)
             return throwError(
@@ -148,17 +148,17 @@ export class PrmController {
   }
 }
 
-// returns Array of invalid Prices or empty Array
-function findInvalidPriceArray(array: Array<Prices>, expectedLength: number): Array<Prices> {
-  function collectInvalidPrices(z: Array<Prices>, p: Prices): Array<Prices> {
-    if (p.prices.length != expectedLength) {
+// returns Array of invalid PriceArray or empty Array
+function findInvalidPriceArray(array: Array<PriceArray>, expectedLength: number): Array<PriceArray> {
+  function collectInvalidPrices(z: Array<PriceArray>, p: PriceArray): Array<PriceArray> {
+    if (p.values.length != expectedLength) {
       return z.concat(p)
     } else {
       return z
     }
   }
 
-  const invalidPrices: Array<Prices> = array.reduce(collectInvalidPrices, [])
+  const invalidPrices: Array<PriceArray> = array.reduce(collectInvalidPrices, [])
 
   return invalidPrices
 }
