@@ -5,6 +5,7 @@ import * as assert from "assert"
 
 import { mvef } from "./mvef"
 import { type Matrix, transpose } from "./linearAlgebra"
+import { vector } from "./vector"
 import { assertEqualMatrices } from "./matrixAssert"
 import { toFixedNumber, setArrayElementsScale, logger } from "./utils"
 import { PortfolioStats, calculateReturnRatesFromPriceMatrix, mean, covariance } from "./portfolioStats"
@@ -249,37 +250,39 @@ describe("mvef", () => {
       }
 
       // WHEN
-      mvef(mockHistoricalPricesProvider, ["NYX", "INTC"], numOfRandomWeights).then((array: Array<PortfolioStats>) => {
-        // THEN
-        assert.strictEqual(array.length, numOfRandomWeights)
+      mvef(mockHistoricalPricesProvider, vector(2, ["NYX", "INTC"]), numOfRandomWeights).then(
+        (array: Array<PortfolioStats>) => {
+          // THEN
+          assert.strictEqual(array.length, numOfRandomWeights)
 
-        const [minStdDev, minStdDevIndx]: [number, number] = array.reduce(
-          (state: [number, number], p: PortfolioStats, currentIndex: number) => {
-            if (p.stdDev < state[0]) {
-              return [p.stdDev, currentIndex]
-            } else {
-              return state
-            }
-          },
-          [Number.MAX_VALUE, -1]
-        )
+          const [minStdDev, minStdDevIndx]: [number, number] = array.reduce(
+            (state: [number, number], p: PortfolioStats, currentIndex: number) => {
+              if (p.stdDev < state[0]) {
+                return [p.stdDev, currentIndex]
+              } else {
+                return state
+              }
+            },
+            [Number.MAX_VALUE, -1]
+          )
 
-        assert.notStrictEqual(minStdDevIndx, -1)
+          assert.notStrictEqual(minStdDevIndx, -1)
 
-        const actualMinRisk = minStdDev * 100
-        const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
-        const actualWeights = array[minStdDevIndx].weights
+          const actualMinRisk = minStdDev * 100
+          const actualReturnRate = array[minStdDevIndx].expectedReturnRate * 100
+          const actualWeights = array[minStdDevIndx].weights
 
-        log.debug("min StdDev, %: ", actualMinRisk)
-        log.debug("return rate, %: ", actualReturnRate)
-        log.debug("weights: ", prettyPrint(actualWeights))
+          log.debug("min StdDev, %: ", actualMinRisk)
+          log.debug("return rate, %: ", actualReturnRate)
+          log.debug("weights: ", prettyPrint(actualWeights))
 
-        assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
-        assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
-        assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
+          assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
+          assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
+          assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
 
-        done()
-      })
+          done()
+        }
+      )
     })
   })
 })
