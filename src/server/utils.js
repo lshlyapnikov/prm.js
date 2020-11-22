@@ -8,6 +8,14 @@ type Success<A> = {| success: true, value: A |}
 type Failure = {| success: false, error: Error |}
 export type Result<A> = Failure | Success<A>
 
+export function success<A>(value: A): Success<A> {
+  return { success: true, value }
+}
+
+export function failure(error: Error): Failure {
+  return { success: false, error }
+}
+
 export type JestDoneFn = {|
   (): void,
   fail: (error: Error) => void
