@@ -1,8 +1,8 @@
 // @flow strict
 
 import { assert } from "./utils"
-
 import { type Vector } from "./vector"
+import numeric from "numeric"
 
 export type Matrix<M: number, N: number, A> = {|
   +m: M,
@@ -10,7 +10,7 @@ export type Matrix<M: number, N: number, A> = {|
   +values: $ReadOnlyArray<$ReadOnlyArray<A>>
 |}
 
-export function emptyMatrix<M: number, N: number, A>(m: M, n: N, initValue: ?A): Matrix<M, N, A> {
+export function emptyMatrix<M: number, N: number, A>(m: M, n: N, initValue: ?A): Array<Array<A>> {
   const values = new Array<Array<A>>(m)
   for (let i = 0; i < m; i++) {
     values[i] = new Array<A>(n)
@@ -18,7 +18,7 @@ export function emptyMatrix<M: number, N: number, A>(m: M, n: N, initValue: ?A):
   if (null != initValue) {
     fillMatrix(m, n, values, initValue)
   }
-  return { m, n, values }
+  return values
 }
 
 function fillMatrix<M: number, N: number, A>(m: M, n: N, mXn: Array<Array<A>>, initValue: A): void {
@@ -68,4 +68,43 @@ export function validateMatrix<M: number, N: number, A>(mXn: Matrix<M, N, A>): v
       () => `Invalid matrix: expected ${mXn.n} elements/columns in row ${i}, but got ${shouldBeN}`
     )
   }
+}
+
+export function transpose<M: number, N: number, A>(matrixMxN: Matrix<M, N, A>): Matrix<N, M, A> {
+  const values: Array<Array<A>> = emptyMatrix(matrixMxN.n, matrixMxN.m)
+  for (let i = 0; i < matrixMxN.m; i++) {
+    for (let j = 0; j < matrixMxN.n; j++) {
+      values[j][i] = matrixMxN.values[i][j]
+    }
+  }
+  const m: M = matrixMxN.m
+  const n: N = matrixMxN.n
+  // don't need to call `matrix` to validate the dimensions
+  const nXm: Matrix<N, M, A> = { m: n, n: m, values }
+  return nXm
+}
+
+export function multiplyMatrices<M: number, N: number, K: number>(
+  mXn: Matrix<M, N, number>,
+  nXk: Matrix<N, K, number>
+): Matrix<M, K, number> {
+  const m: M = mXn.m
+  const k: K = nXk.n
+  const mXk: Array<Array<number>> = unsafeToMatrix(
+    numeric.dot(unsafeRemoveReadonly(mXn.values), unsafeRemoveReadonly(nXk.values))
+  )
+  // used unsafe functions, calling `matrix` validates the dimensions of the values array
+  return matrix(m, k, mXk)
+}
+
+function unsafeToMatrix(a: Array<number> | Array<Array<number>> | number): Array<Array<number>> {
+  // $FlowIgnore[incompatible-type]
+  const matrix: Array<Array<number>> = a
+  return matrix
+}
+
+function unsafeRemoveReadonly(a: $ReadOnlyArray<$ReadOnlyArray<number>>): Array<Array<number>> {
+  // $FlowIgnore[incompatible-type]
+  const matrix: Array<Array<number>> = a
+  return matrix
 }

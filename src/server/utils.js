@@ -145,7 +145,7 @@ export function assert(fn: () => boolean, message: () => string): void {
   }
 }
 
-export function equalArrays<A>(as: Array<A>, bs: Array<A>): boolean {
+export function equalArrays<A>(as: $ReadOnlyArray<A>, bs: $ReadOnlyArray<A>): boolean {
   if (as.length != bs.length) {
     return false
   }
