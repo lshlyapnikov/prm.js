@@ -18,12 +18,12 @@ export function createPriceMatrix<M: number, N: number>(
   m: M
 ): Result<Matrix<M, N, number>> {
   if (m <= 0) {
-    return { success: false, error: new Error(`Cannot build a price matrix. m: ${m}.`) }
+    return failure(new Error(`Cannot build a price matrix. m: ${m}.`))
   }
 
   const n: N = symbols.n
   if (n <= 0) {
-    return { success: false, error: new Error(`Cannot build a price matrix. n: ${n}.`) }
+    return failure(new Error(`Cannot build a price matrix. n: ${n}.`))
   }
 
   const orderOfSymbolsIsTheSame: Result<{}> = checkOrderOfSymbols(symbols, symbolPrices)
