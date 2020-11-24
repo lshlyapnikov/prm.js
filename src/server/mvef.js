@@ -2,8 +2,8 @@
 /// LGPL Licensed
 // @flow strict
 import { generateRandomWeightsMatrix } from "./utils"
-import { type Matrix } from "./linearAlgebra"
-import { type Vector, vector } from "./vector"
+import { type Matrix, type ReadOnlyMatrix } from "./linearAlgebra"
+import { type Vector } from "./vector"
 import {
   calculateReturnRatesFromPriceMatrix,
   mean,
@@ -11,9 +11,9 @@ import {
   PortfolioStats,
   createPortfolioStats
 } from "./portfolioStats"
-import { Observable, from } from "rxjs"
+import { Observable, from, throwError, of } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
-import { type PriceArray, priceArray, createPriceMatrix } from "./priceMatrix"
+import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
 
 export function mvef<N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
@@ -29,11 +29,11 @@ function _mvef<N: number>(
   numberOfRandomWeights: number
 ): Observable<Array<PortfolioStats>> {
   if (0 == symbols.n) {
-    return Observable.throw(new Error("InvalidArgument: symbols array is empty"))
+    return throwError(new Error("InvalidArgument: symbols array is empty"))
   }
 
   if (numberOfRandomWeights <= 0) {
-    return Observable.throw(new Error("InvalidArgument: numberOfRandomWeights is <= 0"))
+    return throwError(new Error("InvalidArgument: numberOfRandomWeights is <= 0"))
   }
 
   const m: number = numberOfRandomWeights
@@ -42,18 +42,25 @@ function _mvef<N: number>(
   return from(symbols.values).pipe(
     flatMap((s: string) => loadHistoricalPricesAsArray(loadHistoricalPrices, s)),
     toArray(),
-    map((arr: Array<PriceArray>) => {
-      const priceMatrix: Matrix<number> = createPriceMatrix(symbols, vector(symbols.n, arr))
-      const weightsMatrix: Matrix<number> = generateRandomWeightsMatrix(m, n)
-      return mvefFromHistoricalPrices(weightsMatrix, priceMatrix)
+    flatMap((symbolPrices: Array<SymbolPrices>) => {
+      const k: number = maxPriceArrayLength(symbolPrices)
+      const priceMatrixKxN = createPriceMatrix(symbols, symbolPrices, k)
+      if (priceMatrixKxN.success) {
+        const weightsMatrixMxN: Matrix<number> = generateRandomWeightsMatrix(m, n)
+        const kXn: ReadOnlyMatrix<number> = priceMatrixKxN.value.values
+        const result: Array<PortfolioStats> = mvefFromHistoricalPrices(weightsMatrixMxN, kXn)
+        return of(result)
+      } else {
+        return throwError(priceMatrixKxN.error)
+      }
     })
   )
 }
 
-function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<PriceArray> {
+function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol: string): Observable<SymbolPrices> {
   return fn(symbol).pipe(
     toArray(),
-    map((prices: Array<number>) => priceArray(symbol, prices))
+    map((prices: Array<number>) => symbolPrices(symbol, prices))
   )
 }
 
@@ -68,7 +75,10 @@ function loadHistoricalPricesAsArray(fn: (string) => Observable<number>, symbol:
  *                               N is the number of stocks in portfolio
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
-export function mvefFromHistoricalPrices(weightsMxN: Matrix<number>, pricesKxN: Matrix<number>): Array<PortfolioStats> {
+export function mvefFromHistoricalPrices(
+  weightsMxN: ReadOnlyMatrix<number>,
+  pricesKxN: ReadOnlyMatrix<number>
+): Array<PortfolioStats> {
   // K x N (actually K-1 x N)
   const returnRatesKxN: Matrix<number> = calculateReturnRatesFromPriceMatrix(pricesKxN)
   return mvefFromHistoricalReturnRates(weightsMxN, returnRatesKxN)
@@ -86,8 +96,8 @@ export function mvefFromHistoricalPrices(weightsMxN: Matrix<number>, pricesKxN: 
  * @return {Object}   portfolioExpReturnRates: {Array}, portfolioStdDevs: {Array}.
  */
 export function mvefFromHistoricalReturnRates(
-  weightsMxN: Matrix<number>,
-  returnRatesKxN: Matrix<number>
+  weightsMxN: ReadOnlyMatrix<number>,
+  returnRatesKxN: ReadOnlyMatrix<number>
 ): Array<PortfolioStats> {
   // K x 1
   const expReturnRatesNx1 = mean(returnRatesKxN)
@@ -95,5 +105,7 @@ export function mvefFromHistoricalReturnRates(
   const covarianceNxN = covariance(returnRatesKxN)
 
   // TODO: this could return Observable<PortfolioStats> instead of Array<PortfolioStats>
-  return weightsMxN.map((weightsN: Array<number>) => createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN))
+  return weightsMxN.map((weightsN: $ReadOnlyArray<number>) =>
+    createPortfolioStats(weightsN, expReturnRatesNx1, covarianceNxN)
+  )
 }

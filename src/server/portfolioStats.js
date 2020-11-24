@@ -49,7 +49,7 @@ export function meanValue(arr: Array<number>): number {
  * @returns {Array}   Returns a vector of N elements (N x 1 matrix). Each element is an expected value for the
  *                    corresponding column in the matrix argument.
  */
-export function mean(valuesMxN: Matrix<number>): Matrix<number> {
+export function mean(valuesMxN: ReadOnlyMatrix<number>): Matrix<number> {
   if (0 === matrix.length) {
     throw new Error("InvalidArgument: matrix is empty")
   }
@@ -92,7 +92,7 @@ export function variance(arr: Array<number>, isPopulation: ?boolean): number {
   }
 }
 
-export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean): Matrix<number> {
+export function covariance(valuesMxN: ReadOnlyMatrix<number>, isPopulation: ?boolean): Matrix<number> {
   validateMatrix(valuesMxN)
 
   const [rowNum, colNum] = dim(valuesMxN)

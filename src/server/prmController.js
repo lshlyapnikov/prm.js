@@ -2,7 +2,7 @@
 import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
-import { type Vector, vector } from "./vector"
+import { type Vector } from "./vector"
 import { type Matrix, matrix, isInvertableMatrix } from "./matrix"
 import {
   efficientPortfolioFrontier as efficientPortfolioFrontierCtl,
@@ -10,8 +10,7 @@ import {
   globalMinimumVarianceEfficientPortfolio as globalMinimumVarianceEfficientPortfolioCtl
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
-import { type SymbolPrices, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
-import { type Result, equalArrays } from "./utils"
+import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
 
 /**
  * expectedRrNx1     Expected Return Rates Matrix
@@ -85,18 +84,9 @@ export class PrmController {
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
         concatMap((symbolPrices: Array<SymbolPrices>) => {
-          const orderOfSymbolsIsTheSame = checkOrderOfSymbols(symbols, symbolPrices)
-          if (!orderOfSymbolsIsTheSame.success) {
-            return throwError(orderOfSymbolsIsTheSame.error)
-          }
           const m: number = maxPriceArrayLength(symbolPrices)
-          if (m <= 0) {
-            return throwError(new Error(`Cannot build a price matrix. m: ${m}.`))
-          }
-
           const n: N = symbols.n
-          const pricesMxN = createPriceMatrix(vector(n, symbolPrices), m)
-
+          const pricesMxN = createPriceMatrix(symbols, symbolPrices, m)
           if (pricesMxN.success) {
             const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN.value.values) // k = m - 1
             const expectedRrNx1_: $ReadOnlyArray<$ReadOnlyArray<number>> = mean(rrKxN)
@@ -138,25 +128,5 @@ export class PrmController {
           "Return rate covariance matrix (returnRatesCovarianceNxN) is NOT invertible. Use portfolio simulations."
       }
     }
-  }
-}
-
-function maxPriceArrayLength(arr: Array<SymbolPrices>): number {
-  const result: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
-  return result
-}
-
-function checkOrderOfSymbols<N: number>(
-  symbols: Vector<N, string>,
-  symbolPrices: $ReadOnlyArray<SymbolPrices>
-): Result<{}> {
-  const symbols2: $ReadOnlyArray<string> = symbolPrices.map((p) => p.symbol)
-  if (equalArrays(symbols.values, symbols2)) {
-    return { success: true, value: {} }
-  } else {
-    const error = new Error(
-      `The order of symbols has changed from: ${JSON.stringify(symbols.values)} to: ${JSON.stringify(symbols2)}.`
-    )
-    return { success: false, error }
   }
 }
