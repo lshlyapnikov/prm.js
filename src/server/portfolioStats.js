@@ -1,25 +1,33 @@
 /// Author: Leonid Shlyapnikov
 /// LGPL Licensed
 // @flow strict
-import { type Matrix, matrix, multiplyMatrices, dim, validateMatrix, transpose } from "./linearAlgebra"
+import {
+  type Matrix,
+  type ReadOnlyMatrix,
+  matrix,
+  multiplyMatrices,
+  dim,
+  validateMatrix,
+  transpose
+} from "./linearAlgebra"
 
 export class PortfolioStats {
-  constructor(weights: Array<number>, stdDev: number, expectedReturnRate: number) {
+  constructor(weights: $ReadOnlyArray<number>, stdDev: number, expectedReturnRate: number) {
     this.weights = weights
     this.stdDev = stdDev
     this.expectedReturnRate = expectedReturnRate
   }
-  weights: Array<number>
+  weights: $ReadOnlyArray<number>
   stdDev: number
   expectedReturnRate: number
 }
 
 export function createPortfolioStats(
-  weightsN: Array<number>,
-  meanRrNx1: Matrix<number>,
-  rrCovarianceNxN: Matrix<number>
+  weightsN: $ReadOnlyArray<number>,
+  meanRrNx1: ReadOnlyMatrix<number>,
+  rrCovarianceNxN: ReadOnlyMatrix<number>
 ): PortfolioStats {
-  const weights1xN: Matrix<number> = [weightsN]
+  const weights1xN: ReadOnlyMatrix<number> = [weightsN]
   const expectedRr1x1: Matrix<number> = multiplyMatrices(weights1xN, meanRrNx1)
   const stdDev: number = portfolioStdDev(weights1xN, rrCovarianceNxN)
 
@@ -41,7 +49,7 @@ export function meanValue(arr: Array<number>): number {
  * @returns {Array}   Returns a vector of N elements (N x 1 matrix). Each element is an expected value for the
  *                    corresponding column in the matrix argument.
  */
-export function mean(valuesMxN: Matrix<number>): Matrix<number> {
+export function mean(valuesMxN: ReadOnlyMatrix<number>): Matrix<number> {
   if (0 === matrix.length) {
     throw new Error("InvalidArgument: matrix is empty")
   }
@@ -84,7 +92,7 @@ export function variance(arr: Array<number>, isPopulation: ?boolean): number {
   }
 }
 
-export function covariance(valuesMxN: Matrix<number>, isPopulation: ?boolean): Matrix<number> {
+export function covariance(valuesMxN: ReadOnlyMatrix<number>, isPopulation: ?boolean): Matrix<number> {
   validateMatrix(valuesMxN)
 
   const [rowNum, colNum] = dim(valuesMxN)
@@ -148,7 +156,7 @@ export function calculateReturnRatesFromPrices(prices: Array<number>): Array<num
  * @param {Array} priceMatrix   M x N matrix of prices. Stock prices in columns. N columns -- N stocks.
  * @returns {Array}  M-1 x N matrix of return rates.
  */
-export function calculateReturnRatesFromPriceMatrix(priceMatrix: Matrix<number>): Matrix<number> {
+export function calculateReturnRatesFromPriceMatrix(priceMatrix: ReadOnlyMatrix<number>): Matrix<number> {
   const [m, n] = dim(priceMatrix)
   const result = matrix(m - 1, n)
   for (let i = 0; i < m - 1; i++) {
@@ -167,7 +175,7 @@ export function calculateReturnRatesFromPriceMatrix(priceMatrix: Matrix<number>)
  *
  * @return {Number}   Portfolio's Standard Deviation.
  */
-export function portfolioStdDev(weights1xN: Matrix<number>, covarianceNxN: Matrix<number>): number {
+export function portfolioStdDev(weights1xN: ReadOnlyMatrix<number>, covarianceNxN: ReadOnlyMatrix<number>): number {
   const transposedWeightsNx1 = transpose(weights1xN)
   const tmp1xN = multiplyMatrices(weights1xN, covarianceNxN)
   const tmp1x1 = multiplyMatrices(tmp1xN, transposedWeightsNx1)

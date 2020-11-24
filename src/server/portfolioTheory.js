@@ -5,12 +5,15 @@ const numeric = require("numeric")
 
 import {
   type Matrix,
+  type ReadOnlyMatrix,
   matrix,
   dim,
   multiplyMatrices,
+  subtractMatrices,
   transpose,
   copyMatrixInto,
-  isInvertableMatrix
+  isInvertableMatrix,
+  inverseMatrix
 } from "./linearAlgebra"
 import { type PortfolioStats, createPortfolioStats } from "./portfolioStats"
 import { logger } from "./utils"
@@ -18,12 +21,12 @@ import { logger } from "./utils"
 const log = logger("portfolioTheory.js")
 
 export class GlobalMinimumVarianceEfficientPortfolio {
-  calculate(expectedRrNx1: Matrix<number>, rrCovarianceNxN: Matrix<number>): PortfolioStats {
+  calculate(expectedRrNx1: ReadOnlyMatrix<number>, rrCovarianceNxN: ReadOnlyMatrix<number>): PortfolioStats {
     const weightsN = this.calculateWeights(rrCovarianceNxN)
     return createPortfolioStats(weightsN, expectedRrNx1, rrCovarianceNxN)
   }
 
-  calculateWeights(returnRatesCovarianceNxN: Matrix<number>): Array<number> {
+  calculateWeights(returnRatesCovarianceNxN: ReadOnlyMatrix<number>): Array<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const b = n + 1
     const matrixA = this._createMatrixA(returnRatesCovarianceNxN)
@@ -33,7 +36,7 @@ export class GlobalMinimumVarianceEfficientPortfolio {
     return matrixZ.slice(0, b - 1)
   }
 
-  _createMatrixA(returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
+  _createMatrixA(returnRatesCovarianceNxN: ReadOnlyMatrix<number>): Matrix<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const a = n + 1
     // $FlowIgnore[incompatible-call]
@@ -57,8 +60,8 @@ export const globalMinimumVarianceEfficientPortfolio: GlobalMinimumVarianceEffic
 
 export class TangencyPortfolio {
   calculate(
-    expectedReturnRatesNx1: Matrix<number>,
-    returnRatesCovarianceNxN: Matrix<number>,
+    expectedReturnRatesNx1: ReadOnlyMatrix<number>,
+    returnRatesCovarianceNxN: ReadOnlyMatrix<number>,
     riskFreeReturnRate: number
   ): PortfolioStats {
     const weightsN: Array<number> = this.calculateWeights(
@@ -70,8 +73,8 @@ export class TangencyPortfolio {
   }
 
   calculateWeights(
-    expectedReturnRatesNx1: Matrix<number>,
-    returnRatesCovarianceNxN: Matrix<number>,
+    expectedReturnRatesNx1: ReadOnlyMatrix<number>,
+    returnRatesCovarianceNxN: ReadOnlyMatrix<number>,
     riskFreeReturnRate: number
   ): Array<number> {
     log.debug(`returnRatesCovarianceNxN: ${JSON.stringify(returnRatesCovarianceNxN)}`)
@@ -83,9 +86,9 @@ export class TangencyPortfolio {
       )
     }
     const n = dim(returnRatesCovarianceNxN)[0]
-    const returnRatesCovarianceInvertedNxN = numeric.inv(returnRatesCovarianceNxN)
+    const returnRatesCovarianceInvertedNxN = inverseMatrix(returnRatesCovarianceNxN)
     const riskFreeReturnRateNx1 = matrix(n, 1, riskFreeReturnRate)
-    const muMinusRfNx1 = numeric.sub(expectedReturnRatesNx1, riskFreeReturnRateNx1)
+    const muMinusRfNx1 = subtractMatrices(expectedReturnRatesNx1, riskFreeReturnRateNx1)
     const topNx1 = multiplyMatrices(returnRatesCovarianceInvertedNxN, muMinusRfNx1)
     const one1xN = matrix(1, n, 1)
     const bot1x1 = multiplyMatrices(one1xN, topNx1)
@@ -103,8 +106,8 @@ export const tangencyPortfolio: TangencyPortfolio = new TangencyPortfolio()
  */
 export class TargetReturnEfficientPortfolio {
   calculate(
-    expectedReturnRatesNx1: Matrix<number>,
-    returnRatesCovarianceNxN: Matrix<number>,
+    expectedReturnRatesNx1: ReadOnlyMatrix<number>,
+    returnRatesCovarianceNxN: ReadOnlyMatrix<number>,
     targetReturnRate: number
   ): PortfolioStats {
     const weightsN: Array<number> = this.calculateWeights(
@@ -116,8 +119,8 @@ export class TargetReturnEfficientPortfolio {
   }
 
   calculateWeights(
-    expectedReturnRatesNx1: Matrix<number>,
-    returnRatesCovarianceNxN: Matrix<number>,
+    expectedReturnRatesNx1: ReadOnlyMatrix<number>,
+    returnRatesCovarianceNxN: ReadOnlyMatrix<number>,
     targetReturnRate: number
   ): Array<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
@@ -130,7 +133,10 @@ export class TargetReturnEfficientPortfolio {
     return weightsN
   }
 
-  _createMatrixA(expectedReturnRatesNx1: Matrix<number>, returnRatesCovarianceNxN: Matrix<number>): Matrix<number> {
+  _createMatrixA(
+    expectedReturnRatesNx1: ReadOnlyMatrix<number>,
+    returnRatesCovarianceNxN: ReadOnlyMatrix<number>
+  ): Matrix<number> {
     const n = dim(returnRatesCovarianceNxN)[0]
     const a = n + 2
     // $FlowIgnore[incompatible-call]
@@ -165,8 +171,8 @@ export const targetReturnEfficientPortfolio: TargetReturnEfficientPortfolio = ne
  */
 export class EfficientPortfolioFrontier {
   calculate(
-    expectedRrNx1: Matrix<number>,
-    rrCovarianceNxN: Matrix<number>,
+    expectedRrNx1: ReadOnlyMatrix<number>,
+    rrCovarianceNxN: ReadOnlyMatrix<number>,
     maxNum: number = 21
   ): Array<PortfolioStats> {
     const arr: Array<number> = expectedRrNx1.map((row) => row[0])
@@ -198,8 +204,8 @@ export class EfficientPortfolioFrontier {
   }
 
   _calculateEfficientPortfolioWeights(
-    globalMinVarianceEpWeigthsN: Array<number>,
-    maxReturnEpWeightsN: Array<number>,
+    globalMinVarianceEpWeigthsN: $ReadOnlyArray<number>,
+    maxReturnEpWeightsN: $ReadOnlyArray<number>,
     alpha: number
   ): Array<number> {
     const x = globalMinVarianceEpWeigthsN.map((n) => alpha * n)

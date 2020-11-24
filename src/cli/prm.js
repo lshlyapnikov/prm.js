@@ -6,7 +6,7 @@ import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
 import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { vector } from "../server/vector"
-import { PrmController, Input, type Output } from "../server/prmController"
+import { PrmController, type Output } from "../server/prmController"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -162,7 +162,7 @@ controller
     delayMillis
   )
   .then(
-    (analysisResult: [Input, Output]) => {
+    (analysisResult) => {
       const output: Output = analysisResult[1]
       printResults(stocks, output)
       if (null != outputFile) {

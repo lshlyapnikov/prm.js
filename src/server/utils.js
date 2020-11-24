@@ -8,6 +8,14 @@ type Success<A> = {| success: true, value: A |}
 type Failure = {| success: false, error: Error |}
 export type Result<A> = Failure | Success<A>
 
+export function success<A>(value: A): Success<A> {
+  return { success: true, value }
+}
+
+export function failure(error: Error): Failure {
+  return { success: false, error }
+}
+
 export type JestDoneFn = {|
   (): void,
   fail: (error: Error) => void
@@ -96,7 +104,7 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
   return arr
 }
 
-export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
+export function newArrayWithScale(arr: $ReadOnlyArray<number>, scale: number): Array<number> {
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
@@ -137,7 +145,7 @@ export function assert(fn: () => boolean, message: () => string): void {
   }
 }
 
-export function equalArrays<A>(as: Array<A>, bs: Array<A>): boolean {
+export function equalArrays<A>(as: $ReadOnlyArray<A>, bs: $ReadOnlyArray<A>): boolean {
   if (as.length != bs.length) {
     return false
   }
