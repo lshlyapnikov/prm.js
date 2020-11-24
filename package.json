@@ -53,7 +53,7 @@
     "build-cli": "babel src --out-dir build-cli --ignore \"src/ui\",\"src/index.js\",\"src/App.js\",\"src/App.test.js\"",
     "start-cli": "node --experimental-modules build-cli/cli/prm.js",
     "test-no-watch": "react-scripts test --env=jsdom --watchAll=false",
-    "test-all": "run-s --print-name eslint flow test-no-watch prettier-check",
+    "test-all": "run-s --print-name flow test-no-watch eslint prettier-check",
     "build-all": "run-s --print-name build-cli build-ui"
   },
   "devDependencies": {

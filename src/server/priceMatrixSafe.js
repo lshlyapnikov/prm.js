@@ -8,21 +8,16 @@ export type SymbolPrices = {|
   +prices: $ReadOnlyArray<number>
 |}
 
-export function symbolPrices(symbol: string, prices: Array<number>): SymbolPrices {
+export function symbolPrices(symbol: string, prices: $ReadOnlyArray<number>): SymbolPrices {
   return { symbol, prices }
-}
-
-export function maxPriceArrayLength(arr: Array<SymbolPrices>): number {
-  const result: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
-  return result
 }
 
 export function createPriceMatrix<M: number, N: number>(
   symbols: Vector<N, string>,
-  symbolPrices: Vector<M, SymbolPrices>
+  symbolPrices: Vector<N, SymbolPrices>,
+  m: M
 ): Result<Matrix<M, N, number>> {
-  const m: M = symbolPrices.n
-  const n: N = symbols.n
+  const n: N = symbolPrices.n
   if (m <= 0) {
     return { success: false, error: new Error(`Cannot build a price matrix. m: ${m}.`) }
   }
@@ -30,7 +25,7 @@ export function createPriceMatrix<M: number, N: number>(
     return { success: false, error: new Error(`Cannot build a price matrix. n: ${n}.`) }
   }
 
-  const invalidPrices: $ReadOnlyArray<SymbolPrices> = findInvalidPriceArray(symbolPrices)
+  const invalidPrices: $ReadOnlyArray<SymbolPrices> = findInvalidPriceArray(m, symbolPrices)
 
   if (invalidPrices.length > 0) {
     const badSymbols: Array<string> = invalidPrices.map((p) => p.symbol)
@@ -41,6 +36,7 @@ export function createPriceMatrix<M: number, N: number>(
     return { success: false, error }
   }
 
+  // make sure the order of symbols did not change
   const symbols2: $ReadOnlyArray<string> = symbolPrices.values.map((p) => p.symbol)
   if (!equalArrays(symbols.values, symbols2)) {
     const error = new Error(
@@ -61,8 +57,10 @@ export function createPriceMatrix<M: number, N: number>(
 }
 
 // returns Array of invalid Prices or empty Array
-function findInvalidPriceArray<N: number>(array: Vector<N, SymbolPrices>): $ReadOnlyArray<SymbolPrices> {
-  const expectedLength: N = array.n
+function findInvalidPriceArray<M: number, N: number>(
+  expectedLength: M,
+  array: Vector<N, SymbolPrices>
+): $ReadOnlyArray<SymbolPrices> {
   function collectInvalidPrices(z: $ReadOnlyArray<SymbolPrices>, p: SymbolPrices): $ReadOnlyArray<SymbolPrices> {
     if (p.prices.length != expectedLength) {
       return z.concat(p)

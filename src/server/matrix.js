@@ -108,3 +108,7 @@ function unsafeRemoveReadonly(a: $ReadOnlyArray<$ReadOnlyArray<number>>): Array<
   const matrix: Array<Array<number>> = a
   return matrix
 }
+
+export function isInvertableMatrix<N: number>(nXn: Matrix<N, N, number>): boolean {
+  return numeric.det(unsafeRemoveReadonly(nXn.values)) != 0
+}

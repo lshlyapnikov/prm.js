@@ -8,8 +8,9 @@
 
 import numeric from "numeric"
 export type Matrix<T> = Array<Array<T>>
+export type ReadOnlyMatrix<T> = $ReadOnlyArray<$ReadOnlyArray<T>>
 
-export function dim(matrixMxN: Matrix<number>): [number, number] {
+export function dim(matrixMxN: ReadOnlyMatrix<number>): [number, number] {
   var m = matrixMxN.length
   var n = matrixMxN[0].length
   if (typeof n !== "number") {
@@ -52,7 +53,7 @@ export function columnMatrix(vector: Array<number>): Matrix<number> {
 }
 
 // TODO(lshlyapnikov) will be slow, C++ Node plugin???
-export function transpose(matrixMxN: Matrix<number>): Matrix<number> {
+export function transpose(matrixMxN: ReadOnlyMatrix<number>): Matrix<number> {
   var dimensions = dim(matrixMxN)
   var m = dimensions[0]
   var n = dimensions[1]
@@ -67,8 +68,23 @@ export function transpose(matrixMxN: Matrix<number>): Matrix<number> {
   return resultNxM
 }
 
+export function copy(mXn: ReadOnlyMatrix<number>): Matrix<number> {
+  const dimensions = dim(mXn)
+  const m = dimensions[0]
+  const n = dimensions[1]
+
+  const mXnCopy: Matrix<number> = matrix(m, n)
+  for (var i = 0; i < m; i++) {
+    for (var j = 0; j < n; j++) {
+      mXnCopy[i][j] = mXn[i][j]
+    }
+  }
+
+  return mXnCopy
+}
+
 // TODO(lshlyapnikov) will be slow, C++ Node plugin??, map reduce?? 3rd party library???
-export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matrix<number> {
+export function multiplyMatrices(mXn: ReadOnlyMatrix<number>, nXm: ReadOnlyMatrix<number>): Matrix<number> {
   var dim0: [number, number] = dim(mXn)
   var dim1: [number, number] = dim(nXm)
 
@@ -80,7 +96,11 @@ export function multiplyMatrices(mXn: Matrix<number>, nXm: Matrix<number>): Matr
         JSON.stringify(dim1)
     )
   }
-  return castToMatrix(numeric.dot(mXn, nXm))
+  return castToMatrix(numeric.dot(unsafeRemoveReadonly(mXn), unsafeRemoveReadonly(nXm)))
+}
+
+export function subtractMatrices(mXn1: ReadOnlyMatrix<number>, mXn2: ReadOnlyMatrix<number>): ReadOnlyMatrix<number> {
+  return numeric.sub(unsafeRemoveReadonly(mXn1), unsafeRemoveReadonly(mXn2))
 }
 
 function castToMatrix(a: Array<number> | Array<Array<number>> | number): Array<Array<number>> {
@@ -98,7 +118,7 @@ export function multiplyVectors(v0: Array<number>, v1: Array<number>): Matrix<nu
   return castToMatrix(numeric.dotVV(v0, v1))
 }
 
-export function validateMatrix(mXn: Matrix<number>): void {
+export function validateMatrix(mXn: ReadOnlyMatrix<number>): void {
   const [m, n] = dim(mXn)
   if (m === 0) {
     throw new Error("InvalidArgument: matrix has 0 rows")
@@ -131,7 +151,7 @@ export function copyMatrix(mXn: Matrix<number>): Matrix<number> {
   return result
 }
 
-export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>): Matrix<number> {
+export function copyMatrixInto(mXn: ReadOnlyMatrix<number>, outputMatrix: Matrix<number>): Matrix<number> {
   validateMatrix(mXn)
   const [m, n] = dim(mXn)
   for (let i = 0; i < m; i++) {
@@ -142,12 +162,18 @@ export function copyMatrixInto(mXn: Matrix<number>, outputMatrix: Matrix<number>
   return outputMatrix
 }
 
-export function inverseMatrix(mXn: Matrix<number>): Matrix<number> {
+export function inverseMatrix(mXn: ReadOnlyMatrix<number>): Matrix<number> {
   validateMatrix(mXn)
-  return numeric.inv(mXn)
+  return numeric.inv(copy(mXn))
 }
 
-export function isInvertableMatrix(nXn: Matrix<number>): boolean {
+export function isInvertableMatrix(nXn: ReadOnlyMatrix<number>): boolean {
   const [m, n] = dim(nXn)
-  return m == n && numeric.det(nXn) != 0
+  return m == n && numeric.det(unsafeRemoveReadonly(nXn)) != 0
+}
+
+function unsafeRemoveReadonly(a: $ReadOnlyArray<$ReadOnlyArray<number>>): Array<Array<number>> {
+  // $FlowIgnore[incompatible-type]
+  const matrix: Array<Array<number>> = a
+  return matrix
 }
