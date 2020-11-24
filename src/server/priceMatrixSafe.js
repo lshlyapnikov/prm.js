@@ -38,7 +38,7 @@ export function createPriceMatrix<M: number, N: number>(
   const nXm: Array<$ReadOnlyArray<number>> = new Array(n)
 
   for (let i = 0; i < n; i++) {
-    const priceArray: SymbolPrices = symbolPrices[i]
+    const priceArray: SymbolPrices = symbolPrices.values[i]
     nXm[i] = priceArray.prices
   }
 

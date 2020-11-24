@@ -7,7 +7,7 @@ import { mvef } from "./mvef"
 import { type Matrix, transpose } from "./linearAlgebra"
 import { vector } from "./vector"
 import { assertEqualMatrices } from "./matrixAssert"
-import { toFixedNumber, setArrayElementsScale, logger } from "./utils"
+import { toFixedNumber, newArrayWithScale, logger } from "./utils"
 import { PortfolioStats, calculateReturnRatesFromPriceMatrix, mean, covariance } from "./portfolioStats"
 import * as testData from "./testData"
 
@@ -278,7 +278,7 @@ describe("mvef", () => {
 
           assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
           assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
-          assert.deepStrictEqual(setArrayElementsScale(actualWeights, 2), expectedWeights)
+          assert.deepStrictEqual(newArrayWithScale(actualWeights, 2), expectedWeights)
 
           done()
         }

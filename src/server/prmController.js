@@ -150,7 +150,7 @@ function checkOrderOfSymbols<N: number>(
   symbols: Vector<N, string>,
   symbolPrices: $ReadOnlyArray<SymbolPrices>
 ): Result<{}> {
-  const symbols2: $ReadOnlyArray<string> = symbolPrices.values.map((p) => p.symbol)
+  const symbols2: $ReadOnlyArray<string> = symbolPrices.map((p) => p.symbol)
   if (equalArrays(symbols.values, symbols2)) {
     return { success: true, value: {} }
   } else {

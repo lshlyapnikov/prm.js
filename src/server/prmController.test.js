@@ -6,7 +6,7 @@ import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
 import { validateMatrix } from "./linearAlgebra"
 import { vector } from "./vector"
-import { PrmController, Input, type Output } from "./prmController"
+import { type Input, type Output, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
@@ -31,11 +31,10 @@ function verifyPortfolioStatsObjects(o: PortfolioStats) {
   assert.ok(o !== null)
 }
 
-function verifyPortfolioAnalysisResult(r: [Input, Output], done: JestDoneFn): void {
+function verifyPortfolioAnalysisResult(r, done: JestDoneFn): void {
   const [input, output] = r
-  validateMatrix(input.rrKxN)
-  validateMatrix(input.expectedRrNx1)
-  validateMatrix(input.rrCovarianceNxN)
+  validateMatrix(input.expectedRrNx1.values)
+  validateMatrix(input.rrCovarianceNxN.values)
   if (output.Calculated) {
     verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
     assert.equal(output.efficientPortfolioFrontier.length, 21)
@@ -58,7 +57,7 @@ describe("PrmController", () => {
         0
       )
       .then(
-        (analysisResult: [Input, Output]) => {
+        (analysisResult: [Input<2>, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult, done)
           const [input, output] = analysisResult
           assert.ok(input !== null)
@@ -79,7 +78,7 @@ describe("PrmController", () => {
       )
   })
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
-    function test(): Promise<[Input, Output]> {
+    function test(): Promise<[Input<6>, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -91,14 +90,14 @@ describe("PrmController", () => {
       )
     }
 
-    test().then((result: [Input, Output]) => {
+    test().then((result: [Input<6>, Output]) => {
       const output = result[1]
       log.debug(`output:\n${prettyPrint(output)}`)
       done()
     })
   })
   it("should fail when a symbol does not have enough price entries", (done) => {
-    function test(): Promise<[Input, Output]> {
+    function test(): Promise<[Input<2>, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(2, ["AA", "XOM"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -111,13 +110,13 @@ describe("PrmController", () => {
     }
 
     test().then(
-      (result: [Input, Output]) => {
+      (result: [Input<2>, Output]) => {
         const output = result[1]
         done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(output)}`))
       },
       (error) => {
         const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA"]'
-        if (typeof error === "string" && error.startsWith(startsWith)) {
+        if (error.message.startsWith(startsWith)) {
           done()
         } else {
           done.fail(new Error(`Expected error message that starts with: ${startsWith}, but got: ${error}`))

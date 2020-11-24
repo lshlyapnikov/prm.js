@@ -104,7 +104,7 @@ export function setArrayElementsScale(arr: Array<number>, scale: number): Array<
   return arr
 }
 
-export function newArrayWithScale(arr: Array<number>, scale: number): Array<number> {
+export function newArrayWithScale(arr: $ReadOnlyArray<number>, scale: number): Array<number> {
   return arr.map((a: number) => toFixedNumber(a, scale))
 }
 
