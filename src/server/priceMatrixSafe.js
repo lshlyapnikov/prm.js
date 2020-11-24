@@ -1,7 +1,7 @@
 // @flow strict
 import { type Matrix, matrix, transpose } from "./matrix.js"
 import { type Vector } from "./vector"
-import { type Result, equalArrays } from "./utils"
+import { type Result } from "./utils"
 
 export type SymbolPrices = {|
   +symbol: string,
@@ -13,7 +13,6 @@ export function symbolPrices(symbol: string, prices: $ReadOnlyArray<number>): Sy
 }
 
 export function createPriceMatrix<M: number, N: number>(
-  symbols: Vector<N, string>,
   symbolPrices: Vector<N, SymbolPrices>,
   m: M
 ): Result<Matrix<M, N, number>> {
@@ -32,15 +31,6 @@ export function createPriceMatrix<M: number, N: number>(
     const error = new Error(
       `Cannot build a price matrix. Invalid number of prices for symbols: ${JSON.stringify(badSymbols)}. ` +
         `All symbols must have the same number of price entries: ${m}.`
-    )
-    return { success: false, error }
-  }
-
-  // make sure the order of symbols did not change
-  const symbols2: $ReadOnlyArray<string> = symbolPrices.values.map((p) => p.symbol)
-  if (!equalArrays(symbols.values, symbols2)) {
-    const error = new Error(
-      `Wrong order: ${JSON.stringify(symbols.values)} must be equal to ${JSON.stringify(symbols2)}`
     )
     return { success: false, error }
   }

@@ -11,6 +11,7 @@ import {
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
 import { type SymbolPrices, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
+import { type Result, equalArrays } from "./utils"
 
 /**
  * expectedRrNx1     Expected Return Rates Matrix
@@ -83,17 +84,18 @@ export class PrmController {
         concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
-        concatMap((arr: Array<SymbolPrices>) => {
-          const n: N = symbols.n
-          if (n <= 0 || arr.length != n) {
-            return throwError(new Error(`Cannot build a price matrix. n: ${n}, arr.length: ${arr.length}.`))
+        concatMap((symbolPrices: Array<SymbolPrices>) => {
+          const orderOfSymbolsIsTheSame = checkOrderOfSymbols(symbols, symbolPrices)
+          if (!orderOfSymbolsIsTheSame.success) {
+            return throwError(orderOfSymbolsIsTheSame.error)
           }
-          const m: number = maxPriceArrayLength(arr)
+          const m: number = maxPriceArrayLength(symbolPrices)
           if (m <= 0) {
             return throwError(new Error(`Cannot build a price matrix. m: ${m}.`))
           }
 
-          const pricesMxN = createPriceMatrix(symbols, vector(n, arr), m)
+          const n: N = symbols.n
+          const pricesMxN = createPriceMatrix(vector(n, symbolPrices), m)
 
           if (pricesMxN.success) {
             const rrKxN = calculateReturnRatesFromPriceMatrix(pricesMxN.value.values) // k = m - 1
@@ -142,4 +144,19 @@ export class PrmController {
 function maxPriceArrayLength(arr: Array<SymbolPrices>): number {
   const result: number = arr.reduce((z, ps) => Math.max(z, ps.prices.length), 0)
   return result
+}
+
+function checkOrderOfSymbols<N: number>(
+  symbols: Vector<N, string>,
+  symbolPrices: $ReadOnlyArray<SymbolPrices>
+): Result<{}> {
+  const symbols2: $ReadOnlyArray<string> = symbolPrices.values.map((p) => p.symbol)
+  if (equalArrays(symbols.values, symbols2)) {
+    return { success: true, value: {} }
+  } else {
+    const error = new Error(
+      `The order of symbols has changed from: ${JSON.stringify(symbols.values)} to: ${JSON.stringify(symbols2)}.`
+    )
+    return { success: false, error }
+  }
 }
