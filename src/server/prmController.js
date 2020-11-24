@@ -10,7 +10,7 @@ import {
   globalMinimumVarianceEfficientPortfolio as globalMinimumVarianceEfficientPortfolioCtl
 } from "./portfolioTheory"
 import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
-import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
+import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrix"
 
 /**
  * expectedRrNx1     Expected Return Rates Matrix

@@ -13,7 +13,7 @@ import {
 } from "./portfolioStats"
 import { Observable, from, throwError, of } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
-import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrixSafe"
+import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrix"
 
 export function mvef<N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
