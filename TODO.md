@@ -18,14 +18,14 @@
     - https://reactjs.org/docs/hooks-rules.html
 12. [ ] either remove `server/app.js` or add `// @flow strict` to it
 13. [x] implement prm.js CLI before the GUI
-    [x] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
+        [x] cache/memoize on disk `loadHistoricalPricesAsArray(s, startDate, endDate)` call
         src/server/prmController.js:87
         memoize the raw closing prices, the entire stream
-    [x] Change `--years` to `--start-date` and `--end-date`
-    [x] allow specifying risk free daily interest rate, currently hardcoded.
-    [x] risk free interest rate, is it daily or annual in the formula??? Has to be daily, daily prices, daily return rates
-    [ ] validate the output from the CLI
-    [x] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
+        [x] Change `--years` to `--start-date` and `--end-date`
+        [x] allow specifying risk free daily interest rate, currently hardcoded.
+        [x] risk free interest rate, is it daily or annual in the formula??? Has to be daily, daily prices, daily return rates
+        [ ] validate the output from the CLI
+        [x] yarn start-cli --api-key=<KEY> --years=1 --stocks=ACB,F,GOOG,XOM,AA,ARNC,BAC,INTC,JCP,PG
 14. [x] fix the warning that happens every time I add a dependency (actually last time it was a dev dependency)
     ```
     warning "react-scripts > pnp-webpack-plugin > ts-pnp@1.0.0" has unmet peer dependency "typescript@*".
@@ -43,7 +43,7 @@
 19. [ ] Set up GCP App Engine, use free tier.
     - https://cloud.google.com/free/docs/gcp-free-tier
     - https://cloud.google.com/appengine/docs/standard/python3/config/appref#automatic_scaling
-    app.yaml setting:
+      app.yaml setting:
     ```
     runtime: nodejs10
     instance_class: F1
@@ -55,6 +55,7 @@
 20. [x] Add a check that all symbols have the same number of prices in the price matrix
         e.g. if there is not enough market data some symbols might have wrong number of rows (closing prices)
 21. [x] Fix the blinking test
+
     ```
     FAIL src/server/utils.test.js
     utils › #generateRandomWeightsMatrix › should generate a matrix of random weights
@@ -66,16 +67,18 @@
     Received:
       30
     ```
+
     it is opposite, expected: 30 but actual is a double
+
 22. [x] For better Alphavantage error handling implement `stream.Transform` which returns error
-    if Alphavantage replied back with JSON containing an error instead of the CSV.
-    Use `transform.destroy([error])` to report errors.
-    Pass this implementation into `stream.pipe()` when loading closing prices.
-    See `.pipe(es.split())` or `.pipe(csv())` for references.
-23. [ ] Figure out what to do when `returnRatesCovarianceNxN` is NOT invertible. Numeric methods?
-    see `mvef#mvefFromHistoricalReturnRates` and `mvef#mvefFromHistoricalReturnRates`
+        if Alphavantage replied back with JSON containing an error instead of the CSV.
+        Use `transform.destroy([error])` to report errors.
+        Pass this implementation into `stream.pipe()` when loading closing prices.
+        See `.pipe(es.split())` or `.pipe(csv())` for references.
+23. [x] Figure out what to do when `returnRatesCovarianceNxN` is NOT invertible. Numeric methods?
+        see `mvef#mvefFromHistoricalReturnRates` and `mvef#mvefFromHistoricalReturnRates`
 24. [ ] validate that min variance portolio is (almost) the same when using random weights and the formula that requires
-    matrix inversion.    
+        matrix inversion.
 25. [ ] Use Listing & Delisting Status service to validate the stock symbols. Cache the output.
         https://www.alphavantage.co/documentation/#listing-status
         `state=active` and `date`
