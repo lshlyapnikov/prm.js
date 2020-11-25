@@ -81,7 +81,17 @@ describe("utils", () => {
         `positiveWeightsCount: ${positiveWeightsCount}, netagiveWeightsCount: ${netagiveWeightsCount}`
       )
     })
-    it("should generate a new weights matrix if called consequently", function () {
+    it("should generate the same weights matrix if called with the same seed", function () {
+      // GIVEN
+      var rowNum = 30
+      var colNum = 10
+      // WHEN
+      var weights0 = generateRandomWeightsMatrix(rowNum, colNum, 0, false)
+      var weights1 = generateRandomWeightsMatrix(rowNum, colNum, 0, false)
+      // THEN
+      assert.deepEqual(weights0, weights1)
+    })
+    it("should generate a different weights matrix if called with a different seed", function () {
       // GIVEN
       var rowNum = 30
       var colNum = 10
@@ -89,14 +99,7 @@ describe("utils", () => {
       var weights0 = generateRandomWeightsMatrix(rowNum, colNum, 0, false)
       var weights1 = generateRandomWeightsMatrix(rowNum, colNum, 1, false)
       // THEN
-      var sum0 = numeric.sum(weights0)
-      var sum1 = numeric.sum(weights1)
-      assert.ok(Math.abs(sum0 - rowNum) < maxError)
-      assert.ok(Math.abs(sum1 - rowNum) < maxError)
       assert.notDeepEqual(weights0, weights1)
-      for (var i = 0; i < rowNum; i++) {
-        assert.notDeepEqual(weights0[i], weights1[i])
-      }
     })
     it("should throw up when invalid arguments passed", function () {
       // GIVEN
