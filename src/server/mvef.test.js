@@ -250,7 +250,7 @@ describe("mvef", () => {
       }
 
       // WHEN
-      mvef(mockHistoricalPricesProvider, vector(2, ["NYX", "INTC"]), numOfRandomWeights).then(
+      mvef(mockHistoricalPricesProvider, vector(2, ["NYX", "INTC"]), numOfRandomWeights, false).then(
         (array: Array<PortfolioStats>) => {
           // THEN
           assert.strictEqual(array.length, numOfRandomWeights)

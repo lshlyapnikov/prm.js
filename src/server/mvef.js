@@ -15,18 +15,20 @@ import { Observable, from, throwError, of } from "rxjs"
 import { toArray, flatMap, map } from "rxjs/operators"
 import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrix"
 
-export function mvef<N: number>(
+export function mvef<M: number, N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
   symbols: Vector<N, string>,
-  numberOfRandomWeights: number
+  numberOfRandomWeights: M,
+  allowShortSales: boolean
 ): Promise<Array<PortfolioStats>> {
-  return _mvef(loadHistoricalPrices, symbols, numberOfRandomWeights).toPromise()
+  return _mvef(loadHistoricalPrices, symbols, numberOfRandomWeights, allowShortSales).toPromise()
 }
 
-function _mvef<N: number>(
+function _mvef<M: number, N: number>(
   loadHistoricalPrices: (string) => Observable<number>,
   symbols: Vector<N, string>,
-  numberOfRandomWeights: number
+  numberOfRandomWeights: M,
+  allowShortSales: boolean
 ): Observable<Array<PortfolioStats>> {
   if (0 == symbols.n) {
     return throwError(new Error("InvalidArgument: symbols array is empty"))
@@ -46,7 +48,7 @@ function _mvef<N: number>(
       const k: number = maxPriceArrayLength(symbolPrices)
       const priceMatrixKxN = createPriceMatrix(symbols, symbolPrices, k)
       if (priceMatrixKxN.success) {
-        const weightsMatrixMxN: Matrix<number> = generateRandomWeightsMatrix(m, n)
+        const weightsMatrixMxN: Matrix<number> = generateRandomWeightsMatrix(m, n, 0, allowShortSales)
         const kXn: ReadOnlyMatrix<number> = priceMatrixKxN.value.values
         const result: Array<PortfolioStats> = mvefFromHistoricalPrices(weightsMatrixMxN, kXn)
         return of(result)

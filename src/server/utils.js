@@ -3,6 +3,7 @@
 // @flow strict
 import { Logger, getLogger } from "log4js"
 import { LocalDate, DateTimeFormatter } from "@js-joda/core"
+import { MersenneTwister19937, real } from "random-js"
 
 type Success<A> = {| success: true, value: A |}
 type Failure = {| success: false, error: Error |}
@@ -52,7 +53,12 @@ function updateMatrixElements<A>(matrix: Array<Array<A>>, convertOneElement: (A)
  * @throws {Object} {name: "InvalidArgument", message: "description"}   when invalid argument passed.
  * @return {Array}          rowNum x colNum matrix, where one row is one random set of weights.
  */
-export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Array<Array<number>> {
+export function generateRandomWeightsMatrix(
+  rowNum: number,
+  colNum: number,
+  seed: number,
+  allowNegativeWeights: boolean
+): Array<Array<number>> {
   if (rowNum <= 0) {
     throw new Error("Invalid argument rowNum: " + rowNum + ", must be > 0")
   }
@@ -61,6 +67,10 @@ export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Arr
     throw new Error("Invalid argument colNum: " + colNum + ", must be > 1")
   }
 
+  const engine = MersenneTwister19937.seed(seed)
+  // negative weights can go below -1
+  const distribution = allowNegativeWeights ? real(-10.0, 10.0, true) : real(0.0, 1.0, true)
+
   const matrix: Array<Array<number>> = new Array(rowNum)
 
   for (let i = 0; i < rowNum; i++) {
@@ -68,7 +78,7 @@ export function generateRandomWeightsMatrix(rowNum: number, colNum: number): Arr
     var sum: number = 0
     // generate random numbers
     for (let j = 0; j < colNum; j++) {
-      vector[j] = Math.random()
+      vector[j] = distribution(engine)
       sum += vector[j]
     }
     // normalize all numbers, so vector sum equals 1

@@ -2,6 +2,7 @@
 
 import { toFixedNumber, generateRandomWeightsMatrix, parseDate, parseDateSafe, formatDate } from "./utils"
 import { LocalDate } from "@js-joda/core"
+import { dim } from "./linearAlgebra"
 import assert from "assert"
 import numeric from "numeric"
 
@@ -21,23 +22,72 @@ describe("utils", () => {
     })
   })
   describe("#generateRandomWeightsMatrix", function () {
-    it("should generate a matrix of random weights", function () {
+    it("should generate a matrix of random positive weights that sum up to 1", function () {
       // GIVEN
       const rowNum = 30
       const colNum = 10
       // WHEN
-      const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum)
+      const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum, 0, false)
+
+      const [m, n] = dim(weights)
+      assert.equal(m, rowNum)
+      assert.equal(n, colNum)
+
       // THEN sum == rowNum, every column summs to 1
       const sum = numeric.sum(weights)
       assert.ok(Math.abs(sum - rowNum) < maxError)
+
+      for (let i = 0; i < rowNum; i++) {
+        for (let j = 0; j < colNum; j++) {
+          const x: number = weights[i][j]
+          assert.ok(x >= 0 && x <= 1, `x: ${x}`)
+        }
+      }
+    })
+    it("should generate a matrix of random positive and negative weights that sum up to 1", function () {
+      // GIVEN
+      const rowNum = 30
+      const colNum = 10
+      // WHEN
+      const weights: Array<Array<number>> = generateRandomWeightsMatrix(rowNum, colNum, 0, true)
+
+      const [m, n] = dim(weights)
+      assert.equal(m, rowNum)
+      assert.equal(n, colNum)
+
+      // THEN sum == rowNum, every column summs to 1
+      const sum = numeric.sum(weights)
+      assert.ok(Math.abs(sum - rowNum) < maxError)
+
+      var positiveWeightsCount = 0
+      var netagiveWeightsCount = 0
+
+      for (let i = 0; i < rowNum; i++) {
+        for (let j = 0; j < colNum; j++) {
+          const x: number = weights[i][j]
+          if (x > 0) {
+            positiveWeightsCount += 1
+          } else {
+            netagiveWeightsCount += 1
+          }
+        }
+      }
+
+      // console.log(numeric.prettyPrint(weights))
+
+      const diff = positiveWeightsCount - netagiveWeightsCount
+      assert.ok(
+        Math.abs(diff) < (rowNum * colNum) / 3,
+        `positiveWeightsCount: ${positiveWeightsCount}, netagiveWeightsCount: ${netagiveWeightsCount}`
+      )
     })
     it("should generate a new weights matrix if called consequently", function () {
       // GIVEN
       var rowNum = 30
       var colNum = 10
       // WHEN
-      var weights0 = generateRandomWeightsMatrix(rowNum, colNum)
-      var weights1 = generateRandomWeightsMatrix(rowNum, colNum)
+      var weights0 = generateRandomWeightsMatrix(rowNum, colNum, 0, false)
+      var weights1 = generateRandomWeightsMatrix(rowNum, colNum, 1, false)
       // THEN
       var sum0 = numeric.sum(weights0)
       var sum1 = numeric.sum(weights1)
@@ -64,7 +114,7 @@ describe("utils", () => {
         var actualException: Error
         // WHEN
         try {
-          generateRandomWeightsMatrix(rowNum, colNum)
+          generateRandomWeightsMatrix(rowNum, colNum, 0, false)
         } catch (e) {
           actualException = e
         }
