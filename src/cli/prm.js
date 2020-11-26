@@ -4,9 +4,9 @@ import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
-import { logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
+import { type Result, logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { vector } from "../server/vector"
-import { PrmController, type Output } from "../server/prmController"
+import { type Calculated, PrmController } from "../server/prmController"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -154,37 +154,30 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
 })
 
 controller
-  .analyzeUsingPortfolioHistoricalPrices(
-    vector(stocks.length, stocks),
-    startDate,
-    endDate,
-    dailyRiskFreeReturnRate,
-    delayMillis
-  )
+  .returnRateStats(vector(stocks.length, stocks), startDate, endDate, delayMillis)
+  .then((rrStats) => controller.calculate(rrStats, dailyRiskFreeReturnRate))
   .then(
-    (analysisResult) => {
-      const output: Output = analysisResult[1]
-      printResults(stocks, output)
+    (result: Result<Calculated>) => {
+      printResults(stocks, result)
       if (null != outputFile) {
         log.info(`writing output into file: ${outputFile}`)
-        fs.writeFileSync(outputFile, JSON.stringify(output))
+        fs.writeFileSync(outputFile, JSON.stringify(result))
       }
     },
     (error) => log.error(error)
   )
 
-function printResults(stocks: Array<string>, output: Output) {
+function printResults(stocks: Array<string>, result: Result<Calculated>) {
   log.info(`stocks: ${JSON.stringify(stocks)}`)
-  if (output.Calculated) {
-    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(output.globalMinVarianceEfficientPortfolio)}`)
-    log.info(`tangencyPortfolio:\n${prettyPrint(output.tangencyPortfolio)}`)
+  if (result.success) {
+    const calculated: Calculated = result.value
+    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
+    log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
     log.info(
-      `min variance daily interest rate, %: ${output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
+      `min variance daily interest rate, %: ${calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
     )
-    log.info(`tangency daily interest rate, %: ${output.tangencyPortfolio.expectedReturnRate * 100}`)
-  } else if (output.CannotCalculate) {
-    log.warn(output.message)
+    log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
   } else {
-    log.error(`Expected Calculated output, got: ${JSON.stringify(output)}`)
+    log.error(`Error: ${JSON.stringify(result)}`)
   }
 }

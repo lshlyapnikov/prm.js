@@ -13,8 +13,12 @@ export function success<A>(value: A): Success<A> {
   return { success: true, value }
 }
 
-export function failure(error: Error): Failure {
-  return { success: false, error }
+export function failure(error: Error | string): Failure {
+  if (typeof error == "string") {
+    return { success: false, error: new Error(error) }
+  } else {
+    return { success: false, error }
+  }
 }
 
 export type JestDoneFn = {|
