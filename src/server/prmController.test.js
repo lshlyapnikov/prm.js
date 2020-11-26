@@ -6,7 +6,7 @@ import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
 import { validateMatrix } from "./linearAlgebra"
 import { vector } from "./vector"
-import { type Input, type Output, PrmController } from "./prmController"
+import { type Stats, type Output, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
@@ -57,7 +57,7 @@ describe("PrmController", () => {
         0
       )
       .then(
-        (analysisResult: [Input<2>, Output]) => {
+        (analysisResult: [Stats<2>, Output]) => {
           verifyPortfolioAnalysisResult(analysisResult, done)
           const [input, output] = analysisResult
           assert.ok(input !== null)
@@ -78,7 +78,7 @@ describe("PrmController", () => {
       )
   })
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
-    function test(): Promise<[Input<6>, Output]> {
+    function test(): Promise<[Stats<6>, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -90,14 +90,14 @@ describe("PrmController", () => {
       )
     }
 
-    test().then((result: [Input<6>, Output]) => {
+    test().then((result: [Stats<6>, Output]) => {
       const output = result[1]
       log.debug(`output:\n${prettyPrint(output)}`)
       done()
     })
   })
   it("should fail when a symbol does not have enough price entries", (done) => {
-    function test(): Promise<[Input<2>, Output]> {
+    function test(): Promise<[Stats<2>, Output]> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(2, ["AA", "XOM"])
       return controller.analyzeUsingPortfolioHistoricalPrices(
@@ -110,7 +110,7 @@ describe("PrmController", () => {
     }
 
     test().then(
-      (result: [Input<2>, Output]) => {
+      (result: [Stats<2>, Output]) => {
         const output = result[1]
         done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(output)}`))
       },

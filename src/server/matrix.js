@@ -2,6 +2,7 @@
 
 import { assert } from "./utils"
 import { type Vector } from "./vector"
+import { generateRandomWeightsMatrix as utilsGenerateRandomWeightsMatrix } from "./utils"
 import numeric from "numeric"
 
 export type Matrix<M: number, N: number, A> = {|
@@ -111,4 +112,14 @@ function unsafeRemoveReadonly(a: $ReadOnlyArray<$ReadOnlyArray<number>>): Array<
 
 export function isInvertableMatrix<N: number>(nXn: Matrix<N, N, number>): boolean {
   return numeric.det(unsafeRemoveReadonly(nXn.values)) != 0
+}
+
+export function generateRandomWeightsMatrix<M: number, N: number>(
+  rowNum: M,
+  colNum: N,
+  seed: number,
+  allowNegativeWeights: boolean
+): Matrix<M, N, number> {
+  const raw: Array<Array<number>> = utilsGenerateRandomWeightsMatrix(rowNum, colNum, seed, allowNegativeWeights)
+  return matrix(rowNum, colNum, raw)
 }

@@ -3,24 +3,28 @@ import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
 import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
 import { type Vector } from "./vector"
-import { type Matrix, matrix, isInvertableMatrix } from "./matrix"
+import { type Matrix, matrix, isInvertableMatrix, generateRandomWeightsMatrix } from "./matrix"
 import {
   efficientPortfolioFrontier as efficientPortfolioFrontierCtl,
   tangencyPortfolio as tangencyPortfolioCtl,
   globalMinimumVarianceEfficientPortfolio as globalMinimumVarianceEfficientPortfolioCtl
 } from "./portfolioTheory"
-import { PortfolioStats, covariance, mean, calculateReturnRatesFromPriceMatrix } from "./portfolioStats"
+import {
+  PortfolioStats,
+  createPortfolioStats,
+  covariance,
+  mean,
+  calculateReturnRatesFromPriceMatrix
+} from "./portfolioStats"
 import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrix"
 
 /**
  * expectedRrNx1     Expected Return Rates Matrix
  * rrCovarianceNxN   Return Rates Covariance Matrix
- * riskFreeRr        Risk Free Return Rate
  */
-export type Input<N: number> = {|
+export type Stats<N: number> = {|
   expectedRrNx1: Matrix<N, 1, number>,
-  rrCovarianceNxN: Matrix<N, N, number>,
-  riskFreeRr: number
+  rrCovarianceNxN: Matrix<N, N, number>
 |}
 
 export type Output = Calculated | CannotCalculate | Simulated
@@ -75,7 +79,7 @@ export class PrmController {
     riskFreeRr: number,
     delayMillis: number,
     scheduler: ?Scheduler
-  ): Promise<[Input<N>, Output]> {
+  ): Promise<[Stats<N>, Output]> {
     const symbolsObservable: Observable<string> =
       scheduler != null ? from(symbols.values, scheduler) : from(symbols.values)
     return symbolsObservable
@@ -93,9 +97,9 @@ export class PrmController {
             const expectedRrNx1: Matrix<N, 1, number> = matrix(n, 1, expectedRrNx1_)
             const rrCovarianceNxN_: $ReadOnlyArray<$ReadOnlyArray<number>> = covariance(rrKxN, false)
             const rrCovarianceNxN: Matrix<N, N, number> = matrix(n, n, rrCovarianceNxN_)
-            const input: Input<N> = { expectedRrNx1, rrCovarianceNxN, riskFreeRr }
-            const output: Calculated | CannotCalculate = this.analyzeUsingPortfolioStatistics(input)
-            return of([input, output])
+            const stats: Stats<N> = { expectedRrNx1, rrCovarianceNxN }
+            const output: Calculated | CannotCalculate = this.calculate(stats, riskFreeRr)
+            return of([stats, output])
           } else {
             return throwError(pricesMxN.error)
           }
@@ -104,7 +108,7 @@ export class PrmController {
       .toPromise()
   }
 
-  analyzeUsingPortfolioStatistics<N: number>(input: Input<N>): Calculated | CannotCalculate {
+  calculate<N: number>(input: Stats<N>, riskFreeRr: number): Calculated | CannotCalculate {
     if (isInvertableMatrix(input.rrCovarianceNxN)) {
       const globalMinVarianceEfficientPortfolio: PortfolioStats = globalMinimumVarianceEfficientPortfolioCtl.calculate(
         input.expectedRrNx1.values,
@@ -113,13 +117,18 @@ export class PrmController {
       const tangencyPortfolio = tangencyPortfolioCtl.calculate(
         input.expectedRrNx1.values,
         input.rrCovarianceNxN.values,
-        input.riskFreeRr
+        riskFreeRr
       )
       const efficientPortfolioFrontier = efficientPortfolioFrontierCtl.calculate(
         input.expectedRrNx1.values,
         input.rrCovarianceNxN.values
       )
-      return { Calculated: true, globalMinVarianceEfficientPortfolio, tangencyPortfolio, efficientPortfolioFrontier }
+      return {
+        Calculated: true,
+        globalMinVarianceEfficientPortfolio,
+        tangencyPortfolio,
+        efficientPortfolioFrontier
+      }
     } else {
       return {
         CannotCalculate: true,
@@ -129,4 +138,32 @@ export class PrmController {
       }
     }
   }
+
+  simulate<M: number, N: number>(
+    input: Stats<N>,
+    numberOfSimulations: M,
+    seed: number,
+    allowShortSales: boolean
+  ): Simulated | CannotCalculate {
+    const minNumberOfSimulations = 100
+    if (numberOfSimulations < minNumberOfSimulations) {
+      return {
+        CannotCalculate: true,
+        message: `numberOfSimulations is too low: ${numberOfSimulations}. Min allowed: ${minNumberOfSimulations}`
+      }
+    }
+    const m: M = numberOfSimulations
+    const n: N = input.rrCovarianceNxN.n
+    const weightsMxN: Matrix<M, N, number> = generateRandomWeightsMatrix(m, n, seed, allowShortSales)
+    const simulations: Array<PortfolioStats> = weightsMxN.values.map((weightsN: $ReadOnlyArray<number>) =>
+      createPortfolioStats(weightsN, input.expectedRrNx1.values, input.rrCovarianceNxN.values)
+    )
+    const globalMinVarianceEfficientPortfolio: PortfolioStats = minRiskPortfolio(simulations)
+    return { Simulated: true, globalMinVarianceEfficientPortfolio, simulations }
+  }
+}
+
+function minRiskPortfolio(arr: $ReadOnlyArray<PortfolioStats>): PortfolioStats {
+  const result: PortfolioStats = arr.reduce((z, a) => (z.stdDev < a.stdDev ? z : a))
+  return result
 }
