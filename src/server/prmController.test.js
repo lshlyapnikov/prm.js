@@ -51,6 +51,7 @@ describe("PrmController", () => {
       .then(
         (result: Result<Calculated>) => {
           verifyPortfolioAnalysisResult(result, done)
+          // TODO(#12): the numbers are from the lecture, if not add a test case to match the lecture numbers
           // numbers are from the lecture, I think
           if (result.success) {
             const calculated: Calculated = result.value
