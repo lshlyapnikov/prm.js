@@ -6,7 +6,7 @@ import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
 import { type Result, logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
 import { vector } from "../server/vector"
-import { type Calculated, PrmController } from "../server/prmController"
+import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -32,14 +32,12 @@ function mixedToOptionalString(a: mixed): ?string {
     return null
   }
 }
-
-function mixedToStringWithDefault(a: mixed, defaultValue: string): string {
-  const b: ?string = mixedToOptionalString(a)
-  return null != b ? b : defaultValue
-}
-
-function stringToDateWithDefault(a: ?string, defaultValue: LocalDate): LocalDate {
-  return null != a ? parseDate(a) : defaultValue
+function stringToDate(a: ?string): LocalDate {
+  if (null != a) {
+    return parseDate(a)
+  } else {
+    throw new Error(`Cannot convert string to date`)
+  }
 }
 
 function mixedToNumber(a: mixed): number {
@@ -47,6 +45,30 @@ function mixedToNumber(a: mixed): number {
     return (a: number)
   } else {
     throw new Error(`Cannot convert mixed to number`)
+  }
+}
+
+function mixedToBoolean(a: mixed): boolean {
+  if (typeof a === "boolean") {
+    return (a: boolean)
+  } else {
+    throw new Error(`Cannot convert mixed to boolean`)
+  }
+}
+
+function printCalculatedResults(stocks: Array<string>, result: Result<Calculated>) {
+  log.info(`stocks: ${JSON.stringify(stocks)}`)
+  if (result.success) {
+    const calculated: Calculated = result.value
+    log.info("Calculated Protfolio Stats, with short sales:")
+    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
+    log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
+    log.info(
+      `min variance daily interest rate, %: ${calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
+    )
+    log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
+  } else {
+    log.error(`Error: ${JSON.stringify(result)}`)
   }
 }
 
@@ -98,6 +120,27 @@ const options = yargs
       demandOption: true,
       type: "number"
     },
+    "number-of-simulations": {
+      description: "The number of random weight simulations",
+      requiresArg: true,
+      demandOption: false,
+      default: 1000,
+      type: "number"
+    },
+    "simulations-seed": {
+      description: "Seed to use for random weights generation",
+      requiresArg: true,
+      demandOption: false,
+      default: 0,
+      type: "number"
+    },
+    "allow-short-sale-simulations": {
+      description: "Enable short sale simulations",
+      requiresArg: true,
+      demandOption: false,
+      default: false,
+      type: "boolean"
+    },
     "output-file": {
       description: "File where to write calculated portfolios.",
       requiresArg: true,
@@ -108,14 +151,14 @@ const options = yargs
       description: "Cache directory override.",
       requiresArg: true,
       demandOption: false,
-      defaultDescription: "./.cache",
+      default: "./.cache",
       type: "string"
     },
     "cache-date": {
       description: "Cache date override in the yyyy-MM-dd format.",
       requiresArg: true,
       demandOption: false,
-      defaultDescription: "today",
+      default: formatDate(today()),
       type: "string"
     }
   }).argv
@@ -126,24 +169,29 @@ const endDate: LocalDate = parseDate(mixedToString(options["end-date"]))
 const apiKey = new ApiKey(mixedToString(options["api-key"]))
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
+const numberOfSimulations: number = mixedToNumber(options["number-of-simulations"])
+const simulationsSeed: number = mixedToNumber(options["simulations-seed"])
+const allowShortSaleSimulations: boolean = mixedToBoolean(options["allow-short-sale-simulations"])
 const outputFile: ?string = mixedToOptionalString(options["output-file"])
-const cacheDir: string = mixedToStringWithDefault(options["cache-dir"], "./.cache")
-const cacheDate: LocalDate = stringToDateWithDefault(options["cache-date"], today())
+const cacheDir: string = mixedToString(options["cache-dir"])
+const cacheDate: LocalDate = stringToDate(options["cache-date"])
+const dailyRiskFreeReturnRate: number = periodReturnRate(annualRiskFreeInterestRate / 100.0, 365)
+const cache: CacheSettings = { directory: cacheDir, date: cacheDate }
 
 log.info(`stocks: ${JSON.stringify(stocks)}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
+log.info(`number-of-simulations: ${numberOfSimulations}`)
+log.info(`simulations-seed: ${simulationsSeed}`)
+log.info(`allow-short-sale-simulations: ${JSON.stringify(allowShortSaleSimulations)}`)
 if (null != outputFile) {
   log.info(`output-file: ${outputFile}`)
+} else {
+  log.info(`output-file: <is not configured>`)
 }
-
-const dailyRiskFreeReturnRate: number = periodReturnRate(annualRiskFreeInterestRate / 100.0, 365)
-
 log.info(`startDate: ${formatDate(startDate)}`)
 log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
-
-const cache: CacheSettings = { directory: cacheDir, date: cacheDate }
 log.info(`cache: ${JSON.stringify(cache)}`)
 
 const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
@@ -153,31 +201,35 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })
 
-controller
-  .returnRateStats(vector(stocks.length, stocks), startDate, endDate, delayMillis)
-  .then((rrStats) => controller.calculate(rrStats, dailyRiskFreeReturnRate))
-  .then(
-    (result: Result<Calculated>) => {
-      printResults(stocks, result)
-      if (null != outputFile) {
-        log.info(`writing output into file: ${outputFile}`)
-        fs.writeFileSync(outputFile, JSON.stringify(result))
-      }
-    },
-    (error) => log.error(error)
-  )
+const rrStatsP = controller.returnRateStats(vector(stocks.length, stocks), startDate, endDate, delayMillis)
 
-function printResults(stocks: Array<string>, result: Result<Calculated>) {
-  log.info(`stocks: ${JSON.stringify(stocks)}`)
-  if (result.success) {
-    const calculated: Calculated = result.value
-    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
-    log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
-    log.info(
-      `min variance daily interest rate, %: ${calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
+const calculatedP: Promise<Result<Calculated>> = rrStatsP.then((rrStats) =>
+  controller.calculate(rrStats, dailyRiskFreeReturnRate)
+)
+
+calculatedP.then(
+  (result) => {
+    printCalculatedResults(stocks, result)
+    if (null != outputFile) {
+      log.info(`writing output into file: ${outputFile}`)
+      fs.writeFileSync(outputFile, JSON.stringify(result))
+    }
+  },
+  (error) => log.error(error)
+)
+
+if (numberOfSimulations > 0) {
+  rrStatsP
+    .then((rrStats) => controller.simulate(rrStats, numberOfSimulations, simulationsSeed, allowShortSaleSimulations))
+    .then(
+      (result: Result<Simulated>) => {
+        if (result.success) {
+          log.info(`Simulated result: ${JSON.stringify(result)}`)
+          // TODO: write to outputFile if configured
+        } else {
+          log.error(result.error)
+        }
+      },
+      (error) => log.error(error)
     )
-    log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
-  } else {
-    log.error(`Error: ${JSON.stringify(result)}`)
-  }
 }
