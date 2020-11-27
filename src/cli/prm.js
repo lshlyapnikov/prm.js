@@ -17,6 +17,11 @@ import { dailyAdjustedStockPricesRawStreamFromCache, type CacheSettings } from "
 
 const log = logger("cli/prm.js")
 
+type OutputContent = {|
+  calculated: ?Result<Calculated>,
+  simulated: ?Result<Simulated>
+|}
+
 function mixedToString(a: mixed): string {
   if (typeof a === "string") {
     return (a: string)
@@ -56,19 +61,35 @@ function mixedToBoolean(a: mixed): boolean {
   }
 }
 
-function printCalculatedResults(stocks: Array<string>, result: Result<Calculated>) {
+function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, simulatedR: ?Result<Simulated>) {
   log.info(`stocks: ${JSON.stringify(stocks)}`)
-  if (result.success) {
-    const calculated: Calculated = result.value
-    log.info("Calculated Protfolio Stats, with short sales:")
-    log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
-    log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
-    log.info(
-      `min variance daily interest rate, %: ${calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100}`
-    )
-    log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
-  } else {
-    log.error(`Error: ${JSON.stringify(result)}`)
+  if (null != calculatedR) {
+    if (calculatedR.success) {
+      const calculated: Calculated = calculatedR.value
+      log.info("Calculated Protfolio Stats, with short sales:")
+      log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
+      log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
+      log.info(
+        `min variance daily interest rate, %: ${
+          calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100
+        }`
+      )
+      log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
+    } else {
+      log.error(`Error: ${JSON.stringify(calculatedR)}`)
+    }
+  }
+  if (null != simulatedR) {
+    if (simulatedR.success) {
+      const simulated: Simulated = simulatedR.value
+      log.info(
+        `Simulated globalMinVarianceEfficientPortfolio: ${JSON.stringify(
+          simulated.globalMinVarianceEfficientPortfolio
+        )}`
+      )
+    } else {
+      log.error(`Error: ${JSON.stringify(simulatedR)}`)
+    }
   }
 }
 
@@ -207,29 +228,24 @@ const calculatedP: Promise<Result<Calculated>> = rrStatsP.then((rrStats) =>
   controller.calculate(rrStats, dailyRiskFreeReturnRate)
 )
 
-calculatedP.then(
-  (result) => {
-    printCalculatedResults(stocks, result)
+const simulatedP: Promise<?Result<Simulated>> =
+  numberOfSimulations == 0
+    ? Promise.resolve(null)
+    : rrStatsP.then((rrStats) =>
+        controller.simulate(rrStats, numberOfSimulations, simulationsSeed, allowShortSaleSimulations)
+      )
+
+Promise.all([calculatedP, simulatedP]).then(
+  (arr) => {
+    const calculated: Result<Calculated> = arr[0]
+    const simulated: ?Result<Simulated> = arr[1]
+    printResults(stocks, calculated, simulated)
     if (null != outputFile) {
-      log.info(`writing output into file: ${outputFile}`)
-      fs.writeFileSync(outputFile, JSON.stringify(result))
+      log.info(`writing output into file: ${outputFile} ...`)
+      const outputContent: OutputContent = { calculated, simulated }
+      fs.writeFileSync(outputFile, JSON.stringify(outputContent))
     }
+    log.info(`done.`)
   },
   (error) => log.error(error)
 )
-
-if (numberOfSimulations > 0) {
-  rrStatsP
-    .then((rrStats) => controller.simulate(rrStats, numberOfSimulations, simulationsSeed, allowShortSaleSimulations))
-    .then(
-      (result: Result<Simulated>) => {
-        if (result.success) {
-          log.info(`Simulated result: ${JSON.stringify(result)}`)
-          // TODO: write to outputFile if configured
-        } else {
-          log.error(result.error)
-        }
-      },
-      (error) => log.error(error)
-    )
-}
