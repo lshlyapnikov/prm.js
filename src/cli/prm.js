@@ -76,7 +76,7 @@ function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, s
       )
       log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
     } else {
-      log.error(`Error: ${JSON.stringify(calculatedR)}`)
+      log.error(calculatedR.error)
     }
   }
   if (null != simulatedR) {
@@ -88,7 +88,7 @@ function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, s
         )}`
       )
     } else {
-      log.error(`Error: ${JSON.stringify(simulatedR)}`)
+      log.error(simulatedR.error)
     }
   }
 }

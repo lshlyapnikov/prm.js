@@ -72,6 +72,9 @@ export class PrmController {
     delayMillis: number,
     scheduler: ?Scheduler
   ): Promise<ReturnRateStats<N>> {
+    if (delayMillis < 0) {
+      return Promise.reject(Error(`Invalid delayMillis: ${delayMillis}. Must be >= 0`))
+    }
     const symbolsObservable: Observable<string> =
       scheduler != null ? from(symbols.values, scheduler) : from(symbols.values)
     return symbolsObservable
@@ -100,6 +103,9 @@ export class PrmController {
   }
 
   calculate<N: number>(input: ReturnRateStats<N>, riskFreeRr: number): Result<Calculated> {
+    if (riskFreeRr < 0) {
+      return failure(`Invalid riskFreeRr: ${riskFreeRr}. Must be >= 0`)
+    }
     if (isInvertableMatrix(input.rrCovarianceNxN)) {
       const globalMinVarianceEfficientPortfolio: PortfolioStats = globalMinimumVarianceEfficientPortfolioCtl.calculate(
         input.expectedRrNx1.values,
@@ -136,7 +142,7 @@ export class PrmController {
   ): Result<Simulated> {
     const minNumberOfSimulations = 100
     if (numberOfSimulations < minNumberOfSimulations) {
-      return failure(`numberOfSimulations is too low: ${numberOfSimulations}. Min allowed: ${minNumberOfSimulations}`)
+      return failure(`Invalid numberOfSimulations: ${numberOfSimulations}. Min allowed: ${minNumberOfSimulations}`)
     }
     const m: M = numberOfSimulations
     const n: N = input.rrCovarianceNxN.n
