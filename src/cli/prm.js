@@ -83,9 +83,7 @@ function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, s
     if (simulatedR.success) {
       const simulated: Simulated = simulatedR.value
       log.info(
-        `Simulated globalMinVarianceEfficientPortfolio: ${JSON.stringify(
-          simulated.globalMinVarianceEfficientPortfolio
-        )}`
+        `Simulated globalMinVarianceEfficientPortfolio: ${prettyPrint(simulated.globalMinVarianceEfficientPortfolio)}`
       )
     } else {
       log.error(simulatedR.error)
