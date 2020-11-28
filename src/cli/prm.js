@@ -3,10 +3,19 @@ import * as yargs from "yargs"
 import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
-import { prettyPrint } from "numeric"
-import { type Result, logger, formatDate, parseDate, today, periodReturnRate, serialize } from "../server/utils"
-import { vector } from "../server/vector"
+import {
+  type Result,
+  logger,
+  formatDate,
+  parseDate,
+  today,
+  periodReturnRate,
+  serialize,
+  toFixedNumber
+} from "../server/utils"
+import { type Vector, vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
+import { PortfolioStats } from "../server/portfolioStats"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -16,6 +25,8 @@ import {
 import { dailyAdjustedStockPricesRawStreamFromCache, type CacheSettings } from "../alphavantage/DailyAdjustedCache"
 
 const log = logger("cli/prm.js")
+
+const SCALE: number = 5
 
 type OutputContent = {|
   calculated: ?Result<Calculated>,
@@ -61,20 +72,25 @@ function mixedToBoolean(a: mixed): boolean {
   }
 }
 
-function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, simulatedR: ?Result<Simulated>) {
-  log.info(`stocks: ${serialize(stocks)}`)
+function printResults<N: number>(
+  stocks: Vector<N, string>,
+  calculatedR: ?Result<Calculated>,
+  simulatedR: ?Result<Simulated>
+) {
+  var output: string = "Results\n"
+  const rows: Array<$ReadOnlyArray<string>> = []
+  rows.push([""].concat(stocks.values))
+
   if (null != calculatedR) {
     if (calculatedR.success) {
       const calculated: Calculated = calculatedR.value
-      log.info("Calculated Protfolio Stats, with short sales:")
-      log.info(`globalMinVarianceEfficientPortfolio:\n${prettyPrint(calculated.globalMinVarianceEfficientPortfolio)}`)
-      log.info(`tangencyPortfolio:\n${prettyPrint(calculated.tangencyPortfolio)}`)
-      log.info(
-        `min variance daily interest rate, %: ${
-          calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100
-        }`
+      output += formatStats(
+        "P1: Calculated Global Min Variance Efficient Portfolio with Short Sales",
+        calculated.globalMinVarianceEfficientPortfolio
       )
-      log.info(`tangency daily interest rate, %: ${calculated.tangencyPortfolio.expectedReturnRate * 100}`)
+      rows.push(formatWeights(stocks.n, "P1", calculated.globalMinVarianceEfficientPortfolio))
+      output += formatStats("P2: Calculated Tangency Portfolio with Short Sales", calculated.tangencyPortfolio)
+      rows.push(formatWeights(stocks.n, "P2", calculated.tangencyPortfolio))
     } else {
       log.error(calculatedR.error)
     }
@@ -82,13 +98,50 @@ function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, s
   if (null != simulatedR) {
     if (simulatedR.success) {
       const simulated: Simulated = simulatedR.value
-      log.info(
-        `Simulated globalMinVarianceEfficientPortfolio: ${prettyPrint(simulated.globalMinVarianceEfficientPortfolio)}`
+      const suffix = simulated.allowShortSales ? "with Short Sales" : "without Short Sales"
+      output += formatStats(
+        "P3: Simulated Global Min Variance Efficient Porfolio " + suffix,
+        simulated.globalMinVarianceEfficientPortfolio
       )
+      rows.push(formatWeights(stocks.n, "P3", simulated.globalMinVarianceEfficientPortfolio))
     } else {
       log.error(simulatedR.error)
     }
   }
+
+  const maxLengthVal = maxStrLength2(rows)
+
+  rows.forEach((row) => {
+    row.forEach((x) => {
+      output += x.padEnd(maxLengthVal + 1, " ")
+    })
+    output += "\n"
+  })
+
+  log.info(output)
+}
+
+function maxStrLength2(arr: $ReadOnlyArray<$ReadOnlyArray<string>>): number {
+  return arr.map((x) => maxStrLength(x)).reduce((z, a) => Math.max(z, a))
+}
+
+function maxStrLength(arr: $ReadOnlyArray<string>): number {
+  const xs: $ReadOnlyArray<number> = arr.map((a) => a.length)
+  return xs.reduce((z, a) => Math.max(z, a))
+}
+
+function formatStats(title: string, p: PortfolioStats): string {
+  var output: string = title + "\n"
+  output += "- Expected Daily Return Rate, %: " + serialize(toFixedNumber(p.expectedReturnRate * 100, SCALE)) + "\n"
+  output += "- Risk (stdDev): " + serialize(toFixedNumber(p.stdDev, SCALE)) + "\n"
+  return output
+}
+
+function formatWeights<N: number>(n: N, legend: string, p: PortfolioStats): $ReadOnlyArray<string> {
+  if (n != p.weights.length) {
+    throw new Error(`Invalid number of weights: ${p.weights.length}, expected: ${n}`)
+  }
+  return [legend].concat(p.weights.map((x) => serialize(toFixedNumber(x, SCALE))))
 }
 
 // log.info(`args: ${serialize(process.argv)}`)
@@ -220,7 +273,8 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
 })
 
-const rrStatsP = controller.returnRateStats(vector(stocks.length, stocks), startDate, endDate, delayMillis)
+const stocksVec = vector(stocks.length, stocks)
+const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate, delayMillis)
 
 const calculatedP: Promise<Result<Calculated>> = rrStatsP.then((rrStats) =>
   controller.calculate(rrStats, dailyRiskFreeReturnRate)
@@ -237,7 +291,7 @@ Promise.all([calculatedP, simulatedP]).then(
   (arr) => {
     const calculated: Result<Calculated> = arr[0]
     const simulated: ?Result<Simulated> = arr[1]
-    printResults(stocks, calculated, simulated)
+    printResults(stocksVec, calculated, simulated)
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile} ...`)
       const outputContent: OutputContent = { calculated, simulated }

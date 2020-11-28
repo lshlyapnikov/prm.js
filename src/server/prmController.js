@@ -38,7 +38,8 @@ export type Calculated = {|
 export type Simulated = {|
   Simulated: true,
   globalMinVarianceEfficientPortfolio: PortfolioStats,
-  simulations: Array<PortfolioStats>
+  simulations: Array<PortfolioStats>,
+  allowShortSales: boolean
 |}
 
 export class PrmController {
@@ -151,7 +152,7 @@ export class PrmController {
       createPortfolioStats(weightsN, input.expectedRrNx1.values, input.rrCovarianceNxN.values)
     )
     const globalMinVarianceEfficientPortfolio: PortfolioStats = minRiskPortfolio(simulations)
-    return success({ Simulated: true, globalMinVarianceEfficientPortfolio, simulations })
+    return success({ Simulated: true, globalMinVarianceEfficientPortfolio, simulations, allowShortSales })
   }
 }
 
