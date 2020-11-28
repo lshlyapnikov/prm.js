@@ -215,5 +215,3 @@ export class EfficientPortfolioFrontier {
 }
 
 export const efficientPortfolioFrontier: EfficientPortfolioFrontier = new EfficientPortfolioFrontier()
-
-// TODO efficient portfolio frontier with no short sale: 09 portfoliotheorynoshortsalesslides.pdf, page 12

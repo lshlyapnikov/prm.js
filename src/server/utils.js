@@ -13,8 +13,12 @@ export function success<A>(value: A): Success<A> {
   return { success: true, value }
 }
 
-export function failure(error: Error): Failure {
-  return { success: false, error }
+export function failure(error: Error | string): Failure {
+  if (typeof error == "string") {
+    return { success: false, error: new Error(error) }
+  } else {
+    return { success: false, error }
+  }
 }
 
 export type JestDoneFn = {|
@@ -167,4 +171,31 @@ export function equalArrays<A>(as: $ReadOnlyArray<A>, bs: $ReadOnlyArray<A>): bo
   }
 
   return true
+}
+
+// $FlowIgnore[unclear-type]
+function replaceErrors(key: any, value: any): any {
+  if (value instanceof Error) {
+    var error = {}
+
+    Object.getOwnPropertyNames(value).forEach(function (key) {
+      error[key] = value[key]
+    })
+
+    return error
+  }
+
+  return value
+}
+
+// https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
+export function serialize(
+  a: null | string | number | boolean | { ... } | $ReadOnlyArray<mixed>,
+  space: ?number
+): string {
+  if (null != space) {
+    return JSON.stringify(a, replaceErrors, space)
+  } else {
+    return JSON.stringify(a, replaceErrors)
+  }
 }

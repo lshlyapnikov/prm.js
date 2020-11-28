@@ -4,14 +4,13 @@ import fs from "fs"
 import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
-import { validateMatrix } from "./linearAlgebra"
 import { vector } from "./vector"
-import { type Input, type Output, PrmController } from "./prmController"
+import { type Calculated, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
 import * as testData from "./testData"
-import { logger, parseDate } from "./utils"
+import { type Result, logger, parseDate } from "./utils"
 
 const log = logger("prmController.test.js")
 
@@ -31,17 +30,15 @@ function verifyPortfolioStatsObjects(o: PortfolioStats) {
   assert.ok(o !== null)
 }
 
-function verifyPortfolioAnalysisResult(r, done: JestDoneFn): void {
-  const [input, output] = r
-  validateMatrix(input.expectedRrNx1.values)
-  validateMatrix(input.rrCovarianceNxN.values)
-  if (output.Calculated) {
-    verifyPortfolioStatsObjects(output.globalMinVarianceEfficientPortfolio)
-    assert.equal(output.efficientPortfolioFrontier.length, 21)
-    output.efficientPortfolioFrontier.forEach((p) => verifyPortfolioStatsObjects(p))
-    verifyPortfolioStatsObjects(output.tangencyPortfolio)
+function verifyPortfolioAnalysisResult(result: Result<Calculated>, done: JestDoneFn): void {
+  if (result.success) {
+    const calculated: Calculated = result.value
+    verifyPortfolioStatsObjects(calculated.globalMinVarianceEfficientPortfolio)
+    assert.equal(calculated.efficientPortfolioFrontier.length, 21)
+    calculated.efficientPortfolioFrontier.forEach((p) => verifyPortfolioStatsObjects(p))
+    verifyPortfolioStatsObjects(calculated.tangencyPortfolio)
   } else {
-    done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(output)}`))
+    done.fail(new Error(`Expected successful Calculated result, got: ${JSON.stringify(result)}`))
   }
 }
 
@@ -49,70 +46,59 @@ describe("PrmController", () => {
   it("should calculate portfolio statistics", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
-      .analyzeUsingPortfolioHistoricalPrices(
-        vector(2, ["NYX", "INTC"]),
-        parseDate("1111-11-11"),
-        parseDate("1111-11-11"),
-        1.0,
-        0
-      )
+      .returnRateStats(vector(2, ["NYX", "INTC"]), parseDate("1111-11-11"), parseDate("1111-11-11"), 0)
+      .then((stats) => controller.calculate(stats, 1.0))
       .then(
-        (analysisResult: [Input<2>, Output]) => {
-          verifyPortfolioAnalysisResult(analysisResult, done)
-          const [input, output] = analysisResult
-          assert.ok(input !== null)
+        (result: Result<Calculated>) => {
+          verifyPortfolioAnalysisResult(result, done)
+          // TODO(#12): the numbers are from the lecture, if not add a test case to match the lecture numbers
           // numbers are from the lecture, I think
-          if (output.Calculated) {
-            assert.equal(toFixedNumber(output.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2), 0.64)
-            assert.strictEqual(toFixedNumber(output.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
-            assert.deepStrictEqual(newArrayWithScale(output.globalMinVarianceEfficientPortfolio.weights, 2), [
+          if (result.success) {
+            const calculated: Calculated = result.value
+            assert.equal(
+              toFixedNumber(calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2),
+              0.64
+            )
+            assert.strictEqual(toFixedNumber(calculated.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
+            assert.deepStrictEqual(newArrayWithScale(calculated.globalMinVarianceEfficientPortfolio.weights, 2), [
               0.11,
               0.89
             ])
             done()
           } else {
-            done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(output)}`))
+            done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(result)}`))
           }
         },
         (error) => done.fail(error)
       )
   })
   it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
-    function test(): Promise<[Input<6>, Output]> {
+    function test(): Promise<Result<Calculated>> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
-      return controller.analyzeUsingPortfolioHistoricalPrices(
-        symbols,
-        parseDate("2014-03-07"),
-        parseDate("2019-03-07"),
-        1.0,
-        0
-      )
+      return controller
+        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+        .then((stats) => controller.calculate(stats, 1.0))
     }
 
-    test().then((result: [Input<6>, Output]) => {
-      const output = result[1]
-      log.debug(`output:\n${prettyPrint(output)}`)
+    test().then((result: Result<Calculated>) => {
+      assert.ok(result.success)
+      log.debug(`output:\n${prettyPrint(result)}`)
       done()
     })
   })
   it("should fail when a symbol does not have enough price entries", (done) => {
-    function test(): Promise<[Input<2>, Output]> {
+    function test(): Promise<Result<Calculated>> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(2, ["AA", "XOM"])
-      return controller.analyzeUsingPortfolioHistoricalPrices(
-        symbols,
-        parseDate("2014-03-07"),
-        parseDate("2019-03-07"),
-        1.0,
-        0
-      )
+      return controller
+        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+        .then((stats) => controller.calculate(stats, 1.0))
     }
 
     test().then(
-      (result: [Input<2>, Output]) => {
-        const output = result[1]
-        done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(output)}`))
+      (result: Result<Calculated>) => {
+        done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(result)}`))
       },
       (error) => {
         const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA"]'
