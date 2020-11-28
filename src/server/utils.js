@@ -189,6 +189,13 @@ function replaceErrors(key: any, value: any): any {
 }
 
 // https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
-export function serialize(a: null | string | number | boolean | { ... } | $ReadOnlyArray<mixed>): string {
-  return JSON.stringify(a, replaceErrors)
+export function serialize(
+  a: null | string | number | boolean | { ... } | $ReadOnlyArray<mixed>,
+  space: ?number
+): string {
+  if (null != space) {
+    return JSON.stringify(a, replaceErrors, space)
+  } else {
+    return JSON.stringify(a, replaceErrors)
+  }
 }

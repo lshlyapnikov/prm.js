@@ -241,7 +241,7 @@ Promise.all([calculatedP, simulatedP]).then(
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile} ...`)
       const outputContent: OutputContent = { calculated, simulated }
-      fs.writeFileSync(outputFile, serialize(outputContent))
+      fs.writeFileSync(outputFile, serialize(outputContent, 2))
     }
     log.info(`done.`)
   },
