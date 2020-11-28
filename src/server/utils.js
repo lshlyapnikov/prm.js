@@ -172,3 +172,23 @@ export function equalArrays<A>(as: $ReadOnlyArray<A>, bs: $ReadOnlyArray<A>): bo
 
   return true
 }
+
+// $FlowIgnore[unclear-type]
+function replaceErrors(key: any, value: any): any {
+  if (value instanceof Error) {
+    var error = {}
+
+    Object.getOwnPropertyNames(value).forEach(function (key) {
+      error[key] = value[key]
+    })
+
+    return error
+  }
+
+  return value
+}
+
+// https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
+export function serialize(a: null | string | number | boolean | { ... } | $ReadOnlyArray<mixed>): string {
+  return JSON.stringify(a, replaceErrors)
+}

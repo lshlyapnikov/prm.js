@@ -4,7 +4,7 @@ import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
 import { prettyPrint } from "numeric"
-import { type Result, logger, formatDate, parseDate, today, periodReturnRate } from "../server/utils"
+import { type Result, logger, formatDate, parseDate, today, periodReturnRate, serialize } from "../server/utils"
 import { vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import {
@@ -62,7 +62,7 @@ function mixedToBoolean(a: mixed): boolean {
 }
 
 function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, simulatedR: ?Result<Simulated>) {
-  log.info(`stocks: ${JSON.stringify(stocks)}`)
+  log.info(`stocks: ${serialize(stocks)}`)
   if (null != calculatedR) {
     if (calculatedR.success) {
       const calculated: Calculated = calculatedR.value
@@ -91,7 +91,7 @@ function printResults(stocks: Array<string>, calculatedR: ?Result<Calculated>, s
   }
 }
 
-// log.info(`args: ${JSON.stringify(process.argv)}`)
+// log.info(`args: ${serialize(process.argv)}`)
 
 const options = yargs
   .usage("$0 [options]")
@@ -197,12 +197,12 @@ const cacheDate: LocalDate = stringToDate(options["cache-date"])
 const dailyRiskFreeReturnRate: number = periodReturnRate(annualRiskFreeInterestRate / 100.0, 365)
 const cache: CacheSettings = { directory: cacheDir, date: cacheDate }
 
-log.info(`stocks: ${JSON.stringify(stocks)}`)
+log.info(`stocks: ${serialize(stocks)}`)
 log.info(`delay-millis: ${delayMillis}`)
 log.info(`annual-risk-free-interest-rate: ${annualRiskFreeInterestRate}%`)
 log.info(`number-of-simulations: ${numberOfSimulations}`)
 log.info(`simulations-seed: ${simulationsSeed}`)
-log.info(`allow-short-sale-simulations: ${JSON.stringify(allowShortSaleSimulations)}`)
+log.info(`allow-short-sale-simulations: ${serialize(allowShortSaleSimulations)}`)
 if (null != outputFile) {
   log.info(`output-file: ${outputFile}`)
 } else {
@@ -211,7 +211,7 @@ if (null != outputFile) {
 log.info(`startDate: ${formatDate(startDate)}`)
 log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
-log.info(`cache: ${JSON.stringify(cache)}`)
+log.info(`cache: ${serialize(cache)}`)
 
 const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
   const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
@@ -241,7 +241,7 @@ Promise.all([calculatedP, simulatedP]).then(
     if (null != outputFile) {
       log.info(`writing output into file: ${outputFile} ...`)
       const outputContent: OutputContent = { calculated, simulated }
-      fs.writeFileSync(outputFile, JSON.stringify(outputContent))
+      fs.writeFileSync(outputFile, serialize(outputContent))
     }
     log.info(`done.`)
   },
