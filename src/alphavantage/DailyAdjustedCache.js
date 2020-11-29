@@ -6,7 +6,7 @@ import { logger, formatDate } from "../server/utils"
 
 const log = logger("alphavantage/DailyAdjustedCache.js")
 
-export type CacheSettings = { directory: string, date: LocalDate }
+export type CacheSettings = {| directory: string, date: LocalDate |}
 
 export function dailyAdjustedStockPricesRawStreamFromCache(
   cache: CacheSettings,
