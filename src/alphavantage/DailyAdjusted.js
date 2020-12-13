@@ -54,7 +54,7 @@ function dailyAdjustedStockPricesFromStreamWithDescendingDates(
   return Observable.create((observer: Subscriber<number>) => {
     input
       .pipe(entryStream(true))
-      .on("error", (error: Error) => observer.error(error.message))
+      .on("error", (error: Error) => observer.error(error))
       .on("data", (line: string) => {
         const result: Result<Entry> = parseEntry(line)
         if (result.success) {

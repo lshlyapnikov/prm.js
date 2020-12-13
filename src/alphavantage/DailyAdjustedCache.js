@@ -31,6 +31,14 @@ export function dailyAdjustedStockPricesRawStreamFromCache(
   }
 }
 
+export function removeSymbolCache(cache: CacheSettings, symbol: string): void {
+  const file = symbolCacheFileName(cache.directory, cache.date, symbol)
+  if (fs.existsSync(file)) {
+    log.info(`removing symbol cache: ${file}`)
+    fs.unlinkSync(file)
+  }
+}
+
 function symbolCacheFileName(directory: string, date: LocalDate, symbol: string): string {
   return `${directory}/${symbol}-${formatDate(date)}.csv`
 }
