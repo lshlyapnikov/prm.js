@@ -22,7 +22,13 @@ import {
   dailyAdjustedStockPricesRawStream,
   AscendingDates
 } from "../alphavantage/DailyAdjusted"
-import { dailyAdjustedStockPricesRawStreamFromCache, type CacheSettings } from "../alphavantage/DailyAdjustedCache"
+import { throwError } from "rxjs"
+import { catchError } from "rxjs/operators"
+import {
+  type CacheSettings,
+  dailyAdjustedStockPricesRawStreamFromCache,
+  removeSymbolCache
+} from "../alphavantage/DailyAdjustedCache"
 
 const log = logger("cli/prm.js")
 
@@ -270,7 +276,13 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
     dailyAdjustedStockPricesRawStream(apiKey, x)
   )
-  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates)
+  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates).pipe(
+    catchError((error) => {
+      log.error(`Error while loading prices for symbol: ${symbol}. Cause:`, error)
+      removeSymbolCache(cache, symbol)
+      return throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`))
+    })
+  )
 })
 
 const stocksVec = vector(stocks.length, stocks)

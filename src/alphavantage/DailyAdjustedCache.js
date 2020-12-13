@@ -6,7 +6,7 @@ import { logger, formatDate } from "../server/utils"
 
 const log = logger("alphavantage/DailyAdjustedCache.js")
 
-export type CacheSettings = { directory: string, date: LocalDate }
+export type CacheSettings = {| directory: string, date: LocalDate |}
 
 export function dailyAdjustedStockPricesRawStreamFromCache(
   cache: CacheSettings,
@@ -28,6 +28,14 @@ export function dailyAdjustedStockPricesRawStreamFromCache(
     const passThrough = new stream.PassThrough()
     rawStream.pipe(passThrough)
     return passThrough
+  }
+}
+
+export function removeSymbolCache(cache: CacheSettings, symbol: string): void {
+  const file = symbolCacheFileName(cache.directory, cache.date, symbol)
+  if (fs.existsSync(file)) {
+    log.info(`removing symbol cache: ${file}`)
+    fs.unlinkSync(file)
   }
 }
 
