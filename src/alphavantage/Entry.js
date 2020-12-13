@@ -2,7 +2,7 @@
 import { type Result, logger, parseDateSafe } from "../server/utils"
 import { LocalDate } from "@js-joda/core"
 
-const log = logger("alphavantage/EntryStream.js")
+const log = logger("alphavantage/Entry.js")
 
 export type Entry = {|
   date: LocalDate,

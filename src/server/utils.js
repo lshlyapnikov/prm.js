@@ -21,6 +21,15 @@ export function failure(error: Error | string): Failure {
   }
 }
 
+export function resultFromTryCatch<A>(fn: () => A): Result<A> {
+  try {
+    const a: A = fn()
+    return success(a)
+  } catch (error) {
+    return failure(error)
+  }
+}
+
 export type JestDoneFn = {|
   (): void,
   fail: (error: Error) => void
