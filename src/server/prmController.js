@@ -28,6 +28,7 @@ export type ReturnRateStats<N: number> = {|
   rrCovarianceNxN: Matrix<N, N, number>
 |}
 
+// always allows short sales
 export type Calculated = {|
   Calculated: true,
   globalMinVarianceEfficientPortfolio: PortfolioStats,
@@ -37,9 +38,9 @@ export type Calculated = {|
 
 export type Simulated = {|
   Simulated: true,
+  allowShortSales: boolean,
   globalMinVarianceEfficientPortfolio: PortfolioStats,
-  simulations: Array<PortfolioStats>,
-  allowShortSales: boolean
+  simulations: Array<PortfolioStats>
 |}
 
 export class PrmController {
@@ -152,7 +153,7 @@ export class PrmController {
       createPortfolioStats(weightsN, input.expectedRrNx1.values, input.rrCovarianceNxN.values)
     )
     const globalMinVarianceEfficientPortfolio: PortfolioStats = minRiskPortfolio(simulations)
-    return success({ Simulated: true, globalMinVarianceEfficientPortfolio, simulations, allowShortSales })
+    return success({ Simulated: true, allowShortSales, globalMinVarianceEfficientPortfolio, simulations })
   }
 }
 
