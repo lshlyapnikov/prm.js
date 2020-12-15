@@ -5,12 +5,12 @@ import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
 import { vector } from "./vector"
-import { type Calculated, PrmController } from "./prmController"
+import { type Calculated, type Simulated, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
 import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
 import * as testData from "./testData"
-import { type Result, logger, parseDate } from "./utils"
+import { type Result, logger, parseDate, serialize } from "./utils"
 
 const log = logger("prmController.test.js")
 
@@ -40,6 +40,68 @@ function verifyPortfolioAnalysisResult(result: Result<Calculated>, done: JestDon
   } else {
     done.fail(new Error(`Expected successful Calculated result, got: ${JSON.stringify(result)}`))
   }
+}
+
+function verifyCalculatedAndSimulated(
+  calculated: Calculated,
+  simulated: Simulated,
+  numberOfSimulations: number
+): ?Error {
+  if (numberOfSimulations != simulated.simulations.length) {
+    return Error(`Invalid number of simulations: ${simulated.simulations.length}. Expected: ${numberOfSimulations}`)
+  }
+
+  if (simulated.allowShortSales != true) {
+    return Error(`Expected simulated.allowShortSales = true, but got false`)
+  }
+
+  return verifyPortfolioStats(
+    calculated.globalMinVarianceEfficientPortfolio,
+    simulated.globalMinVarianceEfficientPortfolio
+  )
+}
+
+function verifyCalculatedWithShortSalesAndCalculatedWithoutShortSales(
+  simulatedWithShortSales: Simulated,
+  simulatedWithoutShortSales: Simulated
+): ?Error {
+  if (simulatedWithShortSales.simulations.length != simulatedWithoutShortSales.simulations.length) {
+    return Error(
+      `Invalid number of simulatedWithShortSales.simulations. Expected: ${simulatedWithShortSales.simulations.length}`
+    )
+  }
+
+  if (simulatedWithShortSales.allowShortSales != true) {
+    return Error(`Expected simulatedWithShortSales`)
+  }
+
+  if (simulatedWithoutShortSales.allowShortSales != false) {
+    return Error(`Expected simulatedWithoutShortSales`)
+  }
+
+  return verifyPortfolioStats(
+    simulatedWithShortSales.globalMinVarianceEfficientPortfolio,
+    simulatedWithoutShortSales.globalMinVarianceEfficientPortfolio
+  )
+}
+
+function verifyPortfolioStats(a: PortfolioStats, b: PortfolioStats): ?Error {
+  const errorTolerance = 0.00005
+
+  const stdDevDiff: number = a.stdDev - b.stdDev
+  const expectedReturnRateDiff = a.expectedReturnRate - b.expectedReturnRate
+
+  if (Math.abs(stdDevDiff) > errorTolerance) {
+    log.error(`a: ${serialize(a, 2)}, b: ${serialize(b, 2)}`)
+    return new Error(`stdDevDiff: ${stdDevDiff}`)
+  }
+
+  if (Math.abs(expectedReturnRateDiff) > errorTolerance) {
+    log.error(`a: ${serialize(a, 2)}, b: ${serialize(b, 2)}`)
+    return new Error(`expectedReturnRateDiff: ${expectedReturnRateDiff}`)
+  }
+
+  return null
 }
 
 describe("PrmController", () => {
@@ -87,7 +149,7 @@ describe("PrmController", () => {
       done()
     })
   })
-  it("should fail when a symbol does not have enough price entries", (done) => {
+  it("should fail to calculate when a symbol does not have enough price entries", (done) => {
     function test(): Promise<Result<Calculated>> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(2, ["AA", "XOM"])
@@ -108,6 +170,46 @@ describe("PrmController", () => {
           done.fail(new Error(`Expected error message that starts with: ${startsWith}, but got: ${error}`))
         }
       }
+    )
+  })
+  it("should simulate portfolios", (done) => {
+    const numberOfSimulations = 100000
+    const controller = new PrmController(loadStockHistoryFromAlphavantage)
+    const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
+    const statsP = controller.returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+    const calculatedP = statsP.then((stats) => controller.calculate(stats, 1.0))
+    const simulatedP = statsP.then((stats) => controller.simulate(stats, numberOfSimulations, 0, true))
+    const simulatedNoShortSalesP = statsP.then((stats) => controller.simulate(stats, numberOfSimulations, 0, false))
+
+    Promise.all([calculatedP, simulatedP, simulatedNoShortSalesP]).then(
+      (arr) => {
+        const calculated: Result<Calculated> = arr[0]
+        const simulated: Result<Simulated> = arr[1]
+        const simulatedNoShortSales: Result<Simulated> = arr[2]
+        if (calculated.success && simulated.success && simulatedNoShortSales.success) {
+          const error = verifyCalculatedAndSimulated(calculated.value, simulated.value, numberOfSimulations)
+          const error2 = verifyCalculatedWithShortSalesAndCalculatedWithoutShortSales(
+            simulated.value,
+            simulatedNoShortSales.value
+          )
+          if (error != null) {
+            done.fail(error)
+          } else if (error2 != null) {
+            done.fail(error2)
+          } else {
+            done()
+          }
+        } else {
+          done.fail(
+            new Error(
+              `calculated: ${serialize(calculated, 2)}` +
+                `, simulated: ${serialize(simulated, 2)}` +
+                `, simulatedNoShortSales: ${serialize(simulatedNoShortSales, 2)}`
+            )
+          )
+        }
+      },
+      (error) => done.fail(error)
     )
   })
 })
