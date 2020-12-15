@@ -278,7 +278,7 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
   )
   return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates).pipe(
     catchError((error) => {
-      log.error(`Error while loading prices for symbol: ${symbol}. Cause:`, error)
+      log.error(`Cannot load prices for symbol: ${symbol}. Cause:`, error)
       removeSymbolCache(cache, symbol)
       return throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`))
     })
