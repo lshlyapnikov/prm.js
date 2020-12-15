@@ -65,10 +65,14 @@ function verifyCalculatedWithShortSalesAndCalculatedWithoutShortSales(
   simulatedWithShortSales: Simulated,
   simulatedWithoutShortSales: Simulated
 ): ?Error {
-  if (simulatedWithShortSales.simulations.length != simulatedWithoutShortSales.simulations.length) {
-    return Error(
-      `Invalid number of simulatedWithShortSales.simulations. Expected: ${simulatedWithShortSales.simulations.length}`
-    )
+  const error1 = verifySimulated(simulatedWithShortSales, simulatedWithoutShortSales.simulations.length)
+  if (error1 != null) {
+    return error1
+  }
+
+  const error2 = verifySimulated(simulatedWithoutShortSales, simulatedWithShortSales.simulations.length)
+  if (error2 != null) {
+    return error2
   }
 
   if (simulatedWithShortSales.allowShortSales != true) {
@@ -102,6 +106,29 @@ function verifyPortfolioStats(a: PortfolioStats, b: PortfolioStats): ?Error {
   }
 
   return null
+}
+
+function verifySimulated(a: Simulated, m: number) {
+  if (a.simulations.length != m) {
+    return Error(`Invalid number of simulations: ${a.simulations.length}. Expected: ${m}`)
+  }
+
+  const s1: string = serialize(a.globalMinVarianceEfficientPortfolio, 2)
+  const s2: string = serialize(minRiskPortfolio(a.simulations), 2)
+
+  if (s1 != s2) {
+    return Error(`globalMinVarianceEfficientPortfolio does not have minimum stdDev, s1: ${s1}, s2: ${s2}`)
+  }
+
+  return null
+}
+
+function minRiskPortfolio(arr: $ReadOnlyArray<PortfolioStats>): PortfolioStats {
+  var min: PortfolioStats = arr[0]
+  for (let i = 1; i < arr.length; ++i) {
+    min = arr[i].stdDev < min.stdDev ? arr[i] : min
+  }
+  return min
 }
 
 describe("PrmController", () => {
