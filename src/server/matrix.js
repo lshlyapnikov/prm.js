@@ -51,10 +51,10 @@ export function rowMatrix<N: number, A>(n: N, vector: $ReadOnlyArray<A>): Matrix
   return matrix(1, n, [vector])
 }
 
-// export function columnMatrix<T, M: number>(m: M, vector: Array<T>): Matrix<T, M, 1> {
-//   const result: Matrix<T, 1, M> = rowMatrix(m, vector)
-//   return transpose(result)
-// }
+export function columnMatrix<M: number, A>(m: M, vector: $ReadOnlyArray<A>): Matrix<M, 1, A> {
+  const result: Matrix<1, M, A> = rowMatrix(m, vector)
+  return transpose(result)
+}
 
 export function validateMatrix<M: number, N: number, A>(mXn: Matrix<M, N, A>): void {
   const shouldBeM = mXn.values.length

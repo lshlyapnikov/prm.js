@@ -1,16 +1,14 @@
 // @flow strict
 import assert from "assert"
 import fs from "fs"
-import { prettyPrint } from "numeric"
 import { from, throwError, Observable } from "rxjs"
 import { LocalDate } from "@js-joda/core"
 import { vector } from "./vector"
 import { type Calculated, type Simulated, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
-import { toFixedNumber, newArrayWithScale, type JestDoneFn } from "./utils"
+import { type JestDoneFn, type Result, logger, newArrayWithScale, parseDate, serialize } from "./utils"
 import * as testData from "./testData"
-import { type Result, logger, parseDate, serialize } from "./utils"
 
 const log = logger("prmController.test.js")
 
@@ -132,7 +130,7 @@ function minRiskPortfolio(arr: $ReadOnlyArray<PortfolioStats>): PortfolioStats {
 }
 
 describe("PrmController", () => {
-  it("should calculate portfolio statistics", (done) => {
+  it("should calculate portfolios with short sales", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
       .returnRateStats(vector(2, ["NYX", "INTC"]), parseDate("1111-11-11"), parseDate("1111-11-11"), 0)
@@ -140,19 +138,15 @@ describe("PrmController", () => {
       .then(
         (result: Result<Calculated>) => {
           verifyPortfolioAnalysisResult(result, done)
-          // TODO(#12): the numbers are from the lecture, if not add a test case to match the lecture numbers
-          // numbers are from the lecture, I think
+          // same numbers are from src/server/portfolioTheory.test.js
+          // see `should calculate global min variance portfolio for NYX and INTC using historic prices`
+          const expectedPortfolio = new PortfolioStats([0.1127, 0.8873], 0.0737, 0.0064)
           if (result.success) {
             const calculated: Calculated = result.value
-            assert.equal(
-              toFixedNumber(calculated.globalMinVarianceEfficientPortfolio.expectedReturnRate * 100, 2),
-              0.64
-            )
-            assert.strictEqual(toFixedNumber(calculated.globalMinVarianceEfficientPortfolio.stdDev * 100, 2), 7.37)
-            assert.deepStrictEqual(newArrayWithScale(calculated.globalMinVarianceEfficientPortfolio.weights, 2), [
-              0.11,
-              0.89
-            ])
+            const actualPortfolio: PortfolioStats = calculated.globalMinVarianceEfficientPortfolio
+            assert.deepEqual(newArrayWithScale(actualPortfolio.weights, 4), expectedPortfolio.weights)
+            assert.equal(actualPortfolio.expectedReturnRate.toFixed(4), expectedPortfolio.expectedReturnRate)
+            assert.equal(actualPortfolio.stdDev.toFixed(4), expectedPortfolio.stdDev)
             done()
           } else {
             done.fail(new Error(`Expected Calculated output, got: ${JSON.stringify(result)}`))
@@ -161,7 +155,7 @@ describe("PrmController", () => {
         (error) => done.fail(error)
       )
   })
-  it("should calculate portfolio statistics of a bit more realistic scenario, 5 years", (done) => {
+  it("should calculate portfolios with short sales, my example", (done) => {
     function test(): Promise<Result<Calculated>> {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
@@ -172,7 +166,7 @@ describe("PrmController", () => {
 
     test().then((result: Result<Calculated>) => {
       assert.ok(result.success)
-      log.debug(`output:\n${prettyPrint(result)}`)
+      log.debug(`output:\n${serialize(result, 2)}`)
       done()
     })
   })
@@ -187,7 +181,7 @@ describe("PrmController", () => {
 
     test().then(
       (result: Result<Calculated>) => {
-        done.fail(new Error(`Expected a failure, but received a result:\n${prettyPrint(result)}`))
+        done.fail(new Error(`Expected a failure, but received a result:\n${serialize(result, 2)}`))
       },
       (error) => {
         const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA"]'
