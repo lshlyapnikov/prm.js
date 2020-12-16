@@ -184,7 +184,7 @@ describe("PrmController", () => {
         done.fail(new Error(`Expected a failure, but received a result:\n${serialize(result, 2)}`))
       },
       (error) => {
-        const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA"]'
+        const startsWith = 'Cannot build a price matrix. Invalid number of prices for symbols: ["AA: 589"]'
         if (error.message.startsWith(startsWith)) {
           done()
         } else {

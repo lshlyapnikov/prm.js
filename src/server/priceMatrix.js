@@ -1,7 +1,7 @@
 // @flow strict
 import { type Matrix, matrix, transpose } from "./matrix.js"
 import { type Vector } from "./vector"
-import { type Result, success, failure, equalArrays } from "./utils"
+import { type Result, success, failure, equalArrays, serialize } from "./utils"
 
 export type SymbolPrices = {|
   +symbol: string,
@@ -58,9 +58,9 @@ function checkPriceArrays<M: number>(expectedLength: M, priceArrays: $ReadOnlyAr
 
   const invalidPriceArrays: $ReadOnlyArray<SymbolPrices> = priceArrays.reduce(collectInvalidPrices, [])
   if (invalidPriceArrays.length > 0) {
-    const badSymbols: $ReadOnlyArray<string> = invalidPriceArrays.map((p) => p.symbol)
+    const badSymbols: $ReadOnlyArray<string> = invalidPriceArrays.map((p) => `${p.symbol}: ${p.prices.length}`)
     const error = new Error(
-      `Cannot build a price matrix. Invalid number of prices for symbols: ${JSON.stringify(badSymbols)}. ` +
+      `Cannot build a price matrix. Invalid number of prices for symbols: ${serialize(badSymbols)}. ` +
         `All symbols must have the same number of price entries: ${expectedLength}.`
     )
     return failure(error)
