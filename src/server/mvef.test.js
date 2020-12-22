@@ -1,5 +1,4 @@
 // @flow strict
-import { prettyPrint } from "numeric"
 import { Observable, from } from "rxjs"
 import * as assert from "assert"
 
@@ -7,7 +6,7 @@ import { mvef } from "./mvef"
 import { type Matrix, transpose } from "./linearAlgebra"
 import { vector } from "./vector"
 import { assertEqualMatrices } from "./matrixAssert"
-import { toFixedNumber, newArrayWithScale, logger } from "./utils"
+import { toFixedNumber, newArrayWithScale, logger, serialize } from "./utils"
 import { PortfolioStats, calculateReturnRatesFromPriceMatrix, mean, covariance } from "./portfolioStats"
 import * as testData from "./testData"
 
@@ -276,7 +275,7 @@ describe("mvef", () => {
 
           log.debug("min StdDev, %: ", actualMinRisk)
           log.debug("return rate, %: ", actualReturnRate)
-          log.debug("weights: ", prettyPrint(actualWeights))
+          log.debug("weights: ", serialize(actualWeights, 2))
 
           assert.strictEqual(toFixedNumber(actualMinRisk, 2), expectedMinRisk)
           assert.strictEqual(toFixedNumber(actualReturnRate, 2), expectedReturnRate)
