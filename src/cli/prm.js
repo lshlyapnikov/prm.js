@@ -3,16 +3,8 @@ import * as yargs from "yargs"
 import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
-import {
-  type Result,
-  logger,
-  formatDate,
-  parseDate,
-  today,
-  periodReturnRate,
-  serialize,
-  toFixedNumber
-} from "../server/utils"
+import { logger, formatDate, parseDate, today, periodReturnRate, serialize, toFixedNumber } from "../server/utils"
+import { type Result } from "../server/result"
 import { type Vector, vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import { PortfolioStats } from "../server/portfolioStats"
@@ -245,6 +237,7 @@ const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const startDate: LocalDate = parseDate(mixedToString(options["start-date"]))
 const endDate: LocalDate = parseDate(mixedToString(options["end-date"]))
 const apiKey = new ApiKey(mixedToString(options["api-key"]))
+// TODO: do you still need it?
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 const numberOfSimulations: number = mixedToNumber(options["number-of-simulations"])
@@ -286,7 +279,7 @@ const controller = new PrmController((symbol: string, minDate: LocalDate, maxDat
 })
 
 const stocksVec = vector(stocks.length, stocks)
-const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate, delayMillis)
+const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate)
 
 const calculatedP: Promise<Result<Calculated>> = rrStatsP.then((rrStats) =>
   controller.calculate(rrStats, dailyRiskFreeReturnRate)

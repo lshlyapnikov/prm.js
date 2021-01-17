@@ -4,31 +4,7 @@
 import { Logger, getLogger } from "log4js"
 import { LocalDate, DateTimeFormatter } from "@js-joda/core"
 import { MersenneTwister19937, real } from "random-js"
-
-type Success<A> = {| success: true, value: A |}
-type Failure = {| success: false, error: Error |}
-export type Result<A> = Failure | Success<A>
-
-export function success<A>(value: A): Success<A> {
-  return { success: true, value }
-}
-
-export function failure(error: Error | string): Failure {
-  if (typeof error == "string") {
-    return { success: false, error: new Error(error) }
-  } else {
-    return { success: false, error }
-  }
-}
-
-export function resultFromTryCatch<A>(fn: () => A): Result<A> {
-  try {
-    const a: A = fn()
-    return success(a)
-  } catch (error) {
-    return failure(error)
-  }
-}
+import { type Result } from "../server/result"
 
 export type JestDoneFn = {|
   (): void,
