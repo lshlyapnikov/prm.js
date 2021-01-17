@@ -30,10 +30,10 @@ export function callFnWithSpeedLimit<A>(fn: () => A, limit: Speed, current: Spee
     return Promise.reject(e.error)
   }
 
-  const [sleepMillis, numberOfCalls] =
-    current.numberOfCalls < limit.numberOfCalls ? [0, current.numberOfCalls + 1] : [limit.perInterval.toMillis(), 1]
+  const [sleep, numberOfCalls]: [Duration, number] =
+    current.numberOfCalls < limit.numberOfCalls ? [Duration.ZERO, current.numberOfCalls + 1] : [limit.perInterval, 1]
 
-  const fa: Promise<A> = resultToPromiseWithDelay(() => resultFromTryCatch(fn), sleepMillis)
+  const fa: Promise<A> = resultToPromiseWithDelay(() => resultFromTryCatch(fn), sleep.toMillis())
   return fa.then((a: A) => [a, { numberOfCalls, perInterval: limit.perInterval }])
 }
 
