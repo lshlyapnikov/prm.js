@@ -52,15 +52,16 @@ export function resultToPromise<A>(f: () => Result<A>): Promise<A> {
   return resultToPromiseWithDelay(f, 0)
 }
 
-export function resultToPromiseWithDelay<A>(f: () => Result<A>, millis: number): Promise<A> {
+export function resultToPromiseWithDelay<A>(f: () => Result<A>, delayMillis: number): Promise<A> {
   return new Promise((resolve: (A) => void, reject: (Error) => void) => {
-    setTimeout(() => {
+    const callback: () => void = () => {
       const fa: Result<A> = f()
       if (fa.success) {
         resolve(fa.value)
       } else {
         reject(fa.error)
       }
-    }, millis)
+    }
+    setTimeout(callback, delayMillis)
   })
 }
