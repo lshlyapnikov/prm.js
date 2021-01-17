@@ -1,6 +1,6 @@
 // @flow strict
-import { from, of, Observable, Scheduler, timer, throwError } from "rxjs"
-import { map, toArray, ignoreElements, startWith, concatMap } from "rxjs/operators"
+import { from, of, Observable, throwError } from "rxjs"
+import { map, toArray, concatMap } from "rxjs/operators"
 import { LocalDate } from "@js-joda/core"
 import { type Vector } from "./vector"
 import { type Matrix, matrix, isInvertableMatrix, generateRandomWeightsMatrix } from "./matrix"
@@ -17,7 +17,7 @@ import {
   calculateReturnRatesFromPriceMatrix
 } from "./portfolioStats"
 import { type SymbolPrices, maxPriceArrayLength, symbolPrices, createPriceMatrix } from "./priceMatrix"
-import { type Result, success, failure } from "./utils"
+import { type Result, success, failure } from "./result"
 
 /**
  * expectedRrNx1     Expected Return Rates Matrix
@@ -64,24 +64,14 @@ export class PrmController {
    * @param startDate  Specifies the start of the interval, inclusive
    * @param endDate    Specifies the end of the interval, inclusive
    * @param riskFreeRr Risk Free Return Rate, ratio
-   * @param delayMillis Delay between requests to market data provider, millis
-   * @param scheduler  optional RxJs scheduler
    */
   returnRateStats<N: number>(
     symbols: Vector<N, string>,
     startDate: LocalDate,
-    endDate: LocalDate,
-    delayMillis: number,
-    scheduler: ?Scheduler
+    endDate: LocalDate
   ): Promise<ReturnRateStats<N>> {
-    if (delayMillis < 0) {
-      return Promise.reject(Error(`Invalid delayMillis: ${delayMillis}. Must be >= 0`))
-    }
-    const symbolsObservable: Observable<string> =
-      scheduler != null ? from(symbols.values, scheduler) : from(symbols.values)
-    return symbolsObservable
+    return from(symbols.values)
       .pipe(
-        concatMap((value) => timer(delayMillis).pipe(ignoreElements(), startWith(value))),
         concatMap((s: string) => this.loadHistoricalPricesAsArray(s, startDate, endDate)),
         toArray(),
         concatMap((symbolPrices: Array<SymbolPrices>) => {

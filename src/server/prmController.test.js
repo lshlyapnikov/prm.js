@@ -7,7 +7,8 @@ import { vector } from "./vector"
 import { type Calculated, type Simulated, PrmController } from "./prmController"
 import { PortfolioStats } from "./portfolioStats"
 import { dailyAdjustedStockPricesFromStream, AscendingDates } from "../alphavantage/DailyAdjusted"
-import { type JestDoneFn, type Result, logger, newArrayWithScale, parseDate, serialize } from "./utils"
+import { type JestDoneFn, logger, newArrayWithScale, parseDate, serialize } from "./utils"
+import { type Result } from "../server/result"
 import * as testData from "./testData"
 
 const log = logger("prmController.test.js")
@@ -133,7 +134,7 @@ describe("PrmController", () => {
   it("should calculate portfolios with short sales", (done) => {
     const controller = new PrmController(loadMockStockHistory)
     controller
-      .returnRateStats(vector(2, ["NYX", "INTC"]), parseDate("1111-11-11"), parseDate("1111-11-11"), 0)
+      .returnRateStats(vector(2, ["NYX", "INTC"]), parseDate("1111-11-11"), parseDate("1111-11-11"))
       .then((stats) => controller.calculate(stats, 1.0))
       .then(
         (result: Result<Calculated>) => {
@@ -160,7 +161,7 @@ describe("PrmController", () => {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
       return controller
-        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"))
         .then((stats) => controller.calculate(stats, 1.0))
     }
 
@@ -175,7 +176,7 @@ describe("PrmController", () => {
       const controller = new PrmController(loadStockHistoryFromAlphavantage)
       const symbols = vector(2, ["AA", "XOM"])
       return controller
-        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+        .returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"))
         .then((stats) => controller.calculate(stats, 1.0))
     }
 
@@ -197,7 +198,7 @@ describe("PrmController", () => {
     const numberOfSimulations = 100000
     const controller = new PrmController(loadStockHistoryFromAlphavantage)
     const symbols = vector(6, ["XOM", "INTC", "JCP", "PG", "ABT", "PEG"])
-    const statsP = controller.returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"), 0)
+    const statsP = controller.returnRateStats(symbols, parseDate("2014-03-07"), parseDate("2019-03-07"))
     const calculatedP = statsP.then((stats) => controller.calculate(stats, 1.0))
     const simulatedP = statsP.then((stats) => controller.simulate(stats, numberOfSimulations, 0, true))
     const simulatedNoShortSalesP = statsP.then((stats) => controller.simulate(stats, numberOfSimulations, 0, false))

@@ -1,7 +1,8 @@
 // @flow strict
 import { type Matrix, matrix, transpose } from "./matrix.js"
 import { type Vector } from "./vector"
-import { type Result, success, failure, equalArrays, serialize } from "./utils"
+import { equalArrays, serialize } from "./utils"
+import { type Result, success, failure } from "./result"
 
 export type SymbolPrices = {|
   +symbol: string,
