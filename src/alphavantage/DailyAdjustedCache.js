@@ -2,7 +2,8 @@
 import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
-import { logger, formatDate } from "../server/utils"
+import { logger, formatDate, serialize } from "../server/utils"
+import { fnToPromise } from "../server/result"
 
 const log = logger("alphavantage/DailyAdjustedCache.js")
 
@@ -11,32 +12,58 @@ export type CacheSettings = {| directory: string, date: LocalDate |}
 export function dailyAdjustedStockPricesRawStreamFromCache(
   cache: CacheSettings,
   symbol: string,
-  loadFn: (string) => stream.Readable
-): stream.Readable {
+  loadFn: (string) => Promise<stream.Readable>
+): Promise<stream.Readable> {
   log.info(`loading symbol: ${symbol}`)
   const file = symbolCacheFileName(cache.directory, cache.date, symbol)
-  if (fs.existsSync(file)) {
-    log.info(`symbol cache found: ${file}`)
-    return fs.createReadStream(file)
-  } else {
-    log.info(`symbol cache not found: ${file}`)
-    if (!fs.existsSync(cache.directory)) {
-      fs.mkdirSync(cache.directory, { recursive: true })
+  return fs.promises.stat(file).then(
+    (stat: fs.Stats) => {
+      if (stat.isFile()) {
+        log.info(`symbol cache found: ${file}`)
+        return fnToPromise(() => fs.createReadStream(file))
+      } else {
+        return Promise.reject(
+          Error(`Cannot load symbol: ${symbol}, file or directory already exist, stat: ${serialize(stat)}`)
+        )
+      }
+    },
+    () => {
+      log.info(`symbol cache not found: ${file}`)
+      return mkDirIfDoesNotExist(cache.directory).then(() =>
+        loadFn(symbol).then((readable: stream.Readable) => {
+          readable.pipe(fs.createWriteStream(file))
+          const passThrough = new stream.PassThrough()
+          readable.pipe(passThrough)
+          return passThrough
+        })
+      )
     }
-    const rawStream = loadFn(symbol)
-    rawStream.pipe(fs.createWriteStream(file))
-    const passThrough = new stream.PassThrough()
-    rawStream.pipe(passThrough)
-    return passThrough
-  }
+  )
 }
 
-export function removeSymbolCache(cache: CacheSettings, symbol: string): void {
+function mkDirIfDoesNotExist(path: string): Promise<void> {
+  return fs.promises.stat(path).then(
+    (stat: fs.Stats) => {
+      if (stat.isDirectory()) {
+        return Promise.resolve()
+      } else {
+        return Promise.reject(new Error(`Cannot create directory: ${path}`))
+      }
+    },
+    () => fs.promises.mkdir(path)
+  )
+}
+
+export function removeSymbolCache(cache: CacheSettings, symbol: string): Promise<void> {
   const file = symbolCacheFileName(cache.directory, cache.date, symbol)
-  if (fs.existsSync(file)) {
-    log.info(`removing symbol cache: ${file}`)
-    fs.unlinkSync(file)
-  }
+  return fs.promises.stat(file).then((stat: fs.Stats) => {
+    if (stat.isFile()) {
+      log.info(`removing symbol cache: ${file}`)
+      return fs.promises.unlink(file)
+    } else {
+      return Promise.reject(new Error(`Cannot removing symbol cache: ${file}`))
+    }
+  })
 }
 
 function symbolCacheFileName(directory: string, date: LocalDate, symbol: string): string {

@@ -4,7 +4,7 @@ import fs from "fs"
 import stream from "stream"
 import { LocalDate } from "@js-joda/core"
 import { logger, formatDate, parseDate, today, periodReturnRate, serialize, toFixedNumber } from "../server/utils"
-import { type Result } from "../server/result"
+import { type Result, fnToPromise } from "../server/result"
 import { type Vector, vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import { PortfolioStats } from "../server/portfolioStats"
@@ -14,8 +14,8 @@ import {
   dailyAdjustedStockPricesRawStream,
   AscendingDates
 } from "../alphavantage/DailyAdjusted"
-import { throwError } from "rxjs"
-import { catchError } from "rxjs/operators"
+import { Observable, throwError, from } from "rxjs"
+import { catchError, flatMap } from "rxjs/operators"
 import {
   type CacheSettings,
   dailyAdjustedStockPricesRawStreamFromCache,
@@ -266,17 +266,24 @@ log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 log.info(`cache: ${serialize(cache)}`)
 
 const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
-  const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
-    dailyAdjustedStockPricesRawStream(apiKey, x)
+  const rawStream: Promise<stream.Readable> = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
+    fnToPromise(() => dailyAdjustedStockPricesRawStream(apiKey, x))
   )
-  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates).pipe(
-    catchError((error) => {
-      log.error(`Cannot load prices for symbol: ${symbol}. Cause:`, error)
-      removeSymbolCache(cache, symbol)
-      return throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`))
-    })
+  return pricesFromPromise(rawStream, minDate, maxDate).pipe(
+    catchError((error) => deleteCacheOnError(error, cache, symbol))
   )
 })
+
+function pricesFromPromise(fa: Promise<stream.Readable>, minDate: LocalDate, maxDate: LocalDate): Observable<number> {
+  return from(fa).pipe(flatMap((a) => dailyAdjustedStockPricesFromStream(a, minDate, maxDate, AscendingDates)))
+}
+
+function deleteCacheOnError<A>(error: Error, cache: CacheSettings, symbol: string): Observable<A> {
+  log.error(`Cannot load prices for symbol: ${symbol}. Cause:`, error)
+  return from(removeSymbolCache(cache, symbol)).pipe(
+    flatMap(() => throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`)))
+  )
+}
 
 const stocksVec = vector(stocks.length, stocks)
 const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate)
