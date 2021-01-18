@@ -52,6 +52,10 @@ export function resultToPromise<A>(f: () => Result<A>): Promise<A> {
   return resultToPromiseWithDelay(f, 0)
 }
 
+export function fnToPromise<A>(f: () => A): Promise<A> {
+  return resultToPromise(() => resultFromTryCatch(f))
+}
+
 export function resultToPromiseWithDelay<A>(f: () => Result<A>, delayMillis: number): Promise<A> {
   return new Promise((resolve: (A) => void, reject: (Error) => void) => {
     const callback: () => void = () => {
