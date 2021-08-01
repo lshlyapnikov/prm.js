@@ -2,7 +2,7 @@
 import { Observable, from } from "rxjs"
 import * as assert from "assert"
 import { Duration, Instant } from "@js-joda/core"
-import { type JestDoneFn, logger, serialize } from "../server/utils"
+import { type JestDoneFn, logger, serialize } from "./utils"
 
 import { withSpeed } from "./apiCallLimit"
 const log = logger("apiCallLimit.test.js")

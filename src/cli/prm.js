@@ -2,12 +2,13 @@
 import * as yargs from "yargs"
 import fs from "fs"
 import stream from "stream"
-import { LocalDate } from "@js-joda/core"
+import { LocalDate, Duration } from "@js-joda/core"
 import { logger, formatDate, parseDate, today, periodReturnRate, serialize, toFixedNumber } from "../server/utils"
-import { type Result, fnToPromise } from "../server/result"
+import { type Result } from "../server/result"
 import { type Vector, vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import { PortfolioStats } from "../server/portfolioStats"
+import { type Speed, callFnWithSpeedLimit } from "../server/apiCallLimit"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
@@ -265,10 +266,24 @@ log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 log.info(`cache: ${serialize(cache)}`)
 
+const speedLimit: Speed = { numberOfCalls: 5, perInterval: Duration.ofSeconds(45) }
+
 const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
-  const rawStream: Promise<stream.Readable> = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
-    fnToPromise(() => dailyAdjustedStockPricesRawStream(apiKey, x))
-  )
+  var currentSpeed: Speed = { numberOfCalls: 0, perInterval: speedLimit.perInterval }
+
+  const fn: (string) => Promise<stream.Readable> = (stock: string) =>
+    callFnWithSpeedLimit(
+      () => dailyAdjustedStockPricesRawStream(apiKey, stock),
+      speedLimit,
+      () => currentSpeed
+    ).then((x: [stream.Readable, Speed]) => {
+      log.info(`x[1]: ${serialize(x[1])}`)
+      currentSpeed = x[1]
+      return x[0]
+    })
+
+  const rawStream: Promise<stream.Readable> = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, fn)
+
   return pricesFromPromise(rawStream, minDate, maxDate).pipe(
     catchError((error) => deleteCacheOnError(error, cache, symbol))
   )
