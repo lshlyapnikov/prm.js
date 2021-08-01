@@ -19,6 +19,7 @@ describe("mvef", () => {
       const pricesMxN: Matrix<number> = transpose([testData.NYX, testData.INTC])
 
       // Return Rate Matrix Calculation
+      // prettier-ignore
       const nyxR: Array<number> = [
         -0.0205761316872428,
         0.164705882352941,
@@ -119,6 +120,7 @@ describe("mvef", () => {
         -0.00444264943457207,
         -0.0344827586206896
       ]
+      // prettier-ignore
       const intcR: Array<number> = [
         -0.0576368876080692,
         0.110091743119266,

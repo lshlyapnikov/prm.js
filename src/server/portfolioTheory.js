@@ -56,7 +56,8 @@ export class GlobalMinimumVarianceEfficientPortfolio {
   }
 }
 
-export const globalMinimumVarianceEfficientPortfolio: GlobalMinimumVarianceEfficientPortfolio = new GlobalMinimumVarianceEfficientPortfolio()
+export const globalMinimumVarianceEfficientPortfolio: GlobalMinimumVarianceEfficientPortfolio =
+  new GlobalMinimumVarianceEfficientPortfolio()
 
 export class TangencyPortfolio {
   calculate(
