@@ -3,6 +3,7 @@
 // @flow strict
 // historical prices
 
+// prettier-ignore
 export const NYX: Array<number> = [
   23.8,
   24.65,
@@ -105,6 +106,7 @@ export const NYX: Array<number> = [
   12.15
 ].reverse()
 
+// prettier-ignore
 export const INTC: Array<number> = [
   21.48,
   22.66,
