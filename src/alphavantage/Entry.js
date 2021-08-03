@@ -1,5 +1,6 @@
 // @flow strict
-import { type Result, logger, parseDateSafe } from "../server/utils"
+import { logger, parseDateSafe } from "../server/utils"
+import { type Result } from "../server/result"
 import { LocalDate } from "@js-joda/core"
 
 const log = logger("alphavantage/Entry.js")

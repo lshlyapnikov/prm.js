@@ -2,28 +2,21 @@
 import * as yargs from "yargs"
 import fs from "fs"
 import stream from "stream"
-import { LocalDate } from "@js-joda/core"
-import {
-  type Result,
-  logger,
-  formatDate,
-  parseDate,
-  today,
-  periodReturnRate,
-  serialize,
-  toFixedNumber
-} from "../server/utils"
+import { LocalDate, Duration } from "@js-joda/core"
+import { logger, formatDate, parseDate, today, periodReturnRate, serialize, toFixedNumber } from "../server/utils"
+import { type Result } from "../server/result"
 import { type Vector, vector } from "../server/vector"
 import { type Calculated, type Simulated, PrmController } from "../server/prmController"
 import { PortfolioStats } from "../server/portfolioStats"
+import { type Speed, callFnWithSpeedLimit } from "../server/apiCallLimit"
 import {
   ApiKey,
   dailyAdjustedStockPricesFromStream,
   dailyAdjustedStockPricesRawStream,
   AscendingDates
 } from "../alphavantage/DailyAdjusted"
-import { throwError } from "rxjs"
-import { catchError } from "rxjs/operators"
+import { Observable, throwError, from } from "rxjs"
+import { catchError, flatMap } from "rxjs/operators"
 import {
   type CacheSettings,
   dailyAdjustedStockPricesRawStreamFromCache,
@@ -245,6 +238,7 @@ const stocks: Array<string> = mixedToString(options["stocks"]).split(",")
 const startDate: LocalDate = parseDate(mixedToString(options["start-date"]))
 const endDate: LocalDate = parseDate(mixedToString(options["end-date"]))
 const apiKey = new ApiKey(mixedToString(options["api-key"]))
+// TODO: do you still need it?
 const delayMillis: number = mixedToNumber(options["delay-millis"])
 const annualRiskFreeInterestRate: number = mixedToNumber(options["annual-risk-free-interest-rate"])
 const numberOfSimulations: number = mixedToNumber(options["number-of-simulations"])
@@ -272,21 +266,42 @@ log.info(`endDate: ${formatDate(endDate)}`)
 log.info(`dailyRiskFreeReturnRate: ${dailyRiskFreeReturnRate}`)
 log.info(`cache: ${serialize(cache)}`)
 
+const speedLimit: Speed = { numberOfCalls: 5, perInterval: Duration.ofSeconds(45) }
+
 const controller = new PrmController((symbol: string, minDate: LocalDate, maxDate: LocalDate) => {
-  const rawStream: stream.Readable = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, (x: string) =>
-    dailyAdjustedStockPricesRawStream(apiKey, x)
-  )
-  return dailyAdjustedStockPricesFromStream(rawStream, minDate, maxDate, AscendingDates).pipe(
-    catchError((error) => {
-      log.error(`Cannot load prices for symbol: ${symbol}. Cause:`, error)
-      removeSymbolCache(cache, symbol)
-      return throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`))
+  var currentSpeed: Speed = { numberOfCalls: 0, perInterval: speedLimit.perInterval }
+
+  const fn: (string) => Promise<stream.Readable> = (stock: string) =>
+    callFnWithSpeedLimit(
+      () => dailyAdjustedStockPricesRawStream(apiKey, stock),
+      speedLimit,
+      () => currentSpeed
+    ).then((x: [stream.Readable, Speed]) => {
+      log.info(`x[1]: ${serialize(x[1])}`)
+      currentSpeed = x[1]
+      return x[0]
     })
+
+  const rawStream: Promise<stream.Readable> = dailyAdjustedStockPricesRawStreamFromCache(cache, symbol, fn)
+
+  return pricesFromPromise(rawStream, minDate, maxDate).pipe(
+    catchError((error) => deleteCacheOnError(error, cache, symbol))
   )
 })
 
+function pricesFromPromise(fa: Promise<stream.Readable>, minDate: LocalDate, maxDate: LocalDate): Observable<number> {
+  return from(fa).pipe(flatMap((a) => dailyAdjustedStockPricesFromStream(a, minDate, maxDate, AscendingDates)))
+}
+
+function deleteCacheOnError<A>(error: Error, cache: CacheSettings, symbol: string): Observable<A> {
+  log.error(`Cannot load prices for symbol: ${symbol}. Cause:`, error)
+  return from(removeSymbolCache(cache, symbol)).pipe(
+    flatMap(() => throwError(new Error(`Cannot load prices for symbol: ${symbol}. Cause: ${error.message.toString()}`)))
+  )
+}
+
 const stocksVec = vector(stocks.length, stocks)
-const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate, delayMillis)
+const rrStatsP = controller.returnRateStats(stocksVec, startDate, endDate)
 
 const calculatedP: Promise<Result<Calculated>> = rrStatsP.then((rrStats) =>
   controller.calculate(rrStats, dailyRiskFreeReturnRate)
